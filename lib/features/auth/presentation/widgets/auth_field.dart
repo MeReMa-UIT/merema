@@ -18,6 +18,21 @@ class AuthField extends StatelessWidget {
     if (value == null || value.isEmpty) {
       return 'Vui lòng nhập $hintText';
     }
+
+    bool isAscii = true;
+    if (value.isNotEmpty) {
+      for (int i = 0; i < value.length; i++) {
+        if (value.codeUnitAt(i) > 127) {
+          isAscii = false;
+          break;
+        }
+      }
+    }
+
+    if (!isAscii) {
+      return 'Vui lòng chỉ nhập ký tự ASCII cho $hintText';
+    }
+
     return null;
   }
 
