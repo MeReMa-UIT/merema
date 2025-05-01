@@ -4,12 +4,22 @@ class AuthField extends StatelessWidget {
   final String hintText;
   final TextEditingController controller;
   final bool isPassword;
+  final String? Function(String?)? validator;
+
   const AuthField({
     super.key,
     required this.hintText,
     required this.controller,
     this.isPassword = false,
+    this.validator,
   });
+
+  String? _defaultValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Vui lòng nhập $hintText';
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,12 +28,7 @@ class AuthField extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hintText,
       ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Vui lòng nhập $hintText';
-        }
-        return null;
-      },
+      validator: validator ?? _defaultValidator,
       obscureText: isPassword,
       obscuringCharacter: '*',
     );

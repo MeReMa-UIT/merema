@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:merema/core/theme/app_pallete.dart';
-//import 'package:merema/features/auth/presentation/pages/forgot_password_page.dart';
+import 'package:merema/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:merema/features/auth/presentation/widgets/auth_button.dart';
 import 'package:merema/features/auth/presentation/widgets/auth_field.dart';
+import 'package:merema/features/auth/presentation/widgets/auth_layout.dart';
 
 class LoginPage extends StatefulWidget {
   static route() => MaterialPageRoute(
@@ -18,9 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-
-  static const double fieldWidth = 400;
-  static const double minSidePadding = 24.0;
+  bool _isHovering = false;
 
   @override
   void dispose() {
@@ -29,65 +28,67 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
+  void _onLoginPressed() {
+    // TODO: Implement login logic and route to the main page
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Đăng nhập thành công')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final availableWidth = constraints.maxWidth;
-
-          final contentWidth =
-              availableWidth > (fieldWidth + 2 * minSidePadding)
-                  ? fieldWidth
-                  : availableWidth - 2 * minSidePadding;
-
-          return Center(
-            child: SizedBox(
-              width: contentWidth,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Đăng nhập',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 25),
-                    AuthField(
-                      hintText: 'Tên đăng nhập',
-                      controller: usernameController,
-                    ),
-                    const SizedBox(height: 15),
-                    AuthField(
-                      hintText: 'Mật khẩu',
-                      controller: passwordController,
-                      isPassword: true,
-                    ),
-                    const SizedBox(height: 25),
-                    const AuthButton(text: 'Đăng nhập'),
-                    const SizedBox(height: 10),
-                    GestureDetector(
-                      onTap: () {
-                        //Navigator.push(context, ForgotPasswordPage.route());
-                      },
-                      child: const Text(
-                        'Quên mật khẩu?',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: AppPallete.primaryColor,
-                        ),
-                      ),
-                    ),
-                  ],
+      body: AuthLayout(
+        children: [
+          const Text(
+            'Đăng nhập',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 25),
+          AuthField(
+            hintText: 'Tên đăng nhập',
+            controller: usernameController,
+          ),
+          const SizedBox(height: 15),
+          AuthField(
+            hintText: 'Mật khẩu',
+            controller: passwordController,
+            isPassword: true,
+          ),
+          const SizedBox(height: 25),
+          AuthButton(
+            text: 'Đăng nhập',
+            onPressed: _onLoginPressed,
+          ),
+          const SizedBox(height: 10),
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            onEnter: (_) => setState(() => _isHovering = true),
+            onExit: (_) => setState(() => _isHovering = false),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(context, ForgotPasswordPage.route());
+              },
+              child: Text(
+                'Quên mật khẩu?',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: _isHovering
+                      ? AppPallete.secondaryColor
+                      : AppPallete.primaryColor,
+                  decoration: TextDecoration.underline,
+                  decorationColor: _isHovering
+                      ? AppPallete.secondaryColor
+                      : AppPallete.primaryColor,
                 ),
               ),
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
