@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:merema/core/utils/service_locator.dart';
 import 'package:merema/core/theme/theme.dart';
 import 'package:merema/features/auth/presentation/pages/login_page.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  setupServiceLocator();
+
   runApp(const MyApp());
 }
 

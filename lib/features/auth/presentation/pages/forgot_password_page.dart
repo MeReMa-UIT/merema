@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:merema/core/utils/service_locator.dart';
+import 'package:merema/features/auth/domain/usecases/recovery.dart';
 import 'package:merema/features/auth/presentation/pages/verification_code_page.dart';
 import 'package:merema/features/auth/presentation/widgets/auth_button.dart';
 import 'package:merema/features/auth/presentation/widgets/auth_field.dart';
 import 'package:merema/features/auth/presentation/widgets/auth_layout.dart';
+import 'package:merema/features/data/models/auth_req_params.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   static route() => MaterialPageRoute(
@@ -15,26 +18,39 @@ class ForgotPasswordPage extends StatefulWidget {
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
-  final usernameController = TextEditingController();
-  final formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
-    usernameController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
-  void _onNextPressed() {
-    // TODO: Implement forgot password logic
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => VerificationCodePage(
-          username: usernameController.text,
+  Future<void> _onNextPressed() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      final result = await sl<RecoveryUseCase>().call(
+        RecoveryReqParams(
+          email: _emailController.text,
         ),
-      ),
-    );
+      );
+
+      result.fold((failure) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(failure.message)),
+        );
+      }, (token) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => VerificationCodePage(
+              email: _emailController.text,
+              token: token,
+            ),
+          ),
+        );
+      });
+    }
   }
 
   @override
@@ -50,9 +66,21 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           ),
         ),
         const SizedBox(height: 25),
-        AuthField(
-          hintText: 'Tên đăng nhập',
-          controller: usernameController,
+        Form(
+          key: _formKey,
+          child: AuthField(
+            hintText: 'Email',
+            controller: _emailController,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Vui lòng nhập email';
+              }
+              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                return 'Email không hợp lệ';
+              }
+              return null;
+            },
+          ),
         ),
         const SizedBox(height: 25),
         AuthButton(
