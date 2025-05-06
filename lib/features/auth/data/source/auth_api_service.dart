@@ -5,20 +5,20 @@ import 'package:merema/core/utils/service_locator.dart';
 import 'package:merema/features/auth/data/models/auth_req_params.dart';
 
 abstract class AuthApiService {
-  Future<Either<Error, String>> login(LoginReqParams loginParams);
+  Future<Either<ApiError, String>> login(LoginReqParams loginParams);
 
-  Future<Either<Error, String>> recovery(RecoveryReqParams recoveryParams);
+  Future<Either<ApiError, String>> recovery(RecoveryReqParams recoveryParams);
 
-  Future<Either<Error, String>> recoveryConfirm(
+  Future<Either<ApiError, String>> recoveryConfirm(
       RecoveryConfirmReqParams recoveryConfirmParams);
 
-  Future<Either<Error, String>> recoveryReset(
+  Future<Either<ApiError, String>> recoveryReset(
       RecoveryResetReqParams recoveryResetParams);
 }
 
 class AuthApiServiceImpl implements AuthApiService {
   @override
-  Future<Either<Error, String>> login(LoginReqParams loginParams) async {
+  Future<Either<ApiError, String>> login(LoginReqParams loginParams) async {
     try {
       final response = await sl<DioClient>().post(
         '/accounts/login',
@@ -32,7 +32,7 @@ class AuthApiServiceImpl implements AuthApiService {
   }
 
   @override
-  Future<Either<Error, String>> recovery(
+  Future<Either<ApiError, String>> recovery(
       RecoveryReqParams recoveryParams) async {
     try {
       await sl<DioClient>().post(
@@ -47,7 +47,7 @@ class AuthApiServiceImpl implements AuthApiService {
   }
 
   @override
-  Future<Either<Error, String>> recoveryConfirm(
+  Future<Either<ApiError, String>> recoveryConfirm(
       RecoveryConfirmReqParams recoveryConfirmParams) async {
     try {
       await sl<DioClient>().post(
@@ -55,7 +55,6 @@ class AuthApiServiceImpl implements AuthApiService {
         data: recoveryConfirmParams.toJson(),
       );
 
-      // TODO: Handle confirmation status
       return const Right('Verification code confirmed');
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));
@@ -63,7 +62,7 @@ class AuthApiServiceImpl implements AuthApiService {
   }
 
   @override
-  Future<Either<Error, String>> recoveryReset(
+  Future<Either<ApiError, String>> recoveryReset(
       RecoveryResetReqParams recoveryResetParams) async {
     try {
       await sl<DioClient>().post(

@@ -51,9 +51,16 @@ class _LoginPageState extends State<LoginPage> {
 
       result.fold(
         (failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(failure.message)),
-          );
+          if (failure.statusCode == 401) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text('Email hoặc mật khẩu không chính xác')),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(failure.message)),
+            );
+          }
         },
         (token) {
           // TODO: Push to home page

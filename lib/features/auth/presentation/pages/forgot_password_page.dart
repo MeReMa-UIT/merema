@@ -18,11 +18,13 @@ class ForgotPasswordPage extends StatefulWidget {
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
+  final _citizenIdController = TextEditingController();
   final _emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
+    _citizenIdController.dispose();
     _emailController.dispose();
     super.dispose();
   }
@@ -31,6 +33,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     if (_formKey.currentState?.validate() ?? false) {
       final result = await sl<RecoveryUseCase>().call(
         RecoveryReqParams(
+          citizenId: _citizenIdController.text,
           email: _emailController.text,
         ),
       );
@@ -44,8 +47,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           context,
           MaterialPageRoute(
             builder: (context) => VerificationCodePage(
+              citizenId: _citizenIdController.text,
               email: _emailController.text,
-              token: token,
             ),
           ),
         );
@@ -55,39 +58,52 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    return AuthLayout(
-      showBackButton: true,
-      children: [
-        const Text(
-          'Quên mật khẩu',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 25),
-        Form(
-          key: _formKey,
-          child: AuthField(
-            hintText: 'Email',
-            controller: _emailController,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Vui lòng nhập email';
-              }
-              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                return 'Email không hợp lệ';
-              }
-              return null;
-            },
-          ),
-        ),
-        const SizedBox(height: 25),
-        AuthButton(
-          text: 'Tiếp theo',
-          onPressed: _onNextPressed,
-        ),
-      ],
-    );
+    return Form(
+        key: _formKey,
+        child: AuthLayout(
+          showBackButton: true,
+          children: [
+            const Text(
+              'Quên mật khẩu',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 25),
+            AuthField(
+              hintText: 'Email',
+              controller: _emailController,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Vui lòng nhập email';
+                }
+                if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                  return 'Email không hợp lệ';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 15),
+            AuthField(
+              hintText: 'Số căn cước',
+              controller: _citizenIdController,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Vui lòng nhập số căn cước';
+                }
+                if (!RegExp(r'^\d{9,12}$').hasMatch(value)) {
+                  return 'Số căn cước không hợp lệ';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 25),
+            AuthButton(
+              text: 'Tiếp theo',
+              onPressed: _onNextPressed,
+            ),
+          ],
+        ));
   }
 }

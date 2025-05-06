@@ -8,17 +8,18 @@ import 'package:merema/features/auth/presentation/widgets/auth_layout.dart';
 import 'package:merema/features/auth/data/models/auth_req_params.dart';
 
 class VerificationCodePage extends StatefulWidget {
-  static route({required String token, required String email}) =>
+  static route({required String citizenId, required String email}) =>
       MaterialPageRoute(
-        builder: (context) => VerificationCodePage(token: token, email: email),
+        builder: (context) =>
+            VerificationCodePage(citizenId: citizenId, email: email),
       );
 
-  final String token;
+  final String citizenId;
   final String email;
 
   const VerificationCodePage({
     super.key,
-    required this.token,
+    required this.citizenId,
     required this.email,
   });
 
@@ -42,37 +43,49 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
     if (_formKey.currentState?.validate() ?? false) {
       final result = await sl<RecoveryConfirmUseCase>().call(
         RecoveryConfirmReqParams(
-          token: widget.token,
+          citizenId: widget.citizenId,
           otp: _verificationCodeController.text,
         ),
       );
 
       result.fold((failure) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(failure.message)),
-        );
-      },
-          // TODO: Handle confirmation status
-          (success) {
-        if (success == 1) {
+        if (failure.statusCode == 401) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Xác minh thành công')),
-          );
-          Navigator.push(
-            context,
-            ResetPasswordPage.route(token: widget.token, email: widget.email),
+            const SnackBar(content: Text('Mã xác minh không hợp lệ')),
           );
         } else {
-          debugPrint('Xác minh không thành công');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(failure.message)),
+          );
         }
+      }, (token) {
+        Navigator.push(
+          context,
+          ResetPasswordPage.route(token: token, email: widget.email),
+        );
       });
     }
   }
 
-  void _resendCode() {
-    // TODO: Implement resend code logic
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Đã gửi mã xác minh')),
+  Future<void> _resendCode() async {
+    final result = await sl<RecoveryUseCase>().call(
+      RecoveryReqParams(
+        citizenId: widget.citizenId,
+        email: widget.email,
+      ),
+    );
+
+    result.fold(
+      (failure) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(failure.message)),
+        );
+      },
+      (_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Mã xác minh đã được gửi lại')),
+        );
+      },
     );
 
     _startResendCountdown();
