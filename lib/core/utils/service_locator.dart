@@ -3,8 +3,8 @@ import 'package:merema/core/network/dio_client.dart';
 import 'package:merema/features/auth/domain/repository/auth_repository.dart';
 import 'package:merema/features/auth/domain/usecases/login.dart';
 import 'package:merema/features/auth/domain/usecases/recovery.dart';
-import 'package:merema/features/data/repository/auth_repository_impl.dart';
-import 'package:merema/features/data/source/auth_api_service.dart';
+import 'package:merema/features/auth/data/repository/auth_repository_impl.dart';
+import 'package:merema/features/auth/data/source/auth_api_service.dart';
 
 final sl = GetIt.instance;
 

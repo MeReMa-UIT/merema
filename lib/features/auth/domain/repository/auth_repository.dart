@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:merema/features/data/models/auth_req_params.dart';
+import 'package:merema/features/auth/data/models/auth_req_params.dart';
 
 abstract class AuthRepository {
   Future<Either<Error, String>> login(LoginReqParams loginParams);

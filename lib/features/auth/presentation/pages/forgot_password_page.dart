@@ -5,7 +5,7 @@ import 'package:merema/features/auth/presentation/pages/verification_code_page.d
 import 'package:merema/features/auth/presentation/widgets/auth_button.dart';
 import 'package:merema/features/auth/presentation/widgets/auth_field.dart';
 import 'package:merema/features/auth/presentation/widgets/auth_layout.dart';
-import 'package:merema/features/data/models/auth_req_params.dart';
+import 'package:merema/features/auth/data/models/auth_req_params.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   static route() => MaterialPageRoute(

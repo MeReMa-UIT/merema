@@ -6,7 +6,7 @@ import 'package:merema/features/auth/presentation/pages/forgot_password_page.dar
 import 'package:merema/features/auth/presentation/widgets/auth_button.dart';
 import 'package:merema/features/auth/presentation/widgets/auth_field.dart';
 import 'package:merema/features/auth/presentation/widgets/auth_layout.dart';
-import 'package:merema/features/data/models/auth_req_params.dart';
+import 'package:merema/features/auth/data/models/auth_req_params.dart';
 
 class LoginPage extends StatefulWidget {
   static route(String? email) => MaterialPageRoute(

@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:merema/core/utils/service_locator.dart';
 import 'package:merema/core/usecases/usecase.dart';
 import 'package:merema/features/auth/domain/repository/auth_repository.dart';
-import 'package:merema/features/data/models/auth_req_params.dart';
+import 'package:merema/features/auth/data/models/auth_req_params.dart';
 
 class LoginUseCase implements UseCase<Either, LoginReqParams> {
   @override
