@@ -50,12 +50,12 @@ class AuthApiServiceImpl implements AuthApiService {
   Future<Either<ApiError, String>> recoveryConfirm(
       RecoveryConfirmReqParams recoveryConfirmParams) async {
     try {
-      await sl<DioClient>().post(
-        '/accounts/recovery/confirm',
+      final response = await sl<DioClient>().post(
+        '/accounts/recovery/verify',
         data: recoveryConfirmParams.toJson(),
       );
 
-      return const Right('Verification code confirmed');
+      return Right(response.data['token']);
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));
     }
@@ -65,9 +65,12 @@ class AuthApiServiceImpl implements AuthApiService {
   Future<Either<ApiError, String>> recoveryReset(
       RecoveryResetReqParams recoveryResetParams) async {
     try {
-      await sl<DioClient>().post(
+      await sl<DioClient>().put(
         '/accounts/recovery/reset',
         data: recoveryResetParams.toJson(),
+        headers: {
+          'Authorization': 'Bearer ${recoveryResetParams.token}',
+        },
       );
       return const Right('Password reset successfully');
     } catch (e) {

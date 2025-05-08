@@ -60,7 +60,6 @@ class RecoveryResetReqParams {
 
   Map<String, dynamic> toJson() {
     return {
-      'token': token,
       'new_password': newPassword,
     };
   }

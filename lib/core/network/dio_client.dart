@@ -17,22 +17,39 @@ class DioClient {
     };
   }
 
-  Future<Response> get(String path, {Map<String, dynamic>? queryParameters}) {
-    return _dio.get(path, queryParameters: queryParameters);
+  Future<Response> get(String path,
+      {Map<String, dynamic>? queryParameters, Map<String, dynamic>? headers}) {
+    return _dio.get(path,
+        queryParameters: queryParameters, options: Options(headers: headers));
   }
 
   Future<Response> post(String path,
-      {dynamic data, Map<String, dynamic>? queryParameters}) {
-    return _dio.post(path, data: data, queryParameters: queryParameters);
+      {dynamic data,
+      Map<String, dynamic>? queryParameters,
+      Map<String, dynamic>? headers}) {
+    return _dio.post(path,
+        data: data,
+        queryParameters: queryParameters,
+        options: Options(headers: headers));
   }
 
   Future<Response> put(String path,
-      {dynamic data, Map<String, dynamic>? queryParameters}) {
-    return _dio.put(path, data: data, queryParameters: queryParameters);
+      {dynamic data,
+      Map<String, dynamic>? queryParameters,
+      Map<String, dynamic>? headers}) {
+    return _dio.put(path,
+        data: data,
+        queryParameters: queryParameters,
+        options: Options(headers: headers));
   }
 
   Future<Response> delete(String path,
-      {dynamic data, Map<String, dynamic>? queryParameters}) {
-    return _dio.delete(path, data: data, queryParameters: queryParameters);
+      {dynamic data,
+      Map<String, dynamic>? queryParameters,
+      Map<String, dynamic>? headers}) {
+    return _dio.delete(path,
+        data: data,
+        queryParameters: queryParameters,
+        options: Options(headers: headers));
   }
 }
