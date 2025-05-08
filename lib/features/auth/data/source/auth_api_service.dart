@@ -92,8 +92,7 @@ class AuthApiServiceImpl implements AuthApiService {
   Future<Either<ApiError, String>> retrieveUserRole(String token) async {
     try {
       final response = await sl<DioClient>().put(
-        // TODO: update endpoint
-        '/accounts/user',
+        '/users/:id',
         headers: {
           'Authorization': 'Bearer $token',
         },
