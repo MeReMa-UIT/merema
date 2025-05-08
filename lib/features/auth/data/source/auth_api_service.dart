@@ -3,6 +3,7 @@ import 'package:merema/core/network/dio_client.dart';
 import 'package:merema/core/utils/error_handler.dart';
 import 'package:merema/core/utils/service_locator.dart';
 import 'package:merema/features/auth/data/models/auth_req_params.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class AuthApiService {
   Future<Either<ApiError, String>> login(LoginReqParams loginParams);
@@ -14,6 +15,8 @@ abstract class AuthApiService {
 
   Future<Either<ApiError, String>> recoveryReset(
       RecoveryResetReqParams recoveryResetParams);
+
+  Future<Either<ApiError, String>> retrieveUserRole(String token);
 }
 
 class AuthApiServiceImpl implements AuthApiService {
@@ -25,7 +28,14 @@ class AuthApiServiceImpl implements AuthApiService {
         data: loginParams.toJson(),
       );
 
-      return Right(response.data['token']);
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      sharedPreferences.setString('token', response.data['token']);
+
+      //await sl<AuthApiService>().retrieveUserRole(response.data['token']);
+      //sharedPreferences.setString('userRole', response.data['role']);
+
+      return const Right('Logged in successfully');
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));
     }
@@ -73,6 +83,27 @@ class AuthApiServiceImpl implements AuthApiService {
         },
       );
       return const Right('Password reset successfully');
+    } catch (e) {
+      return Left(ApiErrorHandler.handleError(e));
+    }
+  }
+
+  @override
+  Future<Either<ApiError, String>> retrieveUserRole(String token) async {
+    try {
+      final response = await sl<DioClient>().put(
+        // TODO: update endpoint
+        '/accounts/user',
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      sharedPreferences.setString('userRole', response.data['role']);
+
+      return const Right('User role retrieved successfully');
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));
     }

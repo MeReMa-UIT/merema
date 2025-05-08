@@ -13,4 +13,7 @@ abstract class AuthRepository {
       RecoveryResetReqParams recoveryResetParams);
 
   Future<bool> isLoggedIn();
+
+  Future<String> getToken();
+  Future<String> getUserRole();
 }

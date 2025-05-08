@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:dio/dio.dart';
 import 'package:merema/core/utils/service_locator.dart';
 import 'package:merema/features/auth/data/source/auth_local_service.dart';
 import 'package:merema/features/auth/domain/repository/auth_repository.dart';
@@ -17,11 +16,11 @@ class AuthRepositoryImpl extends AuthRepository {
         return Left(error);
       },
       (token) async {
-        Response response = token;
         SharedPreferences sharedPreferences =
             await SharedPreferences.getInstance();
-        sharedPreferences.setString('token', response.data['token']);
-        return Right(response.data['token']);
+        sharedPreferences.setString('token', token);
+
+        return Right(token);
       },
     );
   }
@@ -47,5 +46,15 @@ class AuthRepositoryImpl extends AuthRepository {
   @override
   Future<bool> isLoggedIn() async {
     return await sl<AuthLocalService>().isLoggedIn();
+  }
+
+  @override
+  Future<String> getToken() async {
+    return await sl<AuthLocalService>().getToken();
+  }
+
+  @override
+  Future<String> getUserRole() async {
+    return await sl<AuthLocalService>().getUserRole();
   }
 }
