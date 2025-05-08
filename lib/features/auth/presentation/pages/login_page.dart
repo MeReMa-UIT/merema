@@ -10,6 +10,7 @@ import 'package:merema/features/auth/presentation/widgets/auth_button.dart';
 import 'package:merema/features/auth/presentation/widgets/auth_field.dart';
 import 'package:merema/features/auth/presentation/widgets/auth_layout.dart';
 import 'package:merema/features/auth/data/models/auth_req_params.dart';
+import 'package:merema/features/home/presentation/pages/home_page.dart';
 
 class LoginPage extends StatefulWidget {
   static route(String? email) => MaterialPageRoute(
@@ -73,9 +74,7 @@ class _LoginPageState extends State<LoginPage> {
               );
             }
           } else if (state is ButtonSuccessState) {
-            final token = state.data;
-            // TODO: Push to home page
-            debugPrint('Token: $token');
+            Navigator.pushReplacement(context, HomePage.route());
           }
         },
         builder: (context, state) {

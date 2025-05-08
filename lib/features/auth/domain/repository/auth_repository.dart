@@ -11,4 +11,6 @@ abstract class AuthRepository {
 
   Future<Either<Error, String>> recoveryReset(
       RecoveryResetReqParams recoveryResetParams);
+
+  Future<bool> isLoggedIn();
 }

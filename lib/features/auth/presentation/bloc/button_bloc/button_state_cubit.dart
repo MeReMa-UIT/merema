@@ -24,8 +24,4 @@ class ButtonStateCubit extends Cubit<ButtonState> {
       emit(ButtonErrorState(ApiErrorHandler.handleError(e)));
     }
   }
-
-  void setButtonState(ButtonState state) {
-    emit(state);
-  }
 }
