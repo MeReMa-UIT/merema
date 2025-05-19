@@ -32,8 +32,7 @@ class AuthApiServiceImpl implements AuthApiService {
           await SharedPreferences.getInstance();
       sharedPreferences.setString('token', response.data['token']);
 
-      //await sl<AuthApiService>().retrieveUserRole(response.data['token']);
-      //sharedPreferences.setString('userRole', response.data['role']);
+      await sl<AuthApiService>().retrieveUserRole(response.data['token']);
 
       return const Right('Logged in successfully');
     } catch (e) {
@@ -91,8 +90,8 @@ class AuthApiServiceImpl implements AuthApiService {
   @override
   Future<Either<ApiError, String>> retrieveUserRole(String token) async {
     try {
-      final response = await sl<DioClient>().put(
-        '/users/:id',
+      final response = await sl<DioClient>().get(
+        '/accounts/profile',
         headers: {
           'Authorization': 'Bearer $token',
         },

@@ -10,24 +10,19 @@ abstract class AuthLocalService {
 class AuthLocalServiceImpl implements AuthLocalService {
   @override
   Future<bool> isLoggedIn() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var token = sharedPreferences.getString('token');
-    if (token != null) {
-      return true;
-    } else {
-      return false;
-    }
+    final token = await getToken();
+    return token.isNotEmpty;
   }
 
   @override
   Future<String> getToken() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    return sharedPreferences.getString('token')!;
+    return sharedPreferences.getString('token') ?? '';
   }
 
   @override
   Future<String> getUserRole() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    return sharedPreferences.getString('userRole')!;
+    return sharedPreferences.getString('userRole') ?? '';
   }
 }
