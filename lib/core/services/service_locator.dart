@@ -6,6 +6,7 @@ import 'package:merema/features/auth/domain/usecases/get_token.dart';
 import 'package:merema/features/auth/domain/usecases/get_user_role.dart';
 import 'package:merema/features/auth/domain/usecases/is_logged_in.dart';
 import 'package:merema/features/auth/domain/usecases/login.dart';
+import 'package:merema/features/auth/domain/usecases/logout.dart';
 import 'package:merema/features/auth/domain/usecases/recovery.dart';
 import 'package:merema/features/auth/data/repository/auth_repository_impl.dart';
 import 'package:merema/features/auth/data/source/auth_api_service.dart';
@@ -30,4 +31,5 @@ void setupServiceLocator() {
   sl.registerSingleton<IsLoggedInUseCase>(IsLoggedInUseCase());
   sl.registerSingleton<GetTokenUseCase>(GetTokenUseCase());
   sl.registerSingleton<GetUserRoleUseCase>(GetUserRoleUseCase());
+  sl.registerSingleton<LogoutUseCase>(LogoutUseCase());
 }

@@ -13,7 +13,7 @@ class MenuItemsGridView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (currentMenuItems.isEmpty) {
-      return const Center(child: Text('An error occurred, please restart the app or re-login.'));
+      return const Center(child: Text('Cannot load menu items.'));
     }
 
     return Expanded(

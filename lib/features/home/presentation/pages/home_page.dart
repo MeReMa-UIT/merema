@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:merema/features/auth/domain/usecases/get_user_role.dart';
-import 'package:merema/core/utils/service_locator.dart';
+import 'package:merema/core/services/service_locator.dart';
+import 'package:merema/features/auth/domain/usecases/logout.dart';
 import 'package:merema/features/home/presentation/widgets/menu_items_grid_view.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:merema/features/auth/presentation/pages/login_page.dart';
 
 enum UserRole {
   admin,
@@ -130,7 +129,9 @@ class _HomePageState extends State<HomePage> {
       });
     } catch (e) {
       if (mounted) {
-        _isLoadingRole = true;
+        setState(() {
+          _isLoadingRole = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text(
@@ -156,15 +157,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    if (mounted) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        LoginPage.route(null),
-        (route) => false,
-      );
-    }
+    await sl<LogoutUseCase>().call(null);
   }
 
   void _onProfilePressed() {

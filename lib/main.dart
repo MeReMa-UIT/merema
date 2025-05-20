@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:merema/core/utils/service_locator.dart';
+import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/core/theme/theme.dart';
 import 'package:merema/features/auth/presentation/bloc/auth_bloc/auth_state.dart';
 import 'package:merema/features/auth/presentation/bloc/auth_bloc/auth_state_cubit.dart';
 import 'package:merema/features/auth/presentation/pages/login_page.dart';
 import 'package:merema/features/home/presentation/pages/home_page.dart';
+import 'package:merema/core/services/navigation_service.dart';
+
+final NavigationService navigationService = NavigationService();
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +29,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'MeReMa',
         theme: AppTheme.lightThemeMode,
+        navigatorKey: navigationService.navigatorKey,
         home: BlocBuilder<AuthStateCubit, AuthState>(
           builder: (context, state) {
             if (state is AuthenticatedState) {

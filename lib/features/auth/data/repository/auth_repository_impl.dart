@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:merema/core/utils/service_locator.dart';
+import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/features/auth/data/source/auth_local_service.dart';
 import 'package:merema/features/auth/domain/repository/auth_repository.dart';
 import 'package:merema/features/auth/data/models/auth_req_params.dart';
@@ -56,5 +56,10 @@ class AuthRepositoryImpl extends AuthRepository {
   @override
   Future<String> getUserRole() async {
     return await sl<AuthLocalService>().getUserRole();
+  }
+
+  @override
+  Future<void> logout() {
+    return sl<AuthLocalService>().logout();
   }
 }
