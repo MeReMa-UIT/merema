@@ -21,18 +21,44 @@ class MenuItemsGridView extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: LayoutBuilder(
           builder: (context, constraints) {
-            const double crossAxisSpacingVal = 10.0;
-            const double mainAxisSpacingVal = 10.0;
-            const double calculatedAspectRatio = 1.0;
-            const int crossAxisCountVal = 2;
-            const ScrollPhysics scrollPhysicsVal = BouncingScrollPhysics();
+            const double crossAxisSpacing = 10.0;
+            const double mainAxisSpacing = 10.0;
+
+            int crossAxisCount;
+            double aspectRatio;
+            bool canFitAllCards = false;
+
+            if (constraints.maxWidth < 400) {
+              crossAxisCount = 1;
+              aspectRatio = 1.0;
+            } else if (constraints.maxWidth < 700) {
+              crossAxisCount = 2;
+              aspectRatio = 1.0;
+            } else {
+              crossAxisCount = 3;
+              double cardWidth =
+                  (constraints.maxWidth - 32 - crossAxisSpacing * 2) / 3;
+              double cardHeight =
+                  (constraints.maxHeight - 32 - mainAxisSpacing) / 2;
+              aspectRatio = cardWidth / cardHeight;
+              aspectRatio = aspectRatio.isFinite ? aspectRatio : 1.0;
+
+              int rowsNeeded = (currentMenuItems.length + crossAxisCount - 1) ~/
+                  crossAxisCount;
+              double totalHeight =
+                  rowsNeeded * cardHeight + (rowsNeeded - 1) * mainAxisSpacing;
+              canFitAllCards = totalHeight <= constraints.maxHeight - 32;
+            }
 
             return GridView.count(
-              crossAxisCount: crossAxisCountVal,
-              crossAxisSpacing: crossAxisSpacingVal,
-              mainAxisSpacing: mainAxisSpacingVal,
-              childAspectRatio: calculatedAspectRatio,
-              physics: scrollPhysicsVal,
+              crossAxisCount: crossAxisCount,
+              crossAxisSpacing: crossAxisSpacing,
+              mainAxisSpacing: mainAxisSpacing,
+              childAspectRatio: aspectRatio,
+              physics: canFitAllCards
+                  ? const NeverScrollableScrollPhysics()
+                  : const BouncingScrollPhysics(),
+              shrinkWrap: canFitAllCards,
               children: currentMenuItems.map((item) {
                 return MenuCard(
                   title: item.title,

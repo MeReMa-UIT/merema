@@ -28,73 +28,94 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
   // TODO: Implement menu items for each user role
   UserRole.doctor: [
     MenuItemConfig(
-        title: 'Placeholder1',
-        icon: Icons.square,
+        title: 'Medical Records',
+        icon: Icons.medical_information,
         onTap: (context) {
           ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Unimplemented')));
+              .showSnackBar(const SnackBar(content: Text('Medical records unimplemented')));
         }),
     MenuItemConfig(
-        title: 'Placeholder2',
-        icon: Icons.square,
+        title: 'Patients',
+        icon: Icons.people,
         onTap: (context) {
           ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Unimplemented')));
+              .showSnackBar(const SnackBar(content: Text('Patients unimplemented')));
         }),
     MenuItemConfig(
-        title: 'Placeholder3',
-        icon: Icons.square,
+        title: 'Prescriptions',
+        icon: Icons.receipt_long,
         onTap: (context) {
           ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Unimplemented')));
+              .showSnackBar(const SnackBar(content: Text('Prescriptions unimplemented')));
         }),
     MenuItemConfig(
-        title: 'Placeholder4',
-        icon: Icons.square,
+        title: 'Messages',
+        icon: Icons.message,
         onTap: (context) {
           ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Unimplemented')));
-        }),
-    MenuItemConfig(
-        title: 'Placeholder5',
-        icon: Icons.square,
-        onTap: (context) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Unimplemented')));
-        }),
-    MenuItemConfig(
-        title: 'Placeholder6',
-        icon: Icons.square,
-        onTap: (context) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Unimplemented')));
+              .showSnackBar(const SnackBar(content: Text('Messages unimplemented')));
         }),
   ],
   UserRole.patient: [
     MenuItemConfig(
-        title: 'Placeholder7',
-        icon: Icons.square,
+        title: 'Medical Records',
+        icon: Icons.medical_information,
         onTap: (context) {
           ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Unimplemented')));
+              .showSnackBar(const SnackBar(content: Text('Medical records unimplemented')));
+        }),
+    MenuItemConfig(
+        title: 'Prescriptions',
+        icon: Icons.receipt_long,
+        onTap: (context) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('Prescriptions unimplemented')));
+        }),
+    MenuItemConfig(
+        title: 'Schedule Appointment',
+        icon: Icons.calendar_today,
+        onTap: (context) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('Schedule appointment unimplemented')));
+        }),
+    MenuItemConfig(
+        title: 'Messages',
+        icon: Icons.message,
+        onTap: (context) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('Messages unimplemented')));
         }),
   ],
   UserRole.admin: [
     MenuItemConfig(
-        title: 'Placeholder8',
-        icon: Icons.square,
+        title: 'Employees',
+        icon: Icons.people,
         onTap: (context) {
           ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Unimplemented')));
+              .showSnackBar(const SnackBar(content: Text('Employees unimplemented')));
+        }),
+    MenuItemConfig(
+        title: 'Reports',
+        icon: Icons.assessment,
+        onTap: (context) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('Reports unimplemented')));
         }),
   ],
   UserRole.receptionist: [
     MenuItemConfig(
-        title: 'Placeholder9',
-        icon: Icons.square,
+        title: 'Patients',
+        icon: Icons.people,
         onTap: (context) {
           ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Unimplemented')));
+              .showSnackBar(const SnackBar(content: Text('Patients unimplemented')));
+        }),
+    MenuItemConfig(
+        title: 'Appointments',
+        icon: Icons.calendar_today,
+        onTap: (context) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('Appointment unimplemented')));
         }),
   ],
 };

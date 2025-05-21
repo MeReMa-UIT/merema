@@ -7,11 +7,19 @@ import 'package:merema/features/auth/presentation/bloc/auth_bloc/auth_state_cubi
 import 'package:merema/features/auth/presentation/pages/login_page.dart';
 import 'package:merema/features/home/presentation/pages/home_page.dart';
 import 'package:merema/core/services/navigation_service.dart';
+import 'dart:io';
+import 'package:window_size/window_size.dart';
 
 final NavigationService navigationService = NavigationService();
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    setWindowTitle('MeReMa');
+    setWindowMinSize(const Size(480, 640));
+    setWindowMaxSize(Size.infinite);
+  }
 
   setupServiceLocator();
 
