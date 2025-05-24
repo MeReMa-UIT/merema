@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:merema/features/auth/presentation/bloc/button_bloc/button_state.dart';
+import 'package:merema/core/presentation/bloc/button_bloc/button_state.dart';
 import 'package:merema/core/usecases/usecase.dart';
 import 'package:merema/core/utils/error_handler.dart';
 

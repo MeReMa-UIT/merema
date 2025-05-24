@@ -3,12 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/features/auth/domain/usecases/recovery.dart';
 import 'package:merema/features/auth/presentation/pages/login_page.dart';
-import 'package:merema/features/auth/presentation/widgets/auth_button.dart';
-import 'package:merema/features/auth/presentation/widgets/auth_field.dart';
+import 'package:merema/core/presentation/widgets/app_button.dart';
+import 'package:merema/core/presentation/widgets/app_field.dart';
 import 'package:merema/features/auth/presentation/widgets/auth_layout.dart';
 import 'package:merema/features/auth/data/models/auth_req_params.dart';
-import 'package:merema/features/auth/presentation/bloc/button_bloc/button_state.dart';
-import 'package:merema/features/auth/presentation/bloc/button_bloc/button_state_cubit.dart';
+import 'package:merema/core/presentation/bloc/button_bloc/button_state.dart';
+import 'package:merema/core/presentation/bloc/button_bloc/button_state_cubit.dart';
 
 class ResetPasswordPage extends StatefulWidget {
   static route({required String token, required String email}) =>
@@ -91,7 +91,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     ),
                   ),
                   const SizedBox(height: 25),
-                  AuthField(
+                  AppField(
                     hintText: 'Mật khẩu mới',
                     controller: _newPasswordController,
                     isPassword: true,
@@ -99,14 +99,14 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       if (value == null || value.isEmpty) {
                         return 'Vui lòng nhập mật khẩu mới';
                       }
-                      if (value.length < 6) {
-                        return 'Mật khẩu phải có ít nhất 6 kí tự';
+                      if (!RegExp(r'^[\x00-\x7F]{6,}$').hasMatch(value)) {
+                        return 'Mật khẩu phải có ít nhất 6 kí tự và chỉ chứa ký tự ASCII';
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 15),
-                  AuthField(
+                  AppField(
                     hintText: 'Xác nhận mật khẩu',
                     controller: _confirmPasswordController,
                     isPassword: true,
@@ -114,8 +114,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       if (value == null || value.isEmpty) {
                         return 'Vui lòng nhập lại mật khẩu';
                       }
-                      if (value.length < 6) {
-                        return 'Mật khẩu phải có ít nhất 6 kí tự';
+                      if (!RegExp(r'^[\x00-\x7F]{6,}$').hasMatch(value)) {
+                        return 'Mật khẩu phải có ít nhất 6 kí tự và chỉ chứa ký tự ASCII';
                       }
                       if (value != _newPasswordController.text) {
                         return 'Mật khẩu không khớp';
@@ -124,7 +124,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     },
                   ),
                   const SizedBox(height: 25),
-                  AuthButton(
+                  AppButton(
                     text: 'Đặt lại mật khẩu',
                     onPressed: () => _onResetPasswordPressed(context),
                     isLoading: state is ButtonLoadingState,

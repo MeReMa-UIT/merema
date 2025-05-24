@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/features/auth/domain/usecases/recovery.dart';
-import 'package:merema/features/auth/presentation/bloc/button_bloc/button_state.dart';
-import 'package:merema/features/auth/presentation/bloc/button_bloc/button_state_cubit.dart';
+import 'package:merema/core/presentation/bloc/button_bloc/button_state.dart';
+import 'package:merema/core/presentation/bloc/button_bloc/button_state_cubit.dart';
 import 'package:merema/features/auth/presentation/pages/reset_password_page.dart';
-import 'package:merema/features/auth/presentation/widgets/auth_button.dart';
-import 'package:merema/features/auth/presentation/widgets/auth_field.dart';
+import 'package:merema/core/presentation/widgets/app_button.dart';
+import 'package:merema/core/presentation/widgets/app_field.dart';
 import 'package:merema/features/auth/presentation/widgets/auth_layout.dart';
 import 'package:merema/features/auth/data/models/auth_req_params.dart';
 
@@ -172,15 +172,14 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
-                              child: AuthField(
+                              child: AppField(
                                 hintText: 'Mã xác minh',
                                 controller: _verificationCodeController,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'Vui lòng nhập mã xác minh';
                                   }
-                                  if (value.length != 6 ||
-                                      !RegExp(r'^\d+$').hasMatch(value)) {
+                                  if (!RegExp(r'^\d{6}$').hasMatch(value)) {
                                     return 'Mã xác minh phải có 6 số';
                                   }
                                   return null;
@@ -190,7 +189,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
                             const SizedBox(width: 10),
                             SizedBox(
                               height: 65,
-                              child: AuthButton(
+                              child: AppButton(
                                 onPressed: _isResendDisabled
                                     ? null
                                     : () => _resendCode(context),
@@ -206,7 +205,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
                           ],
                         ),
                         const SizedBox(height: 25),
-                        AuthButton(
+                        AppButton(
                           text: 'Tiếp theo',
                           onPressed: () => _onNextPressed(context),
                           isLoading: state is ButtonLoadingState,

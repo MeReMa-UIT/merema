@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class AuthField extends StatelessWidget {
+class AppField extends StatelessWidget {
   final String hintText;
   final TextEditingController controller;
   final bool isPassword;
   final String? Function(String?)? validator;
 
-  const AuthField({
+  const AppField({
     super.key,
     required this.hintText,
     required this.controller,
@@ -19,17 +19,8 @@ class AuthField extends StatelessWidget {
       return 'Vui lòng nhập $hintText';
     }
 
-    bool isAscii = true;
-    if (value.isNotEmpty) {
-      for (int i = 0; i < value.length; i++) {
-        if (value.codeUnitAt(i) > 127) {
-          isAscii = false;
-          break;
-        }
-      }
-    }
-
-    if (!isAscii) {
+    final asciiRegex = RegExp(r'^[\x00-\x7F]*$');
+    if (!asciiRegex.hasMatch(value)) {
       return 'Vui lòng chỉ nhập ký tự ASCII cho $hintText';
     }
 
@@ -45,7 +36,6 @@ class AuthField extends StatelessWidget {
       ),
       validator: validator ?? _defaultValidator,
       obscureText: isPassword,
-      obscuringCharacter: '*',
     );
   }
 }

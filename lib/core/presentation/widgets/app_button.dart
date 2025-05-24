@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:merema/core/theme/app_pallete.dart';
 
-class AuthButton extends StatelessWidget {
+class AppButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
   final double width;
@@ -9,7 +9,7 @@ class AuthButton extends StatelessWidget {
   final bool isLoading;
   final bool isWaiting;
 
-  const AuthButton({
+  const AppButton({
     super.key,
     required this.text,
     this.onPressed,

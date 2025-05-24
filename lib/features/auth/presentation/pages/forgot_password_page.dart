@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:merema/core/presentation/widgets/app_button.dart';
 import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/features/auth/domain/usecases/recovery.dart';
 import 'package:merema/features/auth/presentation/pages/verification_code_page.dart';
-import 'package:merema/features/auth/presentation/widgets/auth_button.dart';
-import 'package:merema/features/auth/presentation/widgets/auth_field.dart';
+import 'package:merema/core/presentation/widgets/app_field.dart';
 import 'package:merema/features/auth/presentation/widgets/auth_layout.dart';
 import 'package:merema/features/auth/data/models/auth_req_params.dart';
-import 'package:merema/features/auth/presentation/bloc/button_bloc/button_state.dart';
-import 'package:merema/features/auth/presentation/bloc/button_bloc/button_state_cubit.dart';
+import 'package:merema/core/presentation/bloc/button_bloc/button_state.dart';
+import 'package:merema/core/presentation/bloc/button_bloc/button_state_cubit.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   static route() => MaterialPageRoute(
@@ -86,21 +86,22 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   ),
                 ),
                 const SizedBox(height: 25),
-                AuthField(
+                AppField(
                   hintText: 'Email',
                   controller: _emailController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Vui lòng nhập email';
                     }
-                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                      return 'Email không hợp lệ';
+                    if (!RegExp(r'^[\x00-\x7F]*$').hasMatch(value) ||
+                        !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                      return 'Email phải đúng định dạng và chỉ chứa ký tự ASCII';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 15),
-                AuthField(
+                AppField(
                   hintText: 'Số căn cước',
                   controller: _citizenIdController,
                   validator: (value) {
@@ -108,13 +109,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       return 'Vui lòng nhập số căn cước';
                     }
                     if (!RegExp(r'^\d{9,12}$').hasMatch(value)) {
-                      return 'Số căn cước không hợp lệ';
+                      return 'Số căn cước phải có 9 đến 12 số';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 25),
-                AuthButton(
+                AppButton(
                   text: 'Tiếp theo',
                   onPressed: () => _onNextPressed(context),
                   isLoading: state is ButtonLoadingState,
