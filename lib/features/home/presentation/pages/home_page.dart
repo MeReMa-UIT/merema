@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:merema/features/auth/domain/usecases/get_user_role.dart';
 import 'package:merema/core/services/service_locator.dart';
+import 'package:merema/features/auth/domain/usecases/get_user_role.dart';
 import 'package:merema/features/auth/domain/usecases/logout.dart';
-import 'package:merema/features/home/presentation/widgets/menu_items_grid_view.dart';
-
-enum UserRole {
-  admin,
-  doctor,
-  patient,
-  receptionist,
-  noRole,
-}
+import 'package:merema/core/domain/entities/user_role.dart';
+import 'package:merema/features/home/presentation/widgets/menu_items_layout.dart';
+import 'package:merema/features/profile/presentation/pages/profile_page.dart';
 
 class MenuItemConfig {
   final String title;
@@ -31,29 +25,29 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
         title: 'Medical Records',
         icon: Icons.medical_information,
         onTap: (context) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Medical records unimplemented')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Medical records unimplemented')));
         }),
     MenuItemConfig(
         title: 'Patients',
         icon: Icons.people,
         onTap: (context) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Patients unimplemented')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Patients unimplemented')));
         }),
     MenuItemConfig(
         title: 'Prescriptions',
         icon: Icons.receipt_long,
         onTap: (context) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Prescriptions unimplemented')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Prescriptions unimplemented')));
         }),
     MenuItemConfig(
         title: 'Messages',
         icon: Icons.message,
         onTap: (context) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Messages unimplemented')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Messages unimplemented')));
         }),
   ],
   UserRole.patient: [
@@ -61,29 +55,29 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
         title: 'Medical Records',
         icon: Icons.medical_information,
         onTap: (context) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Medical records unimplemented')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Medical records unimplemented')));
         }),
     MenuItemConfig(
         title: 'Prescriptions',
         icon: Icons.receipt_long,
         onTap: (context) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Prescriptions unimplemented')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Prescriptions unimplemented')));
         }),
     MenuItemConfig(
         title: 'Schedule Appointment',
         icon: Icons.calendar_today,
         onTap: (context) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Schedule appointment unimplemented')));
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('Schedule appointment unimplemented')));
         }),
     MenuItemConfig(
         title: 'Messages',
         icon: Icons.message,
         onTap: (context) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Messages unimplemented')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Messages unimplemented')));
         }),
   ],
   UserRole.admin: [
@@ -91,15 +85,15 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
         title: 'Employees',
         icon: Icons.people,
         onTap: (context) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Employees unimplemented')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Employees unimplemented')));
         }),
     MenuItemConfig(
         title: 'Reports',
         icon: Icons.assessment,
         onTap: (context) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Reports unimplemented')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Reports unimplemented')));
         }),
   ],
   UserRole.receptionist: [
@@ -107,15 +101,15 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
         title: 'Patients',
         icon: Icons.people,
         onTap: (context) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Patients unimplemented')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Patients unimplemented')));
         }),
     MenuItemConfig(
         title: 'Appointments',
         icon: Icons.calendar_today,
         onTap: (context) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Appointment unimplemented')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Appointment unimplemented')));
         }),
   ],
 };
@@ -145,7 +139,7 @@ class _HomePageState extends State<HomePage> {
     try {
       final userRole = await sl<GetUserRoleUseCase>().call(null);
       setState(() {
-        _currentUserRole = _mapStringToUserRole(userRole);
+        _currentUserRole = userRole;
         _isLoadingRole = false;
       });
     } catch (e) {
@@ -156,24 +150,9 @@ class _HomePageState extends State<HomePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text(
-                  'An error occured, please restart the app or re-login.')),
+                  'An error occurred, please restart the app or re-login.')),
         );
       }
-    }
-  }
-
-  UserRole _mapStringToUserRole(String roleString) {
-    switch (roleString.toLowerCase()) {
-      case 'admin':
-        return UserRole.admin;
-      case 'doctor':
-        return UserRole.doctor;
-      case 'patient':
-        return UserRole.patient;
-      case 'receptionist':
-        return UserRole.receptionist;
-      default:
-        return UserRole.noRole;
     }
   }
 
@@ -182,10 +161,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onProfilePressed() {
-    // TODO: Implement Profile
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Unimplemented.')),
-    );
+    Navigator.push(context, ProfilePage.route());
   }
 
   @override
@@ -223,7 +199,7 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-            MenuItemsGridView(currentMenuItems: currentMenuItems),
+            MenuItemsLayout(currentMenuItems: currentMenuItems),
           ],
         ),
       ),

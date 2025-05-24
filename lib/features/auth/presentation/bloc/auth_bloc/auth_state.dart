@@ -1,9 +1,11 @@
+import 'package:merema/core/domain/entities/user_role.dart';
+
 abstract class AuthState {}
 
 class AuthInitialState extends AuthState {}
 
 class AuthenticatedState extends AuthState {
-  final String userRole;
+  final UserRole userRole;
 
   AuthenticatedState({required this.userRole});
 }

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:merema/features/home/presentation/pages/home_page.dart';
 import 'package:merema/features/home/presentation/widgets/menu_card.dart';
 
-class MenuItemsGridView extends StatelessWidget {
+class MenuItemsLayout extends StatelessWidget {
   final List<MenuItemConfig> currentMenuItems;
 
-  const MenuItemsGridView({
+  const MenuItemsLayout({
     super.key,
     required this.currentMenuItems,
   });
@@ -13,7 +13,7 @@ class MenuItemsGridView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (currentMenuItems.isEmpty) {
-      return const Center(child: Text('Cannot load menu items.'));
+      return const Center(child: Text('Menu item not available.'));
     }
 
     return Expanded(
