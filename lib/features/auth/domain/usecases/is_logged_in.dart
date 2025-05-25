@@ -1,6 +1,6 @@
 import 'package:merema/core/usecases/usecase.dart';
 import 'package:merema/core/services/service_locator.dart';
-import 'package:merema/features/auth/domain/repository/auth_repository.dart';
+import 'package:merema/features/auth/domain/repositories/auth_repository.dart';
 
 class IsLoggedInUseCase implements UseCase<bool, dynamic> {
   @override

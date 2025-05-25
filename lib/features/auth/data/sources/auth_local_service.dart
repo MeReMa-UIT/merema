@@ -33,8 +33,7 @@ class AuthLocalServiceImpl implements AuthLocalService {
   @override
   Future<void> logout() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    await sharedPreferences.remove('token');
-    await sharedPreferences.remove('userRole');
+    await sharedPreferences.clear();
     navigationService.pushAndRemoveUntil(LoginPage.route(null));
   }
 }

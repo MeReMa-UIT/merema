@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:merema/core/services/service_locator.dart';
-import 'package:merema/features/auth/data/source/auth_local_service.dart';
-import 'package:merema/features/auth/domain/repository/auth_repository.dart';
+import 'package:merema/features/auth/data/sources/auth_local_service.dart';
+import 'package:merema/features/auth/domain/repositories/auth_repository.dart';
 import 'package:merema/features/auth/data/models/auth_req_params.dart';
-import 'package:merema/features/auth/data/source/auth_api_service.dart';
+import 'package:merema/features/auth/data/sources/auth_api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthRepositoryImpl extends AuthRepository {

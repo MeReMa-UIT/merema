@@ -16,7 +16,7 @@ abstract class AuthApiService {
   Future<Either<ApiError, String>> recoveryReset(
       RecoveryResetReqParams recoveryResetParams);
 
-  Future<Either<ApiError, String>> retrieveUserRole(String token);
+  Future<Either<ApiError, String>> fetchUserRole(String token);
 }
 
 class AuthApiServiceImpl implements AuthApiService {
@@ -28,13 +28,9 @@ class AuthApiServiceImpl implements AuthApiService {
         data: loginParams.toJson(),
       );
 
-      SharedPreferences sharedPreferences =
-          await SharedPreferences.getInstance();
-      sharedPreferences.setString('token', response.data['token']);
+      await sl<AuthApiService>().fetchUserRole(response.data['token']);
 
-      await sl<AuthApiService>().retrieveUserRole(response.data['token']);
-
-      return const Right('Logged in successfully');
+      return Right(response.data['token']);
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));
     }
@@ -88,7 +84,7 @@ class AuthApiServiceImpl implements AuthApiService {
   }
 
   @override
-  Future<Either<ApiError, String>> retrieveUserRole(String token) async {
+  Future<Either<ApiError, String>> fetchUserRole(String token) async {
     try {
       final response = await sl<DioClient>().get(
         '/accounts/profile',
