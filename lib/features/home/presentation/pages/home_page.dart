@@ -132,10 +132,10 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _fetchUserRole();
+    _getRole();
   }
 
-  Future<void> _fetchUserRole() async {
+  Future<void> _getRole() async {
     try {
       final userRole = await sl<GetUserRoleUseCase>().call(null);
       setState(() {
