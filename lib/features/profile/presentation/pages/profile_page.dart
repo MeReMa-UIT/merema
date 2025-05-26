@@ -46,27 +46,39 @@ class ProfilePage extends StatelessWidget {
           } else if (state is ProfileLoaded) {
             final profile = state.profile;
             return SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   InfoCard(
                     title: 'Personal Information',
                     fields: [
+                      InfoField(
+                          label: 'Full Name',
+                          value: profile.info['full_name']),
                       InfoField(label: 'Citizen ID', value: profile.citizenId),
-                      InfoField(label: 'Role', value: profile.role),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  InfoCard(
-                    title: 'Contact Information',
-                    fields: [
+                      InfoField(
+                          label: 'Date of Birth',
+                          value: profile.info['date_of_birth']),
+                      InfoField(
+                          label: 'Gender', value: profile.info['gender']),
+                      InfoField(
+                          label: 'Role', value: profile.role),
+                      if (profile.role == 'patient')
+                        InfoField(
+                            label: 'Patient ID',
+                            value: profile.info['patient_id'])
+                      else ...[
+                        InfoField(
+                            label: 'Staff ID',
+                            value: profile.info['staff_id']),
+                        InfoField(
+                            label: 'Department',
+                            value: profile.info['department']),
+                      ],
                       InfoField(label: 'Email', value: profile.email),
-                      InfoField(label: 'Phone', value: profile.phone),
+                      InfoField(label: 'Phone Number', value: profile.phone),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  // TODO: Add more InfoCards as needed
                 ],
               ),
             );

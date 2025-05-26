@@ -90,7 +90,7 @@ class AuthApiServiceImpl implements AuthApiService {
         },
       );
 
-      return Right(response.data['role']);
+      return Right(response.data['account_info']['role']);
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));
     }
