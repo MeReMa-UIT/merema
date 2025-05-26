@@ -5,11 +5,11 @@ import 'package:merema/features/profile/domain/entities/user_profile.dart';
 import 'package:merema/features/profile/domain/repositories/profile_repository.dart';
 import '../sources/profile_api_service.dart';
 
-class ProfileRepositoryImpl extends ProfileRepository {
+class ProfileRepositoryImpl implements ProfileRepository {
   @override
-  Future<Either<Error, UserProfile>> getUserProfile() async {
+  Future<Either<Error, UserProfile>> getUserProfile(String token) async {
     try {
-      final result = await sl<ProfileApiService>().fetchUserProfile();
+      final result = await sl<ProfileApiService>().fetchUserProfile(token);
 
       return result.fold(
         (error) async {

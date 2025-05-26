@@ -43,5 +43,5 @@ void setupServiceLocator() {
   sl.registerSingleton<GetUserRoleUseCase>(GetUserRoleUseCase());
   sl.registerSingleton<LogoutUseCase>(LogoutUseCase());
 
-  sl.registerSingleton<GetUserProfileUseCase>(GetUserProfileUseCase());
+  sl.registerSingleton<GetUserProfileUseCase>(GetUserProfileUseCase(authRepository: sl()));
 }

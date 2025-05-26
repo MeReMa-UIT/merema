@@ -3,7 +3,6 @@ import 'package:merema/core/network/dio_client.dart';
 import 'package:merema/core/utils/error_handler.dart';
 import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/features/auth/data/models/auth_req_params.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class AuthApiService {
   Future<Either<ApiError, String>> login(LoginReqParams loginParams);
@@ -27,8 +26,6 @@ class AuthApiServiceImpl implements AuthApiService {
         '/accounts/login',
         data: loginParams.toJson(),
       );
-
-      await sl<AuthApiService>().fetchUserRole(response.data['token']);
 
       return Right(response.data['token']);
     } catch (e) {
@@ -93,11 +90,7 @@ class AuthApiServiceImpl implements AuthApiService {
         },
       );
 
-      SharedPreferences sharedPreferences =
-          await SharedPreferences.getInstance();
-      sharedPreferences.setString('userRole', response.data['role']);
-
-      return const Right('User role retrieved successfully');
+      return Right(response.data['role']);
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));
     }

@@ -4,23 +4,28 @@ import 'package:merema/features/auth/data/sources/auth_local_service.dart';
 import 'package:merema/features/auth/domain/repositories/auth_repository.dart';
 import 'package:merema/features/auth/data/models/auth_req_params.dart';
 import 'package:merema/features/auth/data/sources/auth_api_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthRepositoryImpl extends AuthRepository {
   @override
   Future<Either<Error, String>> login(LoginReqParams loginParams) async {
     Either result = await sl<AuthApiService>().login(loginParams);
-
     return result.fold(
       (error) {
         return Left(error);
       },
       (token) async {
-        SharedPreferences sharedPreferences =
-            await SharedPreferences.getInstance();
-        sharedPreferences.setString('token', token);
+        await sl<AuthLocalService>().setToken(token);
 
-        return Right(token);
+        final userRole = await sl<AuthApiService>().fetchUserRole(token);
+        return userRole.fold(
+          (error) {
+            return Left(error);
+          },
+          (role) async {
+            await sl<AuthLocalService>().setUserRole(role);
+            return Right(token);
+          },
+        );
       },
     );
   }

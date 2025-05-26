@@ -5,7 +5,10 @@ import 'package:merema/main.dart';
 abstract class AuthLocalService {
   Future<bool> isLoggedIn();
 
+  Future<void> setToken(String token);
   Future<String> getToken();
+
+  Future<void> setUserRole(String role);
   Future<String> getUserRole();
 
   Future<void> logout();
@@ -19,9 +22,21 @@ class AuthLocalServiceImpl implements AuthLocalService {
   }
 
   @override
+  Future<void> setToken(String token) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.setString('token', token);
+  }
+
+  @override
   Future<String> getToken() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     return sharedPreferences.getString('token') ?? '';
+  }
+
+  @override
+  Future<void> setUserRole(String role) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.setString('userRole', role);
   }
 
   @override
