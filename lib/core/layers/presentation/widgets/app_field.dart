@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:merema/core/theme/app_pallete.dart';
 
 class AppField extends StatelessWidget {
   final String hintText;
@@ -16,12 +17,12 @@ class AppField extends StatelessWidget {
 
   String? _defaultValidator(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Vui lòng nhập $hintText';
+      return 'Please enter $hintText';
     }
 
     final asciiRegex = RegExp(r'^[\x00-\x7F]*$');
     if (!asciiRegex.hasMatch(value)) {
-      return 'Vui lòng chỉ nhập ký tự ASCII cho $hintText';
+      return 'Please enter only ASCII characters for $hintText';
     }
 
     return null;
@@ -32,7 +33,8 @@ class AppField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
-        hintText: hintText,
+        labelText: hintText,
+        labelStyle: const TextStyle(color: AppPallete.textColor),
       ),
       validator: validator ?? _defaultValidator,
       obscureText: isPassword,

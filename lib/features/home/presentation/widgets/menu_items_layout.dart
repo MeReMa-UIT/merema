@@ -13,7 +13,7 @@ class MenuItemsLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (currentMenuItems.isEmpty) {
-      return const Center(child: Text('Menu item not available.'));
+      return const Center(child: Text('Menu item not available'));
     }
 
     return Expanded(

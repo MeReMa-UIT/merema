@@ -23,5 +23,10 @@ class AppTheme {
       errorBorder: _border(AppPallete.errorColor),
       focusedErrorBorder: _border(AppPallete.errorColor),
     ),
+    textSelectionTheme: const TextSelectionThemeData(
+      cursorColor: AppPallete.textColor,
+      selectionColor: AppPallete.lightGrayColor,
+      selectionHandleColor: AppPallete.lightGrayColor,
+    ),
   );
 }

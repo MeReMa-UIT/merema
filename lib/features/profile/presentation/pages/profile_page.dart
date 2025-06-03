@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:merema/core/theme/app_pallete.dart';
 import 'package:merema/features/profile/presentation/bloc/profile_state_cubit.dart';
 import 'package:merema/features/profile/presentation/bloc/profile_state.dart';
-import 'package:merema/features/profile/presentation/widgets/info_card.dart';
+import 'package:merema/core/layers/presentation/widgets/info_card.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -51,6 +51,7 @@ class ProfilePage extends StatelessWidget {
                 children: [
                   InfoCard(
                     title: 'Account Information',
+                    icon: Icons.account_circle,
                     fields: [
                       InfoField(label: 'Citizen ID', value: profile.citizenId),
                       InfoField(label: 'Email', value: profile.email),
@@ -96,6 +97,7 @@ class ProfilePage extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 16.0),
             child: InfoCard(
               title: 'Patient Information - ${patientInfo['full_name']}',
+              icon: Icons.person,
               fields: [
                 InfoField(label: 'Full Name', value: patientInfo['full_name']),
                 InfoField(
@@ -117,6 +119,7 @@ class ProfilePage extends StatelessWidget {
     final info = profile.info;
     return InfoCard(
       title: 'Staff Information',
+      icon: Icons.badge,
       fields: [
         InfoField(label: 'Full Name', value: info['full_name']),
         InfoField(label: 'Date of Birth', value: info['date_of_birth']),

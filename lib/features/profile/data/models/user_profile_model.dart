@@ -74,20 +74,4 @@ class UserProfileModel extends UserProfile {
       'additional_info': additionalInfos,
     };
   }
-
-  UserProfileModel copyWith({
-    String? citizenId,
-    String? email,
-    String? phone,
-    String? role,
-    Map<String, dynamic>? info,
-  }) {
-    return UserProfileModel(
-      citizenId: citizenId ?? this.citizenId,
-      email: email ?? this.email,
-      phone: phone ?? this.phone,
-      role: role ?? this.role,
-      info: info ?? this.info,
-    );
-  }
 }

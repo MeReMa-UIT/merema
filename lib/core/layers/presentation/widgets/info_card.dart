@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:merema/features/profile/presentation/widgets/info_row.dart';
+import 'package:merema/core/layers/presentation/widgets/info_row.dart';
+import 'package:merema/core/theme/app_pallete.dart';
 
 class InfoField {
   final String label;
@@ -14,11 +15,13 @@ class InfoField {
 class InfoCard extends StatelessWidget {
   final String title;
   final List<InfoField> fields;
+  final IconData? icon;
 
   const InfoCard({
     super.key,
     required this.title,
     required this.fields,
+    this.icon,
   });
 
   @override
@@ -29,12 +32,24 @@ class InfoCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              children: [
+                if (icon != null) ...[
+                  Icon(
+                    icon,
+                    size: 20,
+                    color: AppPallete.primaryColor,
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             ...fields.map((field) => Column(

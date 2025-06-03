@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:merema/core/presentation/bloc/button_bloc/button_state.dart';
-import 'package:merema/core/presentation/bloc/button_bloc/button_state_cubit.dart';
+import 'package:merema/core/layers/presentation/bloc/button_state.dart';
+import 'package:merema/core/layers/presentation/bloc/button_state_cubit.dart';
 import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/core/theme/app_pallete.dart';
 import 'package:merema/features/auth/domain/usecases/login.dart';
 import 'package:merema/features/auth/presentation/pages/forgot_password_page.dart';
-import 'package:merema/core/presentation/widgets/app_button.dart';
-import 'package:merema/core/presentation/widgets/app_field.dart';
+import 'package:merema/core/layers/presentation/widgets/app_button.dart';
+import 'package:merema/core/layers/presentation/widgets/app_field.dart';
 import 'package:merema/features/auth/presentation/widgets/auth_layout.dart';
 import 'package:merema/features/auth/data/models/auth_req_params.dart';
 import 'package:merema/features/home/presentation/pages/home_page.dart';
@@ -65,8 +65,7 @@ class _LoginPageState extends State<LoginPage> {
           if (state is ButtonErrorState) {
             if (state.failure.statusCode == 401) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Email hoặc mật khẩu không chính xác')),
+                const SnackBar(content: Text('Incorrect email or password')),
               );
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -84,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
               child: AuthLayout(
                 children: [
                   const Text(
-                    'Đăng nhập',
+                    'Login',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -96,33 +95,33 @@ class _LoginPageState extends State<LoginPage> {
                     controller: _emailController,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Vui lòng nhập email';
+                        return 'Please enter email';
                       }
                       if (!RegExp(r'^[\x00-\x7F]*$').hasMatch(value) ||
                           !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                        return 'Email phải đúng định dạng và chỉ chứa ký tự ASCII';
+                        return 'Email must be in correct format and contain only ASCII characters';
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 15),
                   AppField(
-                    hintText: 'Mật khẩu',
+                    hintText: 'Password',
                     controller: _passwordController,
                     isPassword: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Vui lòng nhập mật khẩu';
+                        return 'Please enter password';
                       }
                       if (!RegExp(r'^[\x00-\x7F]{6,}$').hasMatch(value)) {
-                        return 'Mật khẩu phải có ít nhất 6 kí tự và chỉ chứa ký tự ASCII';
+                        return 'Password must have at least 6 characters and contain only ASCII characters';
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 25),
                   AppButton(
-                    text: 'Đăng nhập',
+                    text: 'Login',
                     onPressed: () => _onLoginPressed(context),
                     isLoading: state is ButtonLoadingState,
                   ),
@@ -136,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
                         Navigator.push(context, ForgotPasswordPage.route());
                       },
                       child: Text(
-                        'Quên mật khẩu?',
+                        'Forgot password?',
                         style: TextStyle(
                           fontSize: 16,
                           color: _isHovering

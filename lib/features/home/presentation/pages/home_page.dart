@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/features/auth/domain/usecases/get_user_role.dart';
 import 'package:merema/features/auth/domain/usecases/logout.dart';
-import 'package:merema/core/domain/entities/user_role.dart';
+import 'package:merema/core/layers/domain/entities/user_role.dart';
 import 'package:merema/features/home/presentation/widgets/menu_items_layout.dart';
 import 'package:merema/features/profile/presentation/pages/profile_page.dart';
+import 'package:merema/features/patients/presentation/pages/patients_page.dart';
 
 class MenuItemConfig {
   final String title;
@@ -32,8 +33,7 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
         title: 'Patients',
         icon: Icons.people,
         onTap: (context) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Patients unimplemented')));
+          Navigator.push(context, PatientsPage.route());
         }),
     MenuItemConfig(
         title: 'Prescriptions',
@@ -101,8 +101,7 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
         title: 'Patients',
         icon: Icons.people,
         onTap: (context) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Patients unimplemented')));
+          Navigator.push(context, PatientsPage.route());
         }),
     MenuItemConfig(
         title: 'Appointments',
@@ -150,7 +149,7 @@ class _HomePageState extends State<HomePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text(
-                  'An error occurred, please restart the app or re-login.')),
+                  'An error occurred, please restart the app or re-login')),
         );
       }
     }

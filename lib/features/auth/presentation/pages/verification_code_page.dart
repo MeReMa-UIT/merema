@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/features/auth/domain/usecases/recovery.dart';
-import 'package:merema/core/presentation/bloc/button_bloc/button_state.dart';
-import 'package:merema/core/presentation/bloc/button_bloc/button_state_cubit.dart';
+import 'package:merema/core/layers/presentation/bloc/button_state.dart';
+import 'package:merema/core/layers/presentation/bloc/button_state_cubit.dart';
 import 'package:merema/features/auth/presentation/pages/reset_password_page.dart';
-import 'package:merema/core/presentation/widgets/app_button.dart';
-import 'package:merema/core/presentation/widgets/app_field.dart';
+import 'package:merema/core/layers/presentation/widgets/app_button.dart';
+import 'package:merema/core/layers/presentation/widgets/app_field.dart';
 import 'package:merema/features/auth/presentation/widgets/auth_layout.dart';
 import 'package:merema/features/auth/data/models/auth_req_params.dart';
 
@@ -117,7 +117,8 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
                 );
               } else if (state is ButtonSuccessState) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Mã xác minh đã được gửi lại')),
+                  const SnackBar(
+                      content: Text('Verification code has been resent')),
                 );
               }
             },
@@ -128,7 +129,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
                   if (state.failure.statusCode == 401) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                          content: Text('Mã xác minh không chính xác')),
+                          content: Text('Incorrect verification code')),
                     );
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -153,7 +154,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
                       showBackButton: true,
                       children: [
                         const Text(
-                          'Nhập mã xác minh',
+                          'Enter Verification Code',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -161,7 +162,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
                         ),
                         const SizedBox(height: 25),
                         Text(
-                          'Mã xác minh đã được gửi đến email ${widget.email}',
+                          'Verification code has been sent to email ${widget.email}',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 16,
@@ -173,14 +174,14 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
                           children: [
                             Expanded(
                               child: AppField(
-                                hintText: 'Mã xác minh',
+                                hintText: 'Verification Code',
                                 controller: _verificationCodeController,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Vui lòng nhập mã xác minh';
+                                    return 'Please enter verification code';
                                   }
                                   if (!RegExp(r'^\d{6}$').hasMatch(value)) {
-                                    return 'Mã xác minh phải có 6 số';
+                                    return 'Verification code must have 6 digits';
                                   }
                                   return null;
                                 },
@@ -194,8 +195,8 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
                                     ? null
                                     : () => _resendCode(context),
                                 text: _isResendDisabled
-                                    ? 'Gửi lại ($_countdownSeconds)'
-                                    : 'Gửi lại',
+                                    ? 'Resend ($_countdownSeconds)'
+                                    : 'Resend',
                                 width: 115,
                                 showShadow: false,
                                 isLoading: !_isResendDisabled &&
@@ -206,7 +207,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
                         ),
                         const SizedBox(height: 25),
                         AppButton(
-                          text: 'Tiếp theo',
+                          text: 'Next',
                           onPressed: () => _onNextPressed(context),
                           isLoading: state is ButtonLoadingState,
                         ),

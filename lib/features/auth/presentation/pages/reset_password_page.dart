@@ -3,12 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/features/auth/domain/usecases/recovery.dart';
 import 'package:merema/features/auth/presentation/pages/login_page.dart';
-import 'package:merema/core/presentation/widgets/app_button.dart';
-import 'package:merema/core/presentation/widgets/app_field.dart';
+import 'package:merema/core/layers/presentation/widgets/app_button.dart';
+import 'package:merema/core/layers/presentation/widgets/app_field.dart';
 import 'package:merema/features/auth/presentation/widgets/auth_layout.dart';
 import 'package:merema/features/auth/data/models/auth_req_params.dart';
-import 'package:merema/core/presentation/bloc/button_bloc/button_state.dart';
-import 'package:merema/core/presentation/bloc/button_bloc/button_state_cubit.dart';
+import 'package:merema/core/layers/presentation/bloc/button_state.dart';
+import 'package:merema/core/layers/presentation/bloc/button_state_cubit.dart';
 
 class ResetPasswordPage extends StatefulWidget {
   static route({required String token, required String email}) =>
@@ -65,7 +65,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
             );
           } else if (state is ButtonSuccessState) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Đặt lại mật khẩu thành công')),
+              const SnackBar(content: Text('Password reset successfully')),
             );
 
             Navigator.push(
@@ -84,7 +84,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 showBackButton: true,
                 children: [
                   const Text(
-                    'Tạo mật khẩu mới',
+                    'Create New Password',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -92,40 +92,40 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   ),
                   const SizedBox(height: 25),
                   AppField(
-                    hintText: 'Mật khẩu mới',
+                    hintText: 'New Password',
                     controller: _newPasswordController,
                     isPassword: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Vui lòng nhập mật khẩu mới';
+                        return 'Please enter new password';
                       }
                       if (!RegExp(r'^[\x00-\x7F]{6,}$').hasMatch(value)) {
-                        return 'Mật khẩu phải có ít nhất 6 kí tự và chỉ chứa ký tự ASCII';
+                        return 'Password must have at least 6 characters and contain only ASCII characters';
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 15),
                   AppField(
-                    hintText: 'Xác nhận mật khẩu',
+                    hintText: 'Confirm Password',
                     controller: _confirmPasswordController,
                     isPassword: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Vui lòng nhập lại mật khẩu';
+                        return 'Please confirm your password';
                       }
                       if (!RegExp(r'^[\x00-\x7F]{6,}$').hasMatch(value)) {
-                        return 'Mật khẩu phải có ít nhất 6 kí tự và chỉ chứa ký tự ASCII';
+                        return 'Password must have at least 6 characters and contain only ASCII characters';
                       }
                       if (value != _newPasswordController.text) {
-                        return 'Mật khẩu không khớp';
+                        return 'Passwords do not match';
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 25),
                   AppButton(
-                    text: 'Đặt lại mật khẩu',
+                    text: 'Reset Password',
                     onPressed: () => _onResetPasswordPressed(context),
                     isLoading: state is ButtonLoadingState,
                   ),

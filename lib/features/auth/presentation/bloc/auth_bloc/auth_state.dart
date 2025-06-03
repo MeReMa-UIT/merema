@@ -1,4 +1,4 @@
-import 'package:merema/core/domain/entities/user_role.dart';
+import 'package:merema/core/layers/domain/entities/user_role.dart';
 
 abstract class AuthState {}
 
