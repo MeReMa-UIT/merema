@@ -10,39 +10,59 @@ class UserProfileModel extends UserProfile {
   });
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
-    final accountInfo = json['account_info'] as Map<String, dynamic>;
-    final additionalInfo =
-        json['additional_info'] as Map<String, dynamic>; // TODO: Handle list response
+    final accountInfos = json['account_info'] as Map<String, dynamic>;
+    final additionalInfos = json['additional_info'];
 
     return UserProfileModel(
-      citizenId: accountInfo['citizen_id'],
-      email: accountInfo['email'],
-      phone: accountInfo['phone'],
-      role: accountInfo['role'],
-      info: _parseInfo(additionalInfo, accountInfo['role']),
+      citizenId: accountInfos['citizen_id'],
+      email: accountInfos['email'],
+      phone: accountInfos['phone'],
+      role: accountInfos['role'],
+      info: _parseInfo(additionalInfos),
     );
   }
 
-  static Map<String, dynamic> _parseInfo(
-      Map<String, dynamic> additionalInfo, String role) {
-    final temp = {
-      'full_name': additionalInfo['full_name'],
-      'date_of_birth': additionalInfo['date_of_birth'].toString(),
-      'gender': additionalInfo['gender'],
-    };
-
-    if (role == 'patient') {
-      temp['patient_id'] = additionalInfo['patient_id'].toString();
-    } else {
-      temp['staff_id'] = additionalInfo['staff_id'].toString();
-      temp['department'] = additionalInfo['department'];
+  static Map<String, dynamic> _parseInfo(dynamic additionalInfos) {
+    if (additionalInfos == null) {
+      return {};
     }
 
-    return temp;
+    if (additionalInfos is List && additionalInfos.isNotEmpty) {
+      final patientsInfos = additionalInfos.map((info) {
+        final infoData = info as Map<String, dynamic>;
+        return {
+          'full_name': infoData['full_name'],
+          'date_of_birth': infoData['date_of_birth'].toString(),
+          'gender': infoData['gender'],
+          'patient_id': infoData['patient_id'].toString(),
+        };
+      }).toList();
+
+      return {
+        'patients_infos': patientsInfos,
+      };
+    }
+
+    final infoData = additionalInfos as Map<String, dynamic>;
+
+    return {
+      'full_name': infoData['full_name'],
+      'date_of_birth': infoData['date_of_birth'].toString(),
+      'gender': infoData['gender'],
+      'staff_id': infoData['staff_id'].toString(),
+      'department': infoData['department'],
+    };
   }
 
+  // TODO: Implement update profile use case
   Map<String, dynamic> toJson() {
-    final additionalInfo = Map<String, dynamic>.from(info);
+    dynamic additionalInfos;
+
+    if (info.containsKey('patients_infos')) {
+      additionalInfos = info['patients_infos'];
+    } else {
+      additionalInfos = Map<String, dynamic>.from(info);
+    }
 
     return {
       'account_info': {
@@ -51,7 +71,7 @@ class UserProfileModel extends UserProfile {
         'phone': phone,
         'role': role,
       },
-      'additional_info': additionalInfo,
+      'additional_info': additionalInfos,
     };
   }
 
@@ -60,7 +80,7 @@ class UserProfileModel extends UserProfile {
     String? email,
     String? phone,
     String? role,
-    Map<String, String>? info,
+    Map<String, dynamic>? info,
   }) {
     return UserProfileModel(
       citizenId: citizenId ?? this.citizenId,
