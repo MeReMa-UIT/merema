@@ -1,5 +1,3 @@
-// TODO: Add button state
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:merema/core/layers/presentation/widgets/app_field.dart';
