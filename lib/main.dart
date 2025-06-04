@@ -1,3 +1,5 @@
+// TODO: Strip date and time format
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:merema/core/services/service_locator.dart';
@@ -17,7 +19,7 @@ void main() {
 
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     setWindowTitle('MeReMa');
-    setWindowMinSize(const Size(480, 640));
+    setWindowMinSize(const Size(600, 800));
     setWindowMaxSize(Size.infinite);
   }
 

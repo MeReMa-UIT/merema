@@ -24,6 +24,12 @@ import 'package:merema/features/profile/data/sources/profile_local_service.dart'
 import 'package:merema/features/profile/domain/repositories/profile_repository.dart';
 import 'package:merema/features/profile/domain/usecases/get_user_profile.dart';
 import 'package:merema/features/profile/domain/usecases/update_profile.dart';
+import 'package:merema/features/schedules/data/repositories/schedule_repository_impl.dart';
+import 'package:merema/features/schedules/data/sources/schedule_api_service.dart';
+import 'package:merema/features/schedules/domain/repositories/schedule_repository.dart';
+import 'package:merema/features/schedules/domain/usecases/book_schedule.dart';
+import 'package:merema/features/schedules/domain/usecases/get_schedules.dart';
+import 'package:merema/features/schedules/domain/usecases/update_schedule_status.dart';
 import 'package:merema/features/staffs/data/repositories/staff_repository_impl.dart';
 import 'package:merema/features/staffs/data/sources/staff_api_service.dart';
 import 'package:merema/features/staffs/domain/repositories/staff_repository.dart';
@@ -50,6 +56,8 @@ void setupServiceLocator() {
 
   sl.registerSingleton<StaffApiService>(StaffApiServiceImpl());
 
+  sl.registerSingleton<ScheduleApiService>(ScheduleApiServiceImpl());
+
   // Repositories
   sl.registerSingleton<AuthRepository>(AuthRepositoryImpl());
 
@@ -58,6 +66,8 @@ void setupServiceLocator() {
   sl.registerSingleton<PatientRepository>(PatientRepositoryImpl());
 
   sl.registerSingleton<StaffRepository>(StaffRepositoryImpl());
+
+  sl.registerSingleton<ScheduleRepository>(ScheduleRepositoryImpl());
 
   // Use cases
   sl.registerSingleton<LoginUseCase>(LoginUseCase());
@@ -98,5 +108,15 @@ void setupServiceLocator() {
   );
   sl.registerSingleton<UpdateStaffUseCase>(
     UpdateStaffUseCase(authRepository: sl()),
+  );
+
+  sl.registerSingleton<GetSchedulesUseCase>(
+    GetSchedulesUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<BookScheduleUseCase>(
+    BookScheduleUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<UpdateScheduleStatusUseCase>(
+    UpdateScheduleStatusUseCase(authRepository: sl()),
   );
 }

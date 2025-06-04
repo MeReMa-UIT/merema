@@ -6,6 +6,7 @@ import 'package:merema/core/layers/domain/entities/user_role.dart';
 import 'package:merema/features/home/presentation/widgets/menu_items_layout.dart';
 import 'package:merema/features/profile/presentation/pages/profile_page.dart';
 import 'package:merema/features/patients/presentation/pages/patients_page.dart';
+import 'package:merema/features/schedules/presentation/pages/schedules_page.dart';
 import 'package:merema/features/staffs/presentation/pages/staffs_page.dart';
 
 class MenuItemConfig {
@@ -67,11 +68,10 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
               const SnackBar(content: Text('Prescriptions unimplemented')));
         }),
     MenuItemConfig(
-        title: 'Schedule Appointment',
+        title: 'Schedules',
         icon: Icons.calendar_today,
         onTap: (context) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('Schedule appointment unimplemented')));
+          Navigator.push(context, SchedulesPage.route());
         }),
     MenuItemConfig(
         title: 'Messages',
@@ -104,11 +104,10 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
           Navigator.push(context, PatientsPage.route());
         }),
     MenuItemConfig(
-        title: 'Appointments',
+        title: 'Schedules',
         icon: Icons.calendar_today,
         onTap: (context) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Appointment unimplemented')));
+          Navigator.push(context, SchedulesPage.route());
         }),
   ],
 };
