@@ -4,6 +4,7 @@ import 'package:merema/core/theme/app_pallete.dart';
 import 'package:merema/core/layers/presentation/widgets/info_card.dart';
 import 'package:merema/features/patients/presentation/bloc/patient_infos_state.dart';
 import 'package:merema/features/patients/presentation/bloc/patient_infos_state_cubit.dart';
+import 'package:merema/features/patients/presentation/pages/patient_update_infos_page.dart';
 
 class PatientInfosPage extends StatelessWidget {
   final int patientId;
@@ -28,6 +29,29 @@ class PatientInfosPage extends StatelessWidget {
           title: const Text('Patient Information'),
           backgroundColor: AppPallete.backgroundColor,
           foregroundColor: AppPallete.textColor,
+          actions: [
+            BlocBuilder<PatientInfosCubit, PatientInfosState>(
+              builder: (context, state) {
+                if (state is PatientInfosLoaded) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: IconButton(
+                      icon: const Icon(Icons.edit,
+                          color: AppPallete.primaryColor),
+                      tooltip: 'Update Info',
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          PatientUpdateInfosPage.route(
+                              patientId, state.patientInfo),
+                        );
+                      },
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+          ],
         ),
         backgroundColor: AppPallete.backgroundColor,
         body: BlocBuilder<PatientInfosCubit, PatientInfosState>(

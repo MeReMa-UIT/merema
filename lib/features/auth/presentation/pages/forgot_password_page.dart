@@ -87,7 +87,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 ),
                 const SizedBox(height: 25),
                 AppField(
-                  hintText: 'Email',
+                  labelText: 'Email',
                   controller: _emailController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -102,7 +102,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 ),
                 const SizedBox(height: 15),
                 AppField(
-                  hintText: 'Citizen ID',
+                  labelText: 'Citizen ID',
                   controller: _citizenIdController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {

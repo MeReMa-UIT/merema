@@ -1,3 +1,5 @@
+// TODO: Add patient and staff more infos /patients/{patient_id}
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:merema/core/theme/app_pallete.dart';

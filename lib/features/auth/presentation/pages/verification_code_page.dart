@@ -174,7 +174,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
                           children: [
                             Expanded(
                               child: AppField(
-                                hintText: 'Verification Code',
+                                labelText: 'Verification Code',
                                 controller: _verificationCodeController,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {

@@ -16,6 +16,7 @@ import 'package:merema/features/patients/domain/repositories/patient_repository.
 import 'package:merema/features/patients/domain/usecases/get_patient_infos.dart';
 import 'package:merema/features/patients/domain/usecases/get_patients_list.dart';
 import 'package:merema/features/patients/domain/usecases/register_patient.dart';
+import 'package:merema/features/patients/domain/usecases/update_patient.dart';
 import 'package:merema/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:merema/features/profile/data/sources/profile_api_service.dart';
 import 'package:merema/features/profile/data/sources/profile_local_service.dart';
@@ -64,5 +65,8 @@ void setupServiceLocator() {
   );
   sl.registerSingleton<RegisterPatientUseCase>(
     RegisterPatientUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<UpdatePatientUseCase>(
+    UpdatePatientUseCase(authRepository: sl()),
   );
 }

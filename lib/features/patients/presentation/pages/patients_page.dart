@@ -70,7 +70,7 @@ class _PatientsPageState extends State<PatientsPage> {
             child: Column(
               children: [
                 AppField(
-                  hintText: 'Search patients',
+                  labelText: 'Search patients',
                   controller: _searchController,
                 ),
                 const SizedBox(height: 16),

@@ -92,7 +92,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   ),
                   const SizedBox(height: 25),
                   AppField(
-                    hintText: 'New Password',
+                    labelText: 'New Password',
                     controller: _newPasswordController,
                     isPassword: true,
                     validator: (value) {
@@ -107,7 +107,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   ),
                   const SizedBox(height: 15),
                   AppField(
-                    hintText: 'Confirm Password',
+                    labelText: 'Confirm Password',
                     controller: _confirmPasswordController,
                     isPassword: true,
                     validator: (value) {

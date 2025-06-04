@@ -5,7 +5,7 @@ import 'package:merema/core/layers/presentation/widgets/app_button.dart';
 import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/features/patients/domain/usecases/register_patient.dart';
 import 'package:merema/core/layers/data/model/account_req_params.dart';
-import 'package:merema/features/patients/data/models/patient_register_req_params.dart';
+import 'package:merema/features/patients/data/models/patient_req_params.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:merema/features/patients/presentation/pages/patients_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -118,12 +118,12 @@ class _PatientRegisterPageState extends State<PatientRegisterPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     AppField(
-                      hintText: 'Full Name',
+                      labelText: 'Full Name',
                       controller: _fullNameController,
                     ),
                     const SizedBox(height: 12),
                     AppField(
-                      hintText: 'Citizen ID',
+                      labelText: 'Citizen ID',
                       controller: _citizenIdController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -140,7 +140,7 @@ class _PatientRegisterPageState extends State<PatientRegisterPage> {
                       onTap: () => _selectDate(context, _dateOfBirthController),
                       child: AbsorbPointer(
                         child: AppField(
-                          hintText: 'Date of Birth',
+                          labelText: 'Date of Birth',
                           controller: _dateOfBirthController,
                         ),
                       ),
@@ -149,8 +149,8 @@ class _PatientRegisterPageState extends State<PatientRegisterPage> {
                     DropdownButtonFormField<String>(
                       value: _selectedGender,
                       items: const [
-                        DropdownMenuItem(value: 'Nam', child: Text('Male')),
-                        DropdownMenuItem(value: 'Nữ', child: Text('Female')),
+                        DropdownMenuItem(value: 'Nam', child: Text('Nam')),
+                        DropdownMenuItem(value: 'Nữ', child: Text('Nữ')),
                       ],
                       onChanged: (value) {
                         setState(() {
@@ -176,22 +176,22 @@ class _PatientRegisterPageState extends State<PatientRegisterPage> {
                     ),
                     const SizedBox(height: 12),
                     AppField(
-                      hintText: 'Nationality',
+                      labelText: 'Nationality',
                       controller: _nationalityController,
                     ),
                     const SizedBox(height: 12),
                     AppField(
-                      hintText: 'Ethnicity',
+                      labelText: 'Ethnicity',
                       controller: _ethnicityController,
                     ),
                     const SizedBox(height: 12),
                     AppField(
-                      hintText: 'Address',
+                      labelText: 'Address',
                       controller: _addressController,
                     ),
                     const SizedBox(height: 12),
                     AppField(
-                      hintText: 'Email',
+                      labelText: 'Email',
                       controller: _emailController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -206,7 +206,7 @@ class _PatientRegisterPageState extends State<PatientRegisterPage> {
                     ),
                     const SizedBox(height: 12),
                     AppField(
-                      hintText: 'Phone',
+                      labelText: 'Phone',
                       controller: _phoneController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -220,7 +220,7 @@ class _PatientRegisterPageState extends State<PatientRegisterPage> {
                     ),
                     const SizedBox(height: 12),
                     AppField(
-                      hintText: 'Health Insurance Number',
+                      labelText: 'Health Insurance Number',
                       controller: _healthInsuranceNumberController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -239,14 +239,14 @@ class _PatientRegisterPageState extends State<PatientRegisterPage> {
                           allowFuture: true),
                       child: AbsorbPointer(
                         child: AppField(
-                          hintText: 'Health Insurance Expired Date',
+                          labelText: 'Health Insurance Expired Date',
                           controller: _healthInsuranceExpiredDateController,
                         ),
                       ),
                     ),
                     const SizedBox(height: 12),
                     AppField(
-                      hintText: 'Emergency Contact Info',
+                      labelText: 'Emergency Contact Info',
                       controller: _emergencyContactInfoController,
                     ),
                     const SizedBox(height: 28),
@@ -273,7 +273,7 @@ class _PatientRegisterPageState extends State<PatientRegisterPage> {
                             phone: _phoneController.text,
                             role: 'patient',
                           );
-                          final patientParams = PatientRegisterReqParams(
+                          final patientParams = PatientReqParams(
                             address: _addressController.text,
                             dateOfBirth: dateOfBirth,
                             emergencyContactInfo:
@@ -287,8 +287,8 @@ class _PatientRegisterPageState extends State<PatientRegisterPage> {
                                 _healthInsuranceNumberController.text,
                             nationality: _nationalityController.text,
                           );
-                          final params = dartz.Tuple2<AccountReqParams,
-                              PatientRegisterReqParams>(
+                          final params =
+                              dartz.Tuple2<AccountReqParams, PatientReqParams>(
                             accountParams,
                             patientParams,
                           );

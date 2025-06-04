@@ -16,6 +16,8 @@ abstract class PatientApiService {
       Map<String, dynamic> data, String token);
   Future<Either<ApiError, dynamic>> registerPatient(
       Map<String, dynamic> data, String token);
+  Future<Either<ApiError, dynamic>> updatePatientInfos(
+      Map<String, dynamic> data, int patientId, String token);
 }
 
 class PatientApiServiceImpl implements PatientApiService {
@@ -98,6 +100,23 @@ class PatientApiServiceImpl implements PatientApiService {
     try {
       final response = await sl<DioClient>().post(
         '/accounts/register/patients',
+        data: data,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+      return Right(response.data);
+    } catch (e) {
+      return Left(ApiErrorHandler.handleError(e));
+    }
+  }
+
+  @override
+  Future<Either<ApiError, dynamic>> updatePatientInfos(
+      Map<String, dynamic> data, int patientId, String token) async {
+    try {
+      final response = await sl<DioClient>().put(
+        '/patients/$patientId',
         data: data,
         headers: {
           'Authorization': 'Bearer $token',

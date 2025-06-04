@@ -1,4 +1,4 @@
-class PatientRegisterReqParams {
+class PatientReqParams {
   final String address;
   final String dateOfBirth;
   final String emergencyContactInfo;
@@ -9,7 +9,7 @@ class PatientRegisterReqParams {
   final String healthInsuranceNumber;
   final String nationality;
 
-  PatientRegisterReqParams({
+  PatientReqParams({
     required this.address,
     required this.dateOfBirth,
     required this.emergencyContactInfo,

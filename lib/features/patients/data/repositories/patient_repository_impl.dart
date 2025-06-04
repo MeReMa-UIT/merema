@@ -5,7 +5,7 @@ import 'package:merema/features/patients/domain/entities/patient_infos.dart';
 import 'package:merema/features/patients/domain/repositories/patient_repository.dart';
 import '../sources/patient_api_service.dart';
 import 'package:merema/core/layers/data/model/account_req_params.dart';
-import 'package:merema/features/patients/data/models/patient_register_req_params.dart';
+import 'package:merema/features/patients/data/models/patient_req_params.dart';
 
 class PatientRepositoryImpl extends PatientRepository {
   @override
@@ -41,7 +41,7 @@ class PatientRepositoryImpl extends PatientRepository {
   @override
   Future<Either<Error, dynamic>> registerPatient(
     AccountReqParams accountParams,
-    PatientRegisterReqParams patientParams,
+    PatientReqParams patientParams,
     String token,
   ) async {
     try {
@@ -76,6 +76,25 @@ class PatientRepositoryImpl extends PatientRepository {
       if (regPatientResult.isLeft()) return Left(Error());
 
       return Right(regPatientResult.getOrElse(() => {}));
+    } catch (e) {
+      return Left(Error());
+    }
+  }
+
+  @override
+  Future<Either<Error, dynamic>> updatePatient(
+      PatientReqParams patientParams, int patientId, String token) async {
+    try {
+      final result = await sl<PatientApiService>().updatePatientInfos(
+        patientParams.toJson(),
+        patientId,
+        token,
+      );
+
+      return result.fold(
+        (error) => Left(Error()),
+        (response) => Right(response),
+      );
     } catch (e) {
       return Left(Error());
     }

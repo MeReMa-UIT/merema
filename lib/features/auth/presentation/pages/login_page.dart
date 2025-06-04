@@ -91,7 +91,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 25),
                   AppField(
-                    hintText: 'Email',
+                    labelText: 'Email',
                     controller: _emailController,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -106,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 15),
                   AppField(
-                    hintText: 'Password',
+                    labelText: 'Password',
                     controller: _passwordController,
                     isPassword: true,
                     validator: (value) {
