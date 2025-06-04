@@ -6,6 +6,7 @@ import 'package:merema/core/layers/domain/entities/user_role.dart';
 import 'package:merema/features/home/presentation/widgets/menu_items_layout.dart';
 import 'package:merema/features/profile/presentation/pages/profile_page.dart';
 import 'package:merema/features/patients/presentation/pages/patients_page.dart';
+import 'package:merema/features/staffs/presentation/pages/staffs_page.dart';
 
 class MenuItemConfig {
   final String title;
@@ -82,11 +83,10 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
   ],
   UserRole.admin: [
     MenuItemConfig(
-        title: 'Employees',
+        title: 'Staffs',
         icon: Icons.people,
         onTap: (context) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Employees unimplemented')));
+          Navigator.push(context, StaffsPage.route());
         }),
     MenuItemConfig(
         title: 'Reports',

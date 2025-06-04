@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-class PatientInfo extends Equatable {
+class PatientInfos extends Equatable {
   final String address;
   final String dateOfBirth;
   final String emergencyContactInfo;
@@ -12,7 +12,7 @@ class PatientInfo extends Equatable {
   final String nationality;
   final int patientId;
 
-  const PatientInfo({
+  const PatientInfos({
     required this.address,
     required this.dateOfBirth,
     required this.emergencyContactInfo,

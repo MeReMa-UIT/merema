@@ -3,26 +3,26 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:merema/core/layers/presentation/widgets/app_field.dart';
 import 'package:merema/core/layers/presentation/widgets/app_button.dart';
 import 'package:merema/core/theme/app_pallete.dart';
-import 'package:merema/features/patients/presentation/bloc/patients_state_cubit.dart';
-import 'package:merema/features/patients/presentation/bloc/patients_state.dart';
-import 'package:merema/features/patients/presentation/pages/patient_infos_page.dart';
-import 'package:merema/features/patients/presentation/pages/patient_register_page.dart';
+import 'package:merema/features/staffs/presentation/bloc/staffs_state_cubit.dart';
+import 'package:merema/features/staffs/presentation/bloc/staffs_state.dart';
+import 'package:merema/features/staffs/presentation/pages/staff_infos_page.dart';
+import 'package:merema/features/staffs/presentation/pages/staff_register_page.dart';
 
-class PatientsPage extends StatefulWidget {
-  const PatientsPage({super.key});
+class StaffsPage extends StatefulWidget {
+  const StaffsPage({super.key});
 
   static Route route() => MaterialPageRoute(
         builder: (context) => BlocProvider(
-          create: (context) => PatientsCubit()..getPatients(),
-          child: const PatientsPage(),
+          create: (context) => StaffsCubit()..getStaffs(),
+          child: const StaffsPage(),
         ),
       );
 
   @override
-  State<PatientsPage> createState() => _PatientsPageState();
+  State<StaffsPage> createState() => _StaffsPageState();
 }
 
-class _PatientsPageState extends State<PatientsPage> {
+class _StaffsPageState extends State<StaffsPage> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -32,21 +32,21 @@ class _PatientsPageState extends State<PatientsPage> {
   }
 
   void _onSearch() {
-    context.read<PatientsCubit>().searchPatients(
+    context.read<StaffsCubit>().searchStaffs(
           searchQuery: _searchController.text,
         );
   }
 
   void _onClear() {
     _searchController.clear();
-    context.read<PatientsCubit>().clearSearch();
+    context.read<StaffsCubit>().clearSearch();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Patients'),
+        title: const Text('Staffs'),
         backgroundColor: AppPallete.backgroundColor,
         foregroundColor: AppPallete.textColor,
         actions: [
@@ -54,9 +54,9 @@ class _PatientsPageState extends State<PatientsPage> {
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: IconButton(
               icon: const Icon(Icons.person_add),
-              tooltip: 'Register Patient',
+              tooltip: 'Register Staff',
               onPressed: () {
-                Navigator.of(context).push(PatientRegisterPage.route());
+                Navigator.of(context).push(StaffRegisterPage.route());
               },
             ),
           ),
@@ -70,7 +70,7 @@ class _PatientsPageState extends State<PatientsPage> {
             child: Column(
               children: [
                 AppField(
-                  labelText: 'Search patients',
+                  labelText: 'Search staffs',
                   controller: _searchController,
                 ),
                 const SizedBox(height: 16),
@@ -95,15 +95,15 @@ class _PatientsPageState extends State<PatientsPage> {
             ),
           ),
           Expanded(
-            child: BlocBuilder<PatientsCubit, PatientsState>(
+            child: BlocBuilder<StaffsCubit, StaffsState>(
               builder: (context, state) {
-                if (state is PatientsLoading) {
+                if (state is StaffsLoading) {
                   return const Center(
                     child: CircularProgressIndicator(
                       color: AppPallete.primaryColor,
                     ),
                   );
-                } else if (state is PatientsError) {
+                } else if (state is StaffsError) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -128,14 +128,14 @@ class _PatientsPageState extends State<PatientsPage> {
                           child: AppButton(
                             text: 'Retry',
                             onPressed: () =>
-                                context.read<PatientsCubit>().getPatients(),
+                                context.read<StaffsCubit>().getStaffs(),
                           ),
                         ),
                       ],
                     ),
                   );
-                } else if (state is PatientsLoaded) {
-                  if (state.filteredPatients.isEmpty) {
+                } else if (state is StaffsLoaded) {
+                  if (state.filteredStaffs.isEmpty) {
                     return const Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -147,7 +147,7 @@ class _PatientsPageState extends State<PatientsPage> {
                           ),
                           SizedBox(height: 16),
                           Text(
-                            'No patients found',
+                            'No staffs found',
                             style: TextStyle(
                               color: AppPallete.darkGrayColor,
                               fontSize: 16,
@@ -159,9 +159,9 @@ class _PatientsPageState extends State<PatientsPage> {
                   }
                   return ListView.builder(
                     padding: const EdgeInsets.all(16.0),
-                    itemCount: state.filteredPatients.length,
+                    itemCount: state.filteredStaffs.length,
                     itemBuilder: (context, index) {
-                      final patient = state.filteredPatients[index];
+                      final staff = state.filteredStaffs[index];
                       return Card(
                         margin: const EdgeInsets.only(bottom: 12),
                         elevation: 2,
@@ -170,8 +170,8 @@ class _PatientsPageState extends State<PatientsPage> {
                           leading: CircleAvatar(
                             backgroundColor: AppPallete.secondaryColor,
                             child: Text(
-                              patient.fullName.isNotEmpty
-                                  ? patient.fullName[0]
+                              staff.fullName.isNotEmpty
+                                  ? staff.fullName[0]
                                   : '',
                               style: const TextStyle(
                                 color: AppPallete.textColor,
@@ -180,7 +180,7 @@ class _PatientsPageState extends State<PatientsPage> {
                             ),
                           ),
                           title: Text(
-                            patient.fullName,
+                            staff.fullName,
                             style: const TextStyle(
                               color: AppPallete.textColor,
                               fontWeight: FontWeight.w600,
@@ -190,13 +190,19 @@ class _PatientsPageState extends State<PatientsPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'DOB: ${patient.dateOfBirth}',
+                                'Department: ${staff.department}',
                                 style: const TextStyle(
                                   color: AppPallete.darkGrayColor,
                                 ),
                               ),
                               Text(
-                                'Gender: ${patient.gender}',
+                                'DOB: ${staff.dateOfBirth}',
+                                style: const TextStyle(
+                                  color: AppPallete.darkGrayColor,
+                                ),
+                              ),
+                              Text(
+                                'Gender: ${staff.gender}',
                                 style: const TextStyle(
                                   color: AppPallete.darkGrayColor,
                                 ),
@@ -209,7 +215,7 @@ class _PatientsPageState extends State<PatientsPage> {
                           ),
                           onTap: () {
                             Navigator.of(context).push(
-                              PatientInfosPage.route(patient.patientId),
+                              StaffInfosPage.route(staff.staffId),
                             );
                           },
                         ),

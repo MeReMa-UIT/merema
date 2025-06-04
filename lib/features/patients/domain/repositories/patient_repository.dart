@@ -5,8 +5,8 @@ import 'package:merema/core/layers/data/model/account_req_params.dart';
 import 'package:merema/features/patients/data/models/patient_req_params.dart';
 
 abstract class PatientRepository {
-  Future<Either<Error, PatientBriefInfos>> getPatientsList(String token);
-  Future<Either<Error, PatientInfo>> getPatientInfos(
+  Future<Either<Error, PatientsBriefInfos>> getPatientsList(String token);
+  Future<Either<Error, PatientInfos>> getPatientInfos(
       int patientId, String token);
   Future<Either<Error, dynamic>> registerPatient(
     AccountReqParams accountParams,

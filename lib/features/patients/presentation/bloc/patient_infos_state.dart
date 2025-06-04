@@ -7,7 +7,7 @@ class PatientInfosInitial extends PatientInfosState {}
 class PatientInfosLoading extends PatientInfosState {}
 
 class PatientInfosLoaded extends PatientInfosState {
-  final PatientInfo patientInfo;
+  final PatientInfos patientInfo;
 
   PatientInfosLoaded({required this.patientInfo});
 }

@@ -2,22 +2,21 @@ import 'package:dartz/dartz.dart';
 import 'package:merema/core/layers/data/sources/register_api_service.dart';
 import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/core/utils/error_handler.dart';
-import 'package:merema/features/patients/domain/entities/patient_brief_infos.dart';
-import 'package:merema/features/patients/domain/entities/patient_infos.dart';
-import 'package:merema/features/patients/domain/repositories/patient_repository.dart';
-import '../sources/patient_api_service.dart';
+import 'package:merema/features/staffs/data/sources/staff_api_service.dart';
+import 'package:merema/features/staffs/domain/entities/staff_infos.dart';
+import 'package:merema/features/staffs/domain/repositories/staff_repository.dart';
 import 'package:merema/core/layers/data/model/account_req_params.dart';
-import 'package:merema/features/patients/data/models/patient_req_params.dart';
+import 'package:merema/features/staffs/data/models/staff_req_params.dart';
 
-class PatientRepositoryImpl extends PatientRepository {
+class StaffRepositoryImpl extends StaffRepository {
   @override
-  Future<Either<Error, PatientsBriefInfos>> getPatientsList(String token) async {
+  Future<Either<Error, StaffsInfos>> getStaffsList(String token) async {
     try {
-      final result = await sl<PatientApiService>().fetchPatientsList(token);
+      final result = await sl<StaffApiService>().fetchStaffsList(token);
 
       return result.fold(
         (error) => Left(error),
-        (patientsList) => Right(patientsList),
+        (staffsList) => Right(staffsList),
       );
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));
@@ -25,15 +24,15 @@ class PatientRepositoryImpl extends PatientRepository {
   }
 
   @override
-  Future<Either<Error, PatientInfos>> getPatientInfos(
-      int patientId, String token) async {
+  Future<Either<Error, StaffInfos>> getStaffInfos(
+      int staffId, String token) async {
     try {
       final result =
-          await sl<PatientApiService>().fetchPatientInfos(patientId, token);
+          await sl<StaffApiService>().fetchStaffInfos(staffId, token);
 
       return result.fold(
         (error) => Left(error),
-        (patientInfo) => Right(patientInfo),
+        (staffInfo) => Right(staffInfo),
       );
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));
@@ -41,9 +40,9 @@ class PatientRepositoryImpl extends PatientRepository {
   }
 
   @override
-  Future<Either<Error, dynamic>> registerPatient(
+  Future<Either<Error, dynamic>> registerStaff(
     AccountReqParams accountParams,
-    PatientReqParams patientParams,
+    StaffReqParams staffParams,
     String token,
   ) async {
     try {
@@ -74,31 +73,31 @@ class PatientRepositoryImpl extends PatientRepository {
         registerToken = createAccData['token'];
       }
 
-      final patientRequest = accId == -1
-          ? {...patientParams.toJson()}
-          : {'acc_id': accId, ...patientParams.toJson()};
-      final regPatientResult = await sl<PatientApiService>().registerPatient(
-        patientRequest,
+      final staffRequest = accId == -1
+          ? {...staffParams.toJson()}
+          : {'acc_id': accId, ...staffParams.toJson()};
+      final regStaffResult = await sl<StaffApiService>().registerStaff(
+        staffRequest,
         registerToken,
       );
-      if (regPatientResult.isLeft()) {
-        return Left(regPatientResult.fold((l) => l,
-            (r) => ApiErrorHandler.handleError('Patient registration failed')));
+      if (regStaffResult.isLeft()) {
+        return Left(regStaffResult.fold((l) => l,
+            (r) => ApiErrorHandler.handleError('Staff registration failed')));
       }
 
-      return Right(regPatientResult.getOrElse(() => {}));
+      return Right(regStaffResult.getOrElse(() => {}));
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));
     }
   }
 
   @override
-  Future<Either<Error, dynamic>> updatePatient(
-      PatientReqParams patientParams, int patientId, String token) async {
+  Future<Either<Error, dynamic>> updateStaff(
+      StaffReqParams staffParams, int staffId, String token) async {
     try {
-      final result = await sl<PatientApiService>().updatePatientInfos(
-        patientParams.toJson(),
-        patientId,
+      final result = await sl<StaffApiService>().updateStaffInfos(
+        staffParams.toJson(),
+        staffId,
         token,
       );
 

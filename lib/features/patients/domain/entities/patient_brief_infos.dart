@@ -1,12 +1,12 @@
 import 'package:equatable/equatable.dart';
 
-class PatientBriefInfo extends Equatable {
+class PatientBriefInfos extends Equatable {
   final String dateOfBirth;
   final String fullName;
   final String gender;
   final int patientId;
 
-  const PatientBriefInfo({
+  const PatientBriefInfos({
     required this.dateOfBirth,
     required this.fullName,
     required this.gender,
@@ -17,10 +17,10 @@ class PatientBriefInfo extends Equatable {
   List<Object?> get props => [dateOfBirth, fullName, gender, patientId];
 }
 
-class PatientBriefInfos extends Equatable {
-  final List<PatientBriefInfo> patients;
+class PatientsBriefInfos extends Equatable {
+  final List<PatientBriefInfos> patients;
 
-  const PatientBriefInfos({
+  const PatientsBriefInfos({
     required this.patients,
   });
 

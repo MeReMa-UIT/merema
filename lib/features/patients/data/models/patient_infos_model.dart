@@ -1,6 +1,6 @@
 import 'package:merema/features/patients/domain/entities/patient_infos.dart';
 
-class PatientInfosModel extends PatientInfo {
+class PatientInfosModel extends PatientInfos {
   const PatientInfosModel({
     required super.address,
     required super.dateOfBirth,

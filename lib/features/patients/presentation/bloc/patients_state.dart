@@ -7,8 +7,8 @@ class PatientsInitial extends PatientsState {}
 class PatientsLoading extends PatientsState {}
 
 class PatientsLoaded extends PatientsState {
-  final List<PatientBriefInfo> allPatients;
-  final List<PatientBriefInfo> filteredPatients;
+  final List<PatientBriefInfos> allPatients;
+  final List<PatientBriefInfos> filteredPatients;
 
   PatientsLoaded({
     required this.allPatients,
@@ -16,8 +16,8 @@ class PatientsLoaded extends PatientsState {
   });
 
   PatientsLoaded copyWith({
-    List<PatientBriefInfo>? allPatients,
-    List<PatientBriefInfo>? filteredPatients,
+    List<PatientBriefInfos>? allPatients,
+    List<PatientBriefInfos>? filteredPatients,
   }) {
     return PatientsLoaded(
       allPatients: allPatients ?? this.allPatients,

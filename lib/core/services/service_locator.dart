@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:merema/core/layers/data/sources/register_api_service.dart';
 import 'package:merema/core/network/dio_client.dart';
 import 'package:merema/features/auth/data/sources/auth_local_service.dart';
 import 'package:merema/features/auth/domain/repositories/auth_repository.dart';
@@ -23,6 +24,13 @@ import 'package:merema/features/profile/data/sources/profile_local_service.dart'
 import 'package:merema/features/profile/domain/repositories/profile_repository.dart';
 import 'package:merema/features/profile/domain/usecases/get_user_profile.dart';
 import 'package:merema/features/profile/domain/usecases/update_profile.dart';
+import 'package:merema/features/staffs/data/repositories/staff_repository_impl.dart';
+import 'package:merema/features/staffs/data/sources/staff_api_service.dart';
+import 'package:merema/features/staffs/domain/repositories/staff_repository.dart';
+import 'package:merema/features/staffs/domain/usecases/get_staff_infos.dart';
+import 'package:merema/features/staffs/domain/usecases/get_staffs_list.dart';
+import 'package:merema/features/staffs/domain/usecases/register_staff.dart';
+import 'package:merema/features/staffs/domain/usecases/update_staff.dart';
 
 final sl = GetIt.instance;
 
@@ -36,7 +44,11 @@ void setupServiceLocator() {
   sl.registerSingleton<ProfileApiService>(ProfileApiServiceImpl());
   sl.registerSingleton<ProfileLocalService>(ProfileLocalServiceImpl());
 
+  sl.registerSingleton<RegisterApiService>(RegisterApiServiceImpl());
+
   sl.registerSingleton<PatientApiService>(PatientApiServiceImpl());
+
+  sl.registerSingleton<StaffApiService>(StaffApiServiceImpl());
 
   // Repositories
   sl.registerSingleton<AuthRepository>(AuthRepositoryImpl());
@@ -44,6 +56,8 @@ void setupServiceLocator() {
   sl.registerSingleton<ProfileRepository>(ProfileRepositoryImpl());
 
   sl.registerSingleton<PatientRepository>(PatientRepositoryImpl());
+
+  sl.registerSingleton<StaffRepository>(StaffRepositoryImpl());
 
   // Use cases
   sl.registerSingleton<LoginUseCase>(LoginUseCase());
@@ -71,5 +85,18 @@ void setupServiceLocator() {
   );
   sl.registerSingleton<UpdatePatientUseCase>(
     UpdatePatientUseCase(authRepository: sl()),
+  );
+
+  sl.registerSingleton<GetStaffsListUseCase>(
+    GetStaffsListUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<GetStaffInfosUseCase>(
+    GetStaffInfosUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<RegisterStaffUseCase>(
+    RegisterStaffUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<UpdateStaffUseCase>(
+    UpdateStaffUseCase(authRepository: sl()),
   );
 }
