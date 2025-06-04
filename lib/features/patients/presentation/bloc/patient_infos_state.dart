@@ -12,4 +12,7 @@ class PatientInfosLoaded extends PatientInfosState {
   PatientInfosLoaded({required this.patientInfo});
 }
 
-class PatientInfosError extends PatientInfosState {}
+class PatientInfosError extends PatientInfosState {
+  final String message;
+  PatientInfosError(this.message);
+}

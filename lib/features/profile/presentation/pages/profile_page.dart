@@ -1,11 +1,10 @@
-// TODO: Add patient and staff more infos /patients/{patient_id}
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:merema/core/theme/app_pallete.dart';
 import 'package:merema/features/profile/presentation/bloc/profile_state_cubit.dart';
 import 'package:merema/features/profile/presentation/bloc/profile_state.dart';
 import 'package:merema/core/layers/presentation/widgets/info_card.dart';
+import 'package:merema/features/profile/presentation/pages/update_profile_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -26,11 +25,20 @@ class ProfilePage extends StatelessWidget {
           BlocBuilder<ProfileCubit, ProfileState>(
             builder: (context, state) {
               if (state is ProfileLoaded) {
-                return IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () {
-                    // TODO: Navigate to update profile page
-                  },
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        UpdateProfilePage.route(
+                          citizenId: state.profile.citizenId,
+                          email: state.profile.email,
+                          phone: state.profile.phone,
+                        ),
+                      );
+                    },
+                  ),
                 );
               }
               return IconButton(
@@ -70,15 +78,11 @@ class ProfilePage extends StatelessWidget {
               ),
             );
           } else if (state is ProfileError) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Failed to load profile',
-                    style: TextStyle(color: AppPallete.errorColor),
-                  ),
-                ],
+            return Center(
+              child: Text(
+                state.message,
+                style: const TextStyle(color: AppPallete.errorColor),
+                textAlign: TextAlign.center,
               ),
             );
           }

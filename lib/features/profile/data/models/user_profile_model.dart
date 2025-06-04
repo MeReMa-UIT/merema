@@ -54,7 +54,6 @@ class UserProfileModel extends UserProfile {
     };
   }
 
-  // TODO: Implement update profile use case
   Map<String, dynamic> toJson() {
     dynamic additionalInfos;
 

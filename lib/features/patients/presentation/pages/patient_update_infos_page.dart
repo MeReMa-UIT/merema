@@ -247,8 +247,7 @@ class _PatientUpdateInfosPageState extends State<PatientUpdateInfosPage> {
                     );
                     result.fold(
                       (error) => ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Failed to update patient info')),
+                        SnackBar(content: Text(error.toString())),
                       ),
                       (success) {
                         ScaffoldMessenger.of(context).showSnackBar(

@@ -147,9 +147,7 @@ class _HomePageState extends State<HomePage> {
           _isLoadingRole = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text(
-                  'An error occurred, please restart the app or re-login')),
+          SnackBar(content: Text(e.toString())),
         );
       }
     }

@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:merema/core/services/service_locator.dart';
+import 'package:merema/core/utils/error_handler.dart';
 import 'package:merema/features/patients/domain/entities/patient_brief_infos.dart';
 import 'package:merema/features/patients/domain/entities/patient_infos.dart';
 import 'package:merema/features/patients/domain/repositories/patient_repository.dart';
@@ -14,11 +15,11 @@ class PatientRepositoryImpl extends PatientRepository {
       final result = await sl<PatientApiService>().fetchPatientsList(token);
 
       return result.fold(
-        (error) => Left(Error()),
+        (error) => Left(error),
         (patientsList) => Right(patientsList),
       );
     } catch (e) {
-      return Left(Error());
+      return Left(ApiErrorHandler.handleError(e));
     }
   }
 
@@ -30,11 +31,11 @@ class PatientRepositoryImpl extends PatientRepository {
           await sl<PatientApiService>().fetchPatientInfos(patientId, token);
 
       return result.fold(
-        (error) => Left(Error()),
+        (error) => Left(error),
         (patientInfo) => Right(patientInfo),
       );
     } catch (e) {
-      return Left(Error());
+      return Left(ApiErrorHandler.handleError(e));
     }
   }
 
@@ -48,7 +49,10 @@ class PatientRepositoryImpl extends PatientRepository {
       final regAccResult = await sl<PatientApiService>().registerAccount({
         'citizen_id': accountParams.citizenId,
       }, token);
-      if (regAccResult.isLeft()) return Left(Error());
+      if (regAccResult.isLeft()) {
+        return Left(regAccResult.fold((l) => l,
+            (r) => ApiErrorHandler.handleError('Registration failed')));
+      }
 
       final regAccData = regAccResult.getOrElse(() => {});
       var accId = regAccData['acc_id'];
@@ -59,7 +63,10 @@ class PatientRepositoryImpl extends PatientRepository {
           accountParams.toJson(),
           registerToken,
         );
-        if (createAccResult.isLeft()) return Left(Error());
+        if (createAccResult.isLeft()) {
+          return Left(createAccResult.fold((l) => l,
+              (r) => ApiErrorHandler.handleError('Account creation failed')));
+        }
 
         final createAccData = createAccResult.getOrElse(() => {});
         accId = createAccData['acc_id'];
@@ -73,11 +80,14 @@ class PatientRepositoryImpl extends PatientRepository {
         patientRequest,
         registerToken,
       );
-      if (regPatientResult.isLeft()) return Left(Error());
+      if (regPatientResult.isLeft()) {
+        return Left(regPatientResult.fold((l) => l,
+            (r) => ApiErrorHandler.handleError('Patient registration failed')));
+      }
 
       return Right(regPatientResult.getOrElse(() => {}));
     } catch (e) {
-      return Left(Error());
+      return Left(ApiErrorHandler.handleError(e));
     }
   }
 
@@ -92,11 +102,11 @@ class PatientRepositoryImpl extends PatientRepository {
       );
 
       return result.fold(
-        (error) => Left(Error()),
+        (error) => Left(error),
         (response) => Right(response),
       );
     } catch (e) {
-      return Left(Error());
+      return Left(ApiErrorHandler.handleError(e));
     }
   }
 }

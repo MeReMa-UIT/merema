@@ -21,7 +21,7 @@ class ApiErrorHandler {
     if (error is DioException) {
       final statusCode = error.response?.statusCode ?? 500;
       final message =
-          error.response?.data['message'] ?? 'Unknown error occurred';
+          error.response?.data['error'] ?? 'Unknown error occurred';
       return ApiError(message: message, statusCode: statusCode);
     }
 

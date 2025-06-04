@@ -22,6 +22,7 @@ import 'package:merema/features/profile/data/sources/profile_api_service.dart';
 import 'package:merema/features/profile/data/sources/profile_local_service.dart';
 import 'package:merema/features/profile/domain/repositories/profile_repository.dart';
 import 'package:merema/features/profile/domain/usecases/get_user_profile.dart';
+import 'package:merema/features/profile/domain/usecases/update_profile.dart';
 
 final sl = GetIt.instance;
 
@@ -56,6 +57,8 @@ void setupServiceLocator() {
 
   sl.registerSingleton<GetUserProfileUseCase>(
       GetUserProfileUseCase(authRepository: sl()));
+  sl.registerSingleton<UpdateProfileUseCase>(
+      UpdateProfileUseCase(authRepository: sl()));
 
   sl.registerSingleton<GetPatientsListUseCase>(
     GetPatientsListUseCase(authRepository: sl()),

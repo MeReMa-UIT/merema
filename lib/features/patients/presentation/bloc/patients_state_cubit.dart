@@ -12,7 +12,7 @@ class PatientsCubit extends Cubit<PatientsState> {
     final result = await sl<GetPatientsListUseCase>().call(null);
 
     result.fold(
-      (error) => emit(PatientsError()),
+      (error) => emit(PatientsError(error.toString())),
       (patientBriefInfos) {
         final patients = patientBriefInfos.patients;
         emit(PatientsLoaded(

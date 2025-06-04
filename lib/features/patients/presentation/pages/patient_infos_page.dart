@@ -65,22 +65,23 @@ class PatientInfosPage extends StatelessWidget {
             }
 
             if (state is PatientInfosError) {
-              return const Center(
+              return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.error_outline,
                       size: 64,
                       color: AppPallete.errorColor,
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     Text(
-                      'Failed to load patient information',
-                      style: TextStyle(
+                      state.message,
+                      style: const TextStyle(
                         fontSize: 18,
                         color: AppPallete.errorColor,
                       ),
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),

@@ -6,7 +6,19 @@ class LogoutInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode == 401) {
-      await sl<AuthRepository>().logout(); // TODO: Fix clean architecture violation
+      final responseData = err.response?.data;
+      if (responseData is Map<String, dynamic>) {
+        final message = responseData['message']?.toString().toLowerCase() ?? '';
+        final error = responseData['error']?.toString().toLowerCase() ?? '';
+
+        if (message.contains('token') &&
+                (message.contains('invalid') || message.contains('expired')) ||
+            error.contains('token') &&
+                (error.contains('invalid') || error.contains('expired'))) {
+          await sl<AuthRepository>()
+              .logout(); // TODO: Fix clean architecture violation
+        }
+      }
     }
     return handler.next(err);
   }

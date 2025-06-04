@@ -63,15 +63,9 @@ class _LoginPageState extends State<LoginPage> {
       child: BlocConsumer<ButtonStateCubit, ButtonState>(
         listener: (context, state) {
           if (state is ButtonErrorState) {
-            if (state.failure.statusCode == 401) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Incorrect email or password')),
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.failure.message)),
-              );
-            }
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.failure.message)),
+            );
           } else if (state is ButtonSuccessState) {
             Navigator.pushReplacement(context, HomePage.route());
           }

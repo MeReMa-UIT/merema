@@ -126,16 +126,9 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
               bloc: _verifyCubit,
               listener: (context, state) {
                 if (state is ButtonErrorState) {
-                  if (state.failure.statusCode == 401) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Incorrect verification code')),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(state.failure.message)),
-                    );
-                  }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(state.failure.message)),
+                  );
                 } else if (state is ButtonSuccessState) {
                   Navigator.push(
                     context,

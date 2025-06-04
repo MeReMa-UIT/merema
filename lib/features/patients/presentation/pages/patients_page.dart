@@ -114,12 +114,13 @@ class _PatientsPageState extends State<PatientsPage> {
                           size: 64,
                         ),
                         const SizedBox(height: 16),
-                        const Text(
-                          'Failed to load patients',
-                          style: TextStyle(
+                        Text(
+                          state.message,
+                          style: const TextStyle(
                             color: AppPallete.errorColor,
                             fontSize: 16,
                           ),
+                          textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 16),
                         AppButton(

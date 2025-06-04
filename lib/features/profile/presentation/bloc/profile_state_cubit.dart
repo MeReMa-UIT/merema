@@ -12,7 +12,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     final result = await sl<GetUserProfileUseCase>().call(null);
 
     result.fold(
-      (error) => emit(ProfileError()),
+      (error) => emit(ProfileError(error.toString())),
       (profile) => emit(ProfileLoaded(profile)),
     );
   }
