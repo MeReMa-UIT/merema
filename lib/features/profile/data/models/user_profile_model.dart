@@ -2,6 +2,7 @@ import 'package:merema/features/profile/domain/entities/user_profile.dart';
 
 class UserProfileModel extends UserProfile {
   const UserProfileModel({
+    required super.accId,
     required super.citizenId,
     required super.email,
     required super.phone,
@@ -14,6 +15,7 @@ class UserProfileModel extends UserProfile {
     final additionalInfos = json['additional_info'];
 
     return UserProfileModel(
+      accId: accountInfos['acc_id'],
       citizenId: accountInfos['citizen_id'],
       email: accountInfos['email'],
       phone: accountInfos['phone'],
@@ -65,6 +67,7 @@ class UserProfileModel extends UserProfile {
 
     return {
       'account_info': {
+        'acc_id': accId,
         'citizen_id': citizenId,
         'email': email,
         'phone': phone,

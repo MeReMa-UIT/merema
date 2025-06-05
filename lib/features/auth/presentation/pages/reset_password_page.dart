@@ -99,8 +99,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       if (value == null || value.isEmpty) {
                         return 'Please enter new password';
                       }
-                      if (!RegExp(r'^[\x00-\x7F]{6,}$').hasMatch(value)) {
-                        return 'Password must have at least 6 characters and contain only ASCII characters';
+                      if (value.length < 6) {
+                        return 'Password must have at least 6 characters';
                       }
                       return null;
                     },
@@ -114,8 +114,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       if (value == null || value.isEmpty) {
                         return 'Please confirm your password';
                       }
-                      if (!RegExp(r'^[\x00-\x7F]{6,}$').hasMatch(value)) {
-                        return 'Password must have at least 6 characters and contain only ASCII characters';
+                      if (value.length < 6) {
+                        return 'Password must have at least 6 characters';
                       }
                       if (value != _newPasswordController.text) {
                         return 'Passwords do not match';

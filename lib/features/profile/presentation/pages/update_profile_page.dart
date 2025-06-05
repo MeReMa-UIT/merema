@@ -103,9 +103,8 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
           if (value == null || value.isEmpty) {
             return 'Email is required';
           }
-          if (!RegExp(r'^[\x00-\x7F]*$').hasMatch(value) ||
-              !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-            return 'Email must be in correct format and contain only ASCII characters';
+          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+            return 'Email must be in correct format';
           }
           return null;
         };
@@ -124,8 +123,8 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
           if (value == null || value.isEmpty) {
             return 'New password is required';
           }
-          if (!RegExp(r'^[\x00-\x7F]{6,}$').hasMatch(value)) {
-            return 'Password must have at least 6 characters and contain only ASCII characters';
+          if (value.length < 6) {
+            return 'Password must have at least 6 characters';
           }
           return null;
         };
@@ -206,8 +205,8 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                           if (value == null || value.isEmpty) {
                             return 'Please confirm your new password';
                           }
-                          if (!RegExp(r'^[\x00-\x7F]{6,}$').hasMatch(value)) {
-                            return 'Password must have at least 6 characters and contain only ASCII characters';
+                          if (value.length < 6) {
+                            return 'Password must have at least 6 characters';
                           }
                           if (value != _newValueController.text) {
                             return 'Passwords do not match';
@@ -227,8 +226,8 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                         if (value == null || value.isEmpty) {
                           return 'Password is required';
                         }
-                        if (!RegExp(r'^[\x00-\x7F]{6,}$').hasMatch(value)) {
-                          return 'Password must have at least 6 characters and contain only ASCII characters';
+                        if (value.length < 6) {
+                          return 'Password must have at least 6 characters';
                         }
                         return null;
                       },

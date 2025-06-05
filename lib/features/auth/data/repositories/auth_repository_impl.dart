@@ -5,6 +5,7 @@ import 'package:merema/features/auth/data/sources/auth_local_service.dart';
 import 'package:merema/features/auth/domain/repositories/auth_repository.dart';
 import 'package:merema/features/auth/data/models/auth_req_params.dart';
 import 'package:merema/features/auth/data/sources/auth_api_service.dart';
+import 'package:merema/features/profile/data/sources/profile_api_service.dart';
 
 class AuthRepositoryImpl extends AuthRepository {
   @override
@@ -18,13 +19,16 @@ class AuthRepositoryImpl extends AuthRepository {
         (token) async {
           await sl<AuthLocalService>().setToken(token);
 
-          final userRole = await sl<AuthApiService>().fetchUserRole(token);
-          return userRole.fold(
+          final userProfile =
+              await sl<ProfileApiService>().fetchUserProfile(token);
+
+          return userProfile.fold(
             (error) {
               return Left(error);
             },
-            (role) async {
-              await sl<AuthLocalService>().setUserRole(role);
+            (profile) async {
+              await sl<AuthLocalService>().setUserRole(profile.role);
+              await sl<AuthLocalService>().setUserAccId(profile.accId);
               return Right(token);
             },
           );
@@ -78,6 +82,11 @@ class AuthRepositoryImpl extends AuthRepository {
   @override
   Future<String> getUserRole() async {
     return await sl<AuthLocalService>().getUserRole();
+  }
+
+  @override
+  Future<int> getUserAccId() async {
+    return await sl<AuthLocalService>().getUserAccId();
   }
 
   @override

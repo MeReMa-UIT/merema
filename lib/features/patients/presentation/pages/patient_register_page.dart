@@ -197,9 +197,8 @@ class _PatientRegisterPageState extends State<PatientRegisterPage> {
                         if (value == null || value.isEmpty) {
                           return 'Please enter email';
                         }
-                        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value) ||
-                            !RegExp(r'^[\x00-\x7F]*$').hasMatch(value)) {
-                          return 'Email must be in correct format and contain only ASCII characters';
+                        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                          return 'Email must be in correct format';
                         }
                         return null;
                       },

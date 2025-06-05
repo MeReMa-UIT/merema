@@ -11,6 +11,9 @@ abstract class AuthLocalService {
   Future<void> setUserRole(String role);
   Future<String> getUserRole();
 
+  Future<void> setUserAccId(int accId);
+  Future<int> getUserAccId();
+
   Future<void> logout();
 }
 
@@ -43,6 +46,18 @@ class AuthLocalServiceImpl implements AuthLocalService {
   Future<String> getUserRole() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     return sharedPreferences.getString('userRole') ?? '';
+  }
+
+  @override
+  Future<void> setUserAccId(int accId) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.setInt('userAccId', accId);
+  }
+
+  @override
+  Future<int> getUserAccId() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    return sharedPreferences.getInt('userAccId') ?? 0;
   }
 
   @override

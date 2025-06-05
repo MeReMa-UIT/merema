@@ -25,12 +25,6 @@ class AppField extends StatelessWidget {
     if (required && (value == null || value.isEmpty)) {
       return 'Please enter $labelText';
     }
-    if (value != null && value.isNotEmpty) {
-      final asciiRegex = RegExp(r'^[\x00-\x7F]*$');
-      if (!asciiRegex.hasMatch(value)) {
-        return 'Please enter only ASCII characters for $labelText';
-      }
-    }
     return null;
   }
 

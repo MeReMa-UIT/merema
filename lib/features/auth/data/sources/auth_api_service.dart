@@ -14,8 +14,6 @@ abstract class AuthApiService {
 
   Future<Either<ApiError, String>> recoveryReset(
       RecoveryResetReqParams recoveryResetParams);
-
-  Future<Either<ApiError, String>> fetchUserRole(String token);
 }
 
 class AuthApiServiceImpl implements AuthApiService {
@@ -75,22 +73,6 @@ class AuthApiServiceImpl implements AuthApiService {
         },
       );
       return const Right('Password reset successfully');
-    } catch (e) {
-      return Left(ApiErrorHandler.handleError(e));
-    }
-  }
-
-  @override
-  Future<Either<ApiError, String>> fetchUserRole(String token) async {
-    try {
-      final response = await sl<DioClient>().get(
-        '/accounts/profile',
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
-      );
-
-      return Right(response.data['account_info']['role']);
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));
     }

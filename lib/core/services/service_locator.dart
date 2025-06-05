@@ -3,6 +3,7 @@ import 'package:merema/core/layers/data/sources/register_api_service.dart';
 import 'package:merema/core/network/dio_client.dart';
 import 'package:merema/features/auth/data/sources/auth_local_service.dart';
 import 'package:merema/features/auth/domain/repositories/auth_repository.dart';
+import 'package:merema/features/auth/domain/usecases/get_acc_id.dart';
 import 'package:merema/features/auth/domain/usecases/get_token.dart';
 import 'package:merema/features/auth/domain/usecases/get_user_role.dart';
 import 'package:merema/features/auth/domain/usecases/is_logged_in.dart';
@@ -11,6 +12,13 @@ import 'package:merema/features/auth/domain/usecases/logout.dart';
 import 'package:merema/features/auth/domain/usecases/recovery.dart';
 import 'package:merema/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:merema/features/auth/data/sources/auth_api_service.dart';
+import 'package:merema/features/comms/data/repositories/comms_repository_impl.dart';
+import 'package:merema/features/comms/data/sources/comms_api_service.dart';
+import 'package:merema/features/comms/data/sources/comms_local_service.dart';
+import 'package:merema/features/comms/domain/repositories/comms_repository.dart';
+import 'package:merema/features/comms/domain/usecases/get_contacts.dart';
+import 'package:merema/features/comms/domain/usecases/get_messages.dart';
+import 'package:merema/features/comms/domain/usecases/send_message.dart';
 import 'package:merema/features/patients/data/repositories/patient_repository_impl.dart';
 import 'package:merema/features/patients/data/sources/patient_api_service.dart';
 import 'package:merema/features/patients/domain/repositories/patient_repository.dart';
@@ -37,6 +45,7 @@ import 'package:merema/features/staffs/domain/usecases/get_staff_infos.dart';
 import 'package:merema/features/staffs/domain/usecases/get_staffs_list.dart';
 import 'package:merema/features/staffs/domain/usecases/register_staff.dart';
 import 'package:merema/features/staffs/domain/usecases/update_staff.dart';
+import 'package:merema/core/services/message_notification_service.dart';
 
 final sl = GetIt.instance;
 
@@ -46,6 +55,9 @@ void setupServiceLocator() {
   // Services
   sl.registerSingleton<AuthApiService>(AuthApiServiceImpl());
   sl.registerSingleton<AuthLocalService>(AuthLocalServiceImpl());
+
+  sl.registerSingleton<MessageNotificationService>(
+      MessageNotificationService());
 
   sl.registerSingleton<ProfileApiService>(ProfileApiServiceImpl());
   sl.registerSingleton<ProfileLocalService>(ProfileLocalServiceImpl());
@@ -58,6 +70,9 @@ void setupServiceLocator() {
 
   sl.registerSingleton<ScheduleApiService>(ScheduleApiServiceImpl());
 
+  sl.registerSingleton<CommsApiService>(CommsApiServiceImpl());
+  sl.registerSingleton<CommsLocalService>(CommsLocalServiceImpl());
+
   // Repositories
   sl.registerSingleton<AuthRepository>(AuthRepositoryImpl());
 
@@ -69,6 +84,8 @@ void setupServiceLocator() {
 
   sl.registerSingleton<ScheduleRepository>(ScheduleRepositoryImpl());
 
+  sl.registerSingleton<CommsRepository>(CommsRepositoryImpl());
+
   // Use cases
   sl.registerSingleton<LoginUseCase>(LoginUseCase());
   sl.registerSingleton<RecoveryUseCase>(RecoveryUseCase());
@@ -77,6 +94,7 @@ void setupServiceLocator() {
   sl.registerSingleton<IsLoggedInUseCase>(IsLoggedInUseCase());
   sl.registerSingleton<GetTokenUseCase>(GetTokenUseCase());
   sl.registerSingleton<GetUserRoleUseCase>(GetUserRoleUseCase());
+  sl.registerSingleton<GetAccIdUseCase>(GetAccIdUseCase());
   sl.registerSingleton<LogoutUseCase>(LogoutUseCase());
 
   sl.registerSingleton<GetUserProfileUseCase>(
@@ -118,5 +136,15 @@ void setupServiceLocator() {
   );
   sl.registerSingleton<UpdateScheduleStatusUseCase>(
     UpdateScheduleStatusUseCase(authRepository: sl()),
+  );
+
+  sl.registerSingleton<GetContactsUseCase>(
+    GetContactsUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<GetMessagesUseCase>(
+    GetMessagesUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<SendMessageUseCase>(
+    SendMessageUseCase(authRepository: sl()),
   );
 }

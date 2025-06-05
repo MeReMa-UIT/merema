@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dartz/dartz.dart' hide State;
 import 'package:merema/core/services/service_locator.dart';
+import 'package:merema/core/theme/app_pallete.dart';
 import 'package:merema/features/schedules/domain/entities/schedule.dart';
 import 'package:merema/features/schedules/domain/usecases/update_schedule_status.dart';
 
@@ -161,81 +162,57 @@ class _ScheduleCardState extends State<ScheduleCard> {
                     ),
                   ),
                   Expanded(
-                    child: widget.isReceptionist
-                        ? (selectedStatus == 1
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                    width: 110,
-                                    child: ElevatedButton(
-                                      onPressed: () => _onStatusChanged(2),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.green,
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 12, vertical: 8),
-                                        textStyle: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.normal),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                        ),
-                                        elevation: 0,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: widget.isReceptionist
+                          ? (selectedStatus == 1
+                              ? SizedBox(
+                                  width: 120,
+                                  child: ElevatedButton(
+                                    onPressed: () => _onStatusChanged(2),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green,
+                                      foregroundColor:
+                                          AppPallete.backgroundColor,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 8),
+                                      textStyle: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.normal),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
                                       ),
-                                      child: const Text('Completed'),
+                                      elevation: 0,
                                     ),
+                                    child: const Text('Completed'),
                                   ),
-                                  const SizedBox(width: 8),
-                                  SizedBox(
-                                    width: 110,
-                                    child: ElevatedButton(
-                                      onPressed: () => _onStatusChanged(3),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.red,
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 12, vertical: 8),
-                                        textStyle: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.normal),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                        ),
-                                        elevation: 0,
-                                      ),
-                                      child: const Text('Cancelled'),
-                                    ),
+                                )
+                              : Text(
+                                  _getStatusText(
+                                      selectedStatus ?? widget.schedule.status),
+                                  style: TextStyle(
+                                    color: selectedStatus == 2
+                                        ? Colors.green
+                                        : selectedStatus == 3
+                                            ? Colors.red
+                                            : Colors.orange,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 14,
                                   ),
-                                ],
-                              )
-                            : Text(
-                                _getStatusText(
-                                    selectedStatus ?? widget.schedule.status),
-                                style: TextStyle(
-                                  color: selectedStatus == 2
-                                      ? Colors.green
-                                      : selectedStatus == 3
-                                          ? Colors.red
-                                          : Colors.orange,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 14,
-                                ),
-                              ))
-                        : Text(
-                            _getStatusText(widget.schedule.status),
-                            style: TextStyle(
-                              color: widget.schedule.status == 1
-                                  ? Colors.orange
-                                  : widget.schedule.status == 2
-                                      ? Colors.green
-                                      : Colors.red,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14,
+                                ))
+                          : Text(
+                              _getStatusText(widget.schedule.status),
+                              style: TextStyle(
+                                color: widget.schedule.status == 1
+                                    ? Colors.orange
+                                    : widget.schedule.status == 2
+                                        ? Colors.green
+                                        : Colors.red,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                              ),
                             ),
-                          ),
+                    ),
                   ),
                 ],
               ),
