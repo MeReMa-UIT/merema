@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:merema/core/layers/presentation/widgets/app_field.dart';
 import 'package:merema/core/layers/presentation/widgets/app_button.dart';
+import 'package:merema/core/layers/presentation/widgets/custom_dropdown.dart';
 import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/features/profile/domain/usecases/update_profile.dart';
 import 'package:merema/core/layers/presentation/bloc/button_state.dart';
 import 'package:merema/core/layers/presentation/bloc/button_state_cubit.dart';
-import 'package:merema/core/theme/app_pallete.dart';
 import 'package:merema/features/profile/presentation/pages/profile_page.dart';
 
 class UpdateProfilePage extends StatefulWidget {
@@ -154,104 +154,102 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
         builder: (context, state) {
           return Scaffold(
             appBar: AppBar(title: const Text('Update Profile')),
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    DropdownButtonFormField<String>(
-                      value: _selectedField,
-                      items: _fieldOptions.map((option) {
-                        return DropdownMenuItem<String>(
-                          value: option['value'],
-                          child: Text(option['label']!),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedField = value!;
-                          _newValueController.clear();
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        labelText: 'Field to Update',
-                        border: OutlineInputBorder(),
-                        labelStyle: TextStyle(color: AppPallete.textColor),
-                        floatingLabelStyle:
-                            TextStyle(color: AppPallete.textColor),
-                      ),
-                      dropdownColor: AppPallete.backgroundColor,
-                      style: const TextStyle(color: AppPallete.textColor),
-                      iconEnabledColor: AppPallete.textColor,
-                    ),
-                    const SizedBox(height: 12),
-                    AppField(
-                      labelText: _getFieldLabel(),
-                      hintText: _getHintText(),
-                      controller: _newValueController,
-                      alwaysShowLabel: _selectedField != 'password',
-                      validator: _getValidator(),
-                      isPassword: _selectedField == 'password',
-                    ),
-                    const SizedBox(height: 12),
-                    if (_selectedField == 'password') ...[
-                      AppField(
-                        labelText: 'Confirm New Password',
-                        controller: _confirmPasswordController,
-                        isPassword: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please confirm your new password';
-                          }
-                          if (value.length < 6) {
-                            return 'Password must have at least 6 characters';
-                          }
-                          if (value != _newValueController.text) {
-                            return 'Passwords do not match';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                    AppField(
-                      labelText: _selectedField == 'password'
-                          ? 'Current Password'
-                          : 'Password',
-                      controller: _passwordController,
-                      isPassword: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Password is required';
-                        }
-                        if (value.length < 6) {
-                          return 'Password must have at least 6 characters';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 28),
-                    AppButton(
-                      text: 'Update',
-                      onPressed: () {
-                        if (_formKey.currentState?.validate() ?? false) {
-                          final updateData = {
-                            'field': _selectedField,
-                            'new_value': _newValueController.text,
-                            'password': _passwordController.text,
-                          };
+            body: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 32.0, vertical: 20.0),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 400),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomDropdown<String>(
+                          selectedValue: _selectedField,
+                          availableItems: _fieldOptions
+                              .map((option) => option['value']!)
+                              .toList(),
+                          getDisplayText: (value) {
+                            return _fieldOptions.firstWhere(
+                                (option) => option['value'] == value)['label']!;
+                          },
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedField = value!;
+                              _newValueController.clear();
+                            });
+                          },
+                          labelText: 'Field to Update',
+                        ),
+                        const SizedBox(height: 12),
+                        AppField(
+                          labelText: _getFieldLabel(),
+                          hintText: _getHintText(),
+                          controller: _newValueController,
+                          alwaysShowLabel: _selectedField != 'password',
+                          validator: _getValidator(),
+                          isPassword: _selectedField == 'password',
+                        ),
+                        const SizedBox(height: 12),
+                        if (_selectedField == 'password') ...[
+                          AppField(
+                            labelText: 'Confirm New Password',
+                            controller: _confirmPasswordController,
+                            isPassword: true,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please confirm your new password';
+                              }
+                              if (value.length < 6) {
+                                return 'Password must have at least 6 characters';
+                              }
+                              if (value != _newValueController.text) {
+                                return 'Passwords do not match';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        AppField(
+                          labelText: _selectedField == 'password'
+                              ? 'Current Password'
+                              : 'Password',
+                          controller: _passwordController,
+                          isPassword: true,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Password is required';
+                            }
+                            if (value.length < 6) {
+                              return 'Password must have at least 6 characters';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 28),
+                        AppButton(
+                          text: 'Update',
+                          onPressed: () {
+                            if (_formKey.currentState?.validate() ?? false) {
+                              final updateData = {
+                                'field': _selectedField,
+                                'new_value': _newValueController.text,
+                                'password': _passwordController.text,
+                              };
 
-                          context.read<ButtonStateCubit>().execute(
-                                useCase: sl<UpdateProfileUseCase>(),
-                                params: updateData,
-                              );
-                        }
-                      },
-                      isLoading: state is ButtonLoadingState,
+                              context.read<ButtonStateCubit>().execute(
+                                    useCase: sl<UpdateProfileUseCase>(),
+                                    params: updateData,
+                                  );
+                            }
+                          },
+                          isLoading: state is ButtonLoadingState,
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),

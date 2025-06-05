@@ -55,26 +55,36 @@ class ProfilePage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           } else if (state is ProfileLoaded) {
             final profile = state.profile;
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  InfoCard(
-                    title: 'Account Information',
-                    icon: Icons.account_circle,
-                    fields: [
-                      InfoField(label: 'Citizen ID', value: profile.citizenId),
-                      InfoField(label: 'Email', value: profile.email),
-                      InfoField(label: 'Phone Number', value: profile.phone),
-                      InfoField(label: 'Role', value: profile.role),
+            return Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 32.0),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 600),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      InfoCard(
+                        title: 'Account Information',
+                        icon: Icons.account_circle,
+                        fields: [
+                          InfoField(
+                              label: 'Citizen ID', value: profile.citizenId),
+                          InfoField(label: 'Email', value: profile.email),
+                          InfoField(
+                              label: 'Phone Number', value: profile.phone),
+                          InfoField(label: 'Role', value: profile.role),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      if (profile.role == 'patient')
+                        _buildPatientInfo(profile)
+                      else if (profile.role != 'admin')
+                        _buildStaffInfo(profile),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  if (profile.role == 'patient')
-                    _buildPatientInfo(profile)
-                  else if (profile.role != 'admin')
-                    _buildStaffInfo(profile),
-                ],
+                ),
               ),
             );
           } else if (state is ProfileError) {
