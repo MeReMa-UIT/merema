@@ -57,7 +57,7 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
         title: 'Prescriptions',
         icon: Icons.receipt_long,
         onTap: (context) {
-          Navigator.push(context, PrescriptionsPage.route());
+          Navigator.push(context, PrescriptionsPatientPage.route());
         }),
     MenuItemConfig(
         title: 'Schedules',

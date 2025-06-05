@@ -1,16 +1,16 @@
 import 'package:equatable/equatable.dart';
 
-class PrescriptionDetail extends Equatable {
-  final int afternoonDosage;
+class PrescriptionDetails extends Equatable {
+  final double afternoonDosage;
   final String dosageUnit;
   final int durationDays;
-  final int eveningDosage;
+  final double eveningDosage;
   final String instructions;
   final int medId;
-  final int morningDosage;
-  final int totalDosage;
+  final double morningDosage;
+  final double totalDosage;
 
-  const PrescriptionDetail({
+  const PrescriptionDetails({
     required this.afternoonDosage,
     required this.dosageUnit,
     required this.durationDays,
@@ -35,7 +35,7 @@ class PrescriptionDetail extends Equatable {
 }
 
 class Prescription extends Equatable {
-  final List<PrescriptionDetail> details;
+  final List<PrescriptionDetails> details;
   final bool isInsuranceCovered;
   final String prescriptionNote;
   final int recordId;
@@ -52,6 +52,34 @@ class Prescription extends Equatable {
         details,
         isInsuranceCovered,
         prescriptionNote,
+        recordId,
+      ];
+}
+
+class PrescriptionResponse extends Equatable {
+  final String createdAt;
+  final bool isInsuranceCovered;
+  final int prescriptionId;
+  final String prescriptionNote;
+  final String? receivedAt;
+  final int recordId;
+
+  const PrescriptionResponse({
+    required this.createdAt,
+    required this.isInsuranceCovered,
+    required this.prescriptionId,
+    required this.prescriptionNote,
+    this.receivedAt,
+    required this.recordId,
+  });
+
+  @override
+  List<Object?> get props => [
+        createdAt,
+        isInsuranceCovered,
+        prescriptionId,
+        prescriptionNote,
+        receivedAt,
         recordId,
       ];
 }

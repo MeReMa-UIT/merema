@@ -8,17 +8,17 @@ abstract class PrescriptionRepository {
     String token,
   );
 
-  Future<Either<Error, List<Prescription>>> getPrescriptionsByPatientId(
+  Future<Either<Error, List<PrescriptionResponse>>> getPrescriptionsByPatientId(
     int patientId,
     String token,
   );
 
-  Future<Either<Error, List<Prescription>>> getPrescriptionsByRecordId(
+  Future<Either<Error, List<PrescriptionResponse>>> getPrescriptionsByRecordId(
     int recordId,
     String token,
   );
 
-  Future<Either<Error, List<PrescriptionDetail>>> getPrescriptionDetails(
+  Future<Either<Error, List<PrescriptionDetails>>> getPrescriptionDetails(
     int prescriptionId,
     String token,
   );

@@ -116,9 +116,9 @@ class _ScheduleCardState extends State<ScheduleCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 8),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -161,6 +161,7 @@ class _ScheduleCardState extends State<ScheduleCard> {
                           TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
                     ),
                   ),
+                  const SizedBox(width: 30),
                   Expanded(
                     child: Align(
                       alignment: Alignment.centerLeft,
@@ -236,6 +237,7 @@ class _ScheduleCardState extends State<ScheduleCard> {
               style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
             ),
           ),
+          const SizedBox(width: 30),
           Expanded(
             child: Text(
               value,

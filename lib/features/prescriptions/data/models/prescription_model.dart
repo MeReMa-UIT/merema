@@ -1,7 +1,7 @@
 import 'package:merema/features/prescriptions/domain/entities/prescription.dart';
 
-class PrescriptionDetailModel extends PrescriptionDetail {
-  const PrescriptionDetailModel({
+class PrescriptionDetailsModel extends PrescriptionDetails {
+  const PrescriptionDetailsModel({
     required super.afternoonDosage,
     required super.dosageUnit,
     required super.durationDays,
@@ -12,8 +12,8 @@ class PrescriptionDetailModel extends PrescriptionDetail {
     required super.totalDosage,
   });
 
-  factory PrescriptionDetailModel.fromJson(Map<String, dynamic> json) {
-    return PrescriptionDetailModel(
+  factory PrescriptionDetailsModel.fromJson(Map<String, dynamic> json) {
+    return PrescriptionDetailsModel(
       afternoonDosage: json['afternoon_dosage'],
       dosageUnit: json['dosage_unit'],
       durationDays: json['duration_days'],
@@ -36,13 +36,35 @@ class PrescriptionModel extends Prescription {
 
   factory PrescriptionModel.fromJson(Map<String, dynamic> json) {
     final detailsList = (json['details'] as List<dynamic>)
-        .map((detailJson) => PrescriptionDetailModel.fromJson(detailJson))
+        .map((detailJson) => PrescriptionDetailsModel.fromJson(detailJson))
         .toList();
 
     return PrescriptionModel(
       details: detailsList,
       isInsuranceCovered: json['is_insurance_covered'],
       prescriptionNote: json['prescription_note'],
+      recordId: json['record_id'],
+    );
+  }
+}
+
+class PrescriptionResponseModel extends PrescriptionResponse {
+  const PrescriptionResponseModel({
+    required super.createdAt,
+    required super.isInsuranceCovered,
+    required super.prescriptionId,
+    required super.prescriptionNote,
+    super.receivedAt,
+    required super.recordId,
+  });
+
+  factory PrescriptionResponseModel.fromJson(Map<String, dynamic> json) {
+    return PrescriptionResponseModel(
+      createdAt: json['created_at'],
+      isInsuranceCovered: json['is_insurance_covered'],
+      prescriptionId: json['prescription_id'],
+      prescriptionNote: json['prescription_note'],
+      receivedAt: json['received_at'],
       recordId: json['record_id'],
     );
   }

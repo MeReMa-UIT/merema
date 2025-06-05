@@ -55,15 +55,12 @@ class ProfilePage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           } else if (state is ProfileLoaded) {
             final profile = state.profile;
-            return Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0, vertical: 32.0),
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 600),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       InfoCard(
                         title: 'Account Information',

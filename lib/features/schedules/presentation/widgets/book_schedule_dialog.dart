@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/core/theme/app_pallete.dart';
 import 'package:merema/core/layers/presentation/widgets/app_button.dart';
+import 'package:merema/core/layers/presentation/widgets/custom_dropdown.dart';
 import 'package:merema/features/schedules/domain/usecases/book_schedule.dart';
 
 class BookScheduleDialog extends StatefulWidget {
@@ -100,6 +101,7 @@ class _BookScheduleDialogState extends State<BookScheduleDialog> {
       builder: (dialogContext) => AlertDialog(
         title: const Text(
           'Schedule Booked Successfully!',
+          textAlign: TextAlign.center,
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: AppPallete.textColor,
@@ -144,15 +146,18 @@ class _BookScheduleDialogState extends State<BookScheduleDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 200,
+            width: 180,
             child: Text(
               '$label:',
               style: const TextStyle(
                 fontWeight: FontWeight.w500,
                 color: AppPallete.textColor,
               ),
+              overflow: TextOverflow.visible,
+              softWrap: false,
             ),
           ),
+          const SizedBox(width: 30),
           Expanded(
             child: Text(
               value,
@@ -193,78 +198,73 @@ class _BookScheduleDialogState extends State<BookScheduleDialog> {
     return AlertDialog(
       title: const Text(
         'Book Schedule',
+        textAlign: TextAlign.center,
         style: TextStyle(
           fontWeight: FontWeight.w600,
           color: AppPallete.textColor,
         ),
       ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Select Date:',
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              color: AppPallete.textColor,
-            ),
-          ),
-          const SizedBox(height: 8),
-          GestureDetector(
-            onTap: () => _selectDate(context),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-              decoration: BoxDecoration(
-                border: Border.all(color: AppPallete.lightGrayColor),
-                borderRadius: BorderRadius.circular(8),
+      content: SizedBox(
+        width: 400,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Select Date:',
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: AppPallete.textColor,
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    selectedDate == null
-                        ? 'Select examination date'
-                        : '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}',
-                    style: TextStyle(
-                      color: selectedDate == null
-                          ? AppPallete.lightGrayColor
-                          : AppPallete.textColor,
+            ),
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: () => _selectDate(context),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppPallete.lightGrayColor),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      selectedDate == null
+                          ? 'Select examination date'
+                          : '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}',
+                      style: TextStyle(
+                        color: selectedDate == null
+                            ? AppPallete.lightGrayColor
+                            : AppPallete.textColor,
+                      ),
                     ),
-                  ),
-                  const Icon(
-                    Icons.calendar_today,
-                    color: AppPallete.primaryColor,
-                    size: 20,
-                  ),
-                ],
+                    const Icon(
+                      Icons.calendar_today,
+                      color: AppPallete.primaryColor,
+                      size: 20,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          DropdownButtonFormField<int>(
-            value: selectedType,
-            decoration: const InputDecoration(
+            const SizedBox(height: 16),
+            CustomDropdown<int>(
+              selectedValue: selectedType,
+              availableItems: const [1, 2],
+              onChanged: (int? newValue) {
+                if (newValue != null) {
+                  setState(() {
+                    selectedType = newValue;
+                  });
+                }
+              },
+              getDisplayText: (int type) => _getTypeText(type),
               labelText: 'Type',
-              border: OutlineInputBorder(),
-              labelStyle: TextStyle(color: AppPallete.textColor),
-              floatingLabelStyle: TextStyle(color: AppPallete.textColor),
             ),
-            dropdownColor: AppPallete.backgroundColor,
-            style: const TextStyle(color: AppPallete.textColor),
-            iconEnabledColor: AppPallete.textColor,
-            items: const [
-              DropdownMenuItem(value: 1, child: Text('Regular')),
-              DropdownMenuItem(value: 2, child: Text('Service')),
-            ],
-            onChanged: (int? newValue) {
-              if (newValue != null) {
-                setState(() {
-                  selectedType = newValue;
-                });
-              }
-            },
-          ),
-        ],
+          ],
+        ),
       ),
       actions: [
         TextButton(

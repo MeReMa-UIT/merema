@@ -26,7 +26,7 @@ class PrescriptionRepositoryImpl implements PrescriptionRepository {
   }
 
   @override
-  Future<Either<Error, List<Prescription>>> getPrescriptionsByPatientId(
+  Future<Either<Error, List<PrescriptionResponse>>> getPrescriptionsByPatientId(
     int patientId,
     String token,
   ) async {
@@ -35,7 +35,7 @@ class PrescriptionRepositoryImpl implements PrescriptionRepository {
           .fetchPrescriptionsByPatientId(patientId, token);
       return result.fold(
         (error) => Left(error),
-        (prescriptions) => Right(prescriptions),
+        (prescriptions) => Right(prescriptions.cast<PrescriptionResponse>()),
       );
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));
@@ -43,7 +43,7 @@ class PrescriptionRepositoryImpl implements PrescriptionRepository {
   }
 
   @override
-  Future<Either<Error, List<Prescription>>> getPrescriptionsByRecordId(
+  Future<Either<Error, List<PrescriptionResponse>>> getPrescriptionsByRecordId(
     int recordId,
     String token,
   ) async {
@@ -52,7 +52,7 @@ class PrescriptionRepositoryImpl implements PrescriptionRepository {
           .fetchPrescriptionsByRecordId(recordId, token);
       return result.fold(
         (error) => Left(error),
-        (prescriptions) => Right(prescriptions),
+        (prescriptions) => Right(prescriptions.cast<PrescriptionResponse>()),
       );
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));
@@ -60,7 +60,7 @@ class PrescriptionRepositoryImpl implements PrescriptionRepository {
   }
 
   @override
-  Future<Either<Error, List<PrescriptionDetail>>> getPrescriptionDetails(
+  Future<Either<Error, List<PrescriptionDetails>>> getPrescriptionDetails(
     int prescriptionId,
     String token,
   ) async {

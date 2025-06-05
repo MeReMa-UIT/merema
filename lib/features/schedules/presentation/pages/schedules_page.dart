@@ -176,25 +176,34 @@ class _SchedulesPageState extends State<SchedulesPage> {
                     );
                   }
 
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(12),
-                    itemCount: schedules.length,
-                    itemBuilder: (context, index) {
-                      final schedule = schedules[index];
-                      return ScheduleCard(
-                        schedule: schedule,
-                        isReceptionist: userRole == UserRole.receptionist,
-                        onStatusUpdated: () =>
-                            context.read<SchedulesCubit>().getSchedules(
-                                  types: selectedTypes.isEmpty
-                                      ? null
-                                      : selectedTypes,
-                                  statuses: selectedStatuses.isEmpty
-                                      ? null
-                                      : selectedStatuses,
-                                ),
-                      );
-                    },
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 450),
+                        child: Column(
+                          children: schedules.map<Widget>((schedule) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 16.0),
+                              child: ScheduleCard(
+                                schedule: schedule,
+                                isReceptionist:
+                                    userRole == UserRole.receptionist,
+                                onStatusUpdated: () =>
+                                    context.read<SchedulesCubit>().getSchedules(
+                                          types: selectedTypes.isEmpty
+                                              ? null
+                                              : selectedTypes,
+                                          statuses: selectedStatuses.isEmpty
+                                              ? null
+                                              : selectedStatuses,
+                                        ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
                   );
                 }
 

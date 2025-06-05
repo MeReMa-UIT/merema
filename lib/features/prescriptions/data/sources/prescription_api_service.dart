@@ -10,17 +10,17 @@ abstract class PrescriptionApiService {
     Map<String, dynamic> prescriptionData,
     String token,
   );
-  Future<Either<ApiError, List<PrescriptionModel>>>
+  Future<Either<ApiError, List<PrescriptionResponseModel>>>
       fetchPrescriptionsByPatientId(
     int patientId,
     String token,
   );
-  Future<Either<ApiError, List<PrescriptionModel>>>
+  Future<Either<ApiError, List<PrescriptionResponseModel>>>
       fetchPrescriptionsByRecordId(
     int recordId,
     String token,
   );
-  Future<Either<ApiError, List<PrescriptionDetailModel>>>
+  Future<Either<ApiError, List<PrescriptionDetailsModel>>>
       fetchPrescriptionDetails(
     int prescriptionId,
     String token,
@@ -65,7 +65,7 @@ class PrescriptionApiServiceImpl implements PrescriptionApiService {
   }
 
   @override
-  Future<Either<ApiError, List<PrescriptionModel>>>
+  Future<Either<ApiError, List<PrescriptionResponseModel>>>
       fetchPrescriptionsByPatientId(
     int patientId,
     String token,
@@ -80,7 +80,7 @@ class PrescriptionApiServiceImpl implements PrescriptionApiService {
 
       final prescriptionsList = (response.data as List<dynamic>)
           .map((prescriptionJson) =>
-              PrescriptionModel.fromJson(prescriptionJson))
+              PrescriptionResponseModel.fromJson(prescriptionJson))
           .toList();
       return Right(prescriptionsList);
     } catch (e) {
@@ -89,7 +89,7 @@ class PrescriptionApiServiceImpl implements PrescriptionApiService {
   }
 
   @override
-  Future<Either<ApiError, List<PrescriptionModel>>>
+  Future<Either<ApiError, List<PrescriptionResponseModel>>>
       fetchPrescriptionsByRecordId(
     int recordId,
     String token,
@@ -104,7 +104,7 @@ class PrescriptionApiServiceImpl implements PrescriptionApiService {
 
       final prescriptionsList = (response.data as List<dynamic>)
           .map((prescriptionJson) =>
-              PrescriptionModel.fromJson(prescriptionJson))
+              PrescriptionResponseModel.fromJson(prescriptionJson))
           .toList();
       return Right(prescriptionsList);
     } catch (e) {
@@ -113,7 +113,7 @@ class PrescriptionApiServiceImpl implements PrescriptionApiService {
   }
 
   @override
-  Future<Either<ApiError, List<PrescriptionDetailModel>>>
+  Future<Either<ApiError, List<PrescriptionDetailsModel>>>
       fetchPrescriptionDetails(
     int prescriptionId,
     String token,
@@ -127,7 +127,7 @@ class PrescriptionApiServiceImpl implements PrescriptionApiService {
       );
 
       final prescriptionDetailsList = (response.data as List<dynamic>)
-          .map((detailJson) => PrescriptionDetailModel.fromJson(detailJson))
+          .map((detailJson) => PrescriptionDetailsModel.fromJson(detailJson))
           .toList();
       return Right(prescriptionDetailsList);
     } catch (e) {
