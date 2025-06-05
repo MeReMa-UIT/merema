@@ -10,6 +10,7 @@ import 'package:merema/features/comms/domain/usecases/get_contacts.dart';
 import 'package:merema/features/comms/presentation/pages/contacts_page.dart';
 import 'package:merema/features/comms/presentation/pages/messages_page.dart';
 import 'package:merema/features/home/presentation/widgets/menu_items_layout.dart';
+import 'package:merema/features/prescriptions/presentation/pages/prescriptions_patient_page.dart';
 import 'package:merema/features/profile/presentation/pages/profile_page.dart';
 import 'package:merema/features/patients/presentation/pages/patients_page.dart';
 import 'package:merema/features/schedules/presentation/pages/schedules_page.dart';
@@ -30,25 +31,12 @@ class MenuItemConfig {
 final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
   // TODO: Implement menu items for each user role
   UserRole.doctor: [
-    MenuItemConfig(
-        title: 'Medical Records',
-        icon: Icons.medical_information,
-        onTap: (context) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Medical records unimplemented')));
-        }),
+    // TODO: Use seperate pages for doctor?
     MenuItemConfig(
         title: 'Patients',
         icon: Icons.people,
         onTap: (context) {
           Navigator.push(context, PatientsPage.route());
-        }),
-    MenuItemConfig(
-        title: 'Prescriptions',
-        icon: Icons.receipt_long,
-        onTap: (context) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Prescriptions unimplemented')));
         }),
     MenuItemConfig(
         title: 'Messages',
@@ -69,8 +57,7 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
         title: 'Prescriptions',
         icon: Icons.receipt_long,
         onTap: (context) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Prescriptions unimplemented')));
+          Navigator.push(context, PrescriptionsPage.route());
         }),
     MenuItemConfig(
         title: 'Schedules',
@@ -86,6 +73,7 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
         }),
   ],
   UserRole.admin: [
+    // TODO: Use seperate pages for admin?
     MenuItemConfig(
         title: 'Staffs',
         icon: Icons.people,
@@ -101,18 +89,12 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
         }),
   ],
   UserRole.receptionist: [
+    // TODO: Use seperate pages for receptionist?
     MenuItemConfig(
         title: 'Patients',
         icon: Icons.people,
         onTap: (context) {
           Navigator.push(context, PatientsPage.route());
-        }),
-    MenuItemConfig(
-        title: 'Prescription',
-        icon: Icons.receipt_long,
-        onTap: (context) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Prescriptions unimplemented')));
         }),
     MenuItemConfig(
         title: 'Schedules',
@@ -137,20 +119,19 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   UserRole _currentUserRole = UserRole.noRole;
   bool _isLoadingRole = true;
-  late final MessageNotificationService _notificationService;
+  MessageNotificationService? _notificationService;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _getRole();
-    _setupNotificationService();
   }
 
   @override
   void dispose() {
-    _notificationService.removeListener(_onNewMessage);
-    _notificationService.stopPeriodicCheck();
+    _notificationService?.removeListener(_onNewMessage);
+    _notificationService?.stopPeriodicCheck();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -159,11 +140,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        _notificationService.startPeriodicCheck();
+        _notificationService?.startPeriodicCheck();
         break;
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
-        _notificationService.stopPeriodicCheck();
+        _notificationService?.stopPeriodicCheck();
         break;
       default:
         break;
@@ -171,9 +152,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   void _setupNotificationService() {
-    _notificationService = sl<MessageNotificationService>();
-    _notificationService.addListener(_onNewMessage);
-    _notificationService.startPeriodicCheck();
+    if (_currentUserRole == UserRole.doctor ||
+        _currentUserRole == UserRole.patient) {
+      _notificationService = sl<MessageNotificationService>();
+      _notificationService?.addListener(_onNewMessage);
+      _notificationService?.startPeriodicCheck();
+    }
   }
 
   void _onNewMessage(Message message) async {
@@ -217,6 +201,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         _currentUserRole = userRole;
         _isLoadingRole = false;
       });
+      _setupNotificationService();
     } catch (e) {
       if (mounted) {
         setState(() {

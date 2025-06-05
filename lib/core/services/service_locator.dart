@@ -26,6 +26,18 @@ import 'package:merema/features/patients/domain/usecases/get_patient_infos.dart'
 import 'package:merema/features/patients/domain/usecases/get_patients_list.dart';
 import 'package:merema/features/patients/domain/usecases/register_patient.dart';
 import 'package:merema/features/patients/domain/usecases/update_patient.dart';
+import 'package:merema/features/prescriptions/data/repositories/prescription_repository_impl.dart';
+import 'package:merema/features/prescriptions/data/sources/prescription_api_service.dart';
+import 'package:merema/features/prescriptions/data/sources/prescription_local_service.dart';
+import 'package:merema/features/prescriptions/domain/repositories/prescription_repository.dart';
+import 'package:merema/features/prescriptions/domain/usecases/confirm_received.dart';
+import 'package:merema/features/prescriptions/domain/usecases/create_prescription.dart';
+import 'package:merema/features/prescriptions/domain/usecases/get_medication_by_id.dart';
+import 'package:merema/features/prescriptions/domain/usecases/get_medications.dart';
+import 'package:merema/features/prescriptions/domain/usecases/get_prescription_details.dart';
+import 'package:merema/features/prescriptions/domain/usecases/get_prescriptions_by_patient.dart';
+import 'package:merema/features/prescriptions/domain/usecases/get_prescriptions_by_record.dart';
+import 'package:merema/features/prescriptions/domain/usecases/update_prescription.dart';
 import 'package:merema/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:merema/features/profile/data/sources/profile_api_service.dart';
 import 'package:merema/features/profile/data/sources/profile_local_service.dart';
@@ -73,6 +85,10 @@ void setupServiceLocator() {
   sl.registerSingleton<CommsApiService>(CommsApiServiceImpl());
   sl.registerSingleton<CommsLocalService>(CommsLocalServiceImpl());
 
+  sl.registerSingleton<PrescriptionApiService>(PrescriptionApiServiceImpl());
+  sl.registerSingleton<PrescriptionLocalService>(
+      PrescriptionLocalServiceImpl());
+
   // Repositories
   sl.registerSingleton<AuthRepository>(AuthRepositoryImpl());
 
@@ -85,6 +101,8 @@ void setupServiceLocator() {
   sl.registerSingleton<ScheduleRepository>(ScheduleRepositoryImpl());
 
   sl.registerSingleton<CommsRepository>(CommsRepositoryImpl());
+
+  sl.registerSingleton<PrescriptionRepository>(PrescriptionRepositoryImpl());
 
   // Use cases
   sl.registerSingleton<LoginUseCase>(LoginUseCase());
@@ -146,5 +164,30 @@ void setupServiceLocator() {
   );
   sl.registerSingleton<SendMessageUseCase>(
     SendMessageUseCase(authRepository: sl()),
+  );
+
+  sl.registerSingleton<GetMedicationsUseCase>(
+    GetMedicationsUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<GetMedicationByIdUseCase>(
+    GetMedicationByIdUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<GetPrescriptionsByPatientUseCase>(
+    GetPrescriptionsByPatientUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<GetPrescriptionsByRecordUseCase>(
+    GetPrescriptionsByRecordUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<GetPrescriptionDetailsUseCase>(
+    GetPrescriptionDetailsUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<CreatePrescriptionUseCase>(
+    CreatePrescriptionUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<UpdatePrescriptionUseCase>(
+    UpdatePrescriptionUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<ConfirmReceivedUseCase>(
+    ConfirmReceivedUseCase(authRepository: sl()),
   );
 }

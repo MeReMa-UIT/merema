@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:merema/core/theme/app_pallete.dart';
 import 'package:merema/core/layers/presentation/widgets/app_field.dart';
 import 'package:merema/core/layers/presentation/widgets/app_button.dart';
+import 'package:merema/core/layers/presentation/widgets/custom_dropdown.dart';
 import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/features/staffs/domain/usecases/register_staff.dart';
 import 'package:merema/core/layers/data/model/account_req_params.dart';
@@ -137,64 +138,33 @@ class _StaffRegisterPageState extends State<StaffRegisterPage> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    DropdownButtonFormField<String>(
-                      value: _selectedGender,
-                      items: const [
-                        DropdownMenuItem(value: 'Nam', child: Text('Nam')),
-                        DropdownMenuItem(value: 'Nữ', child: Text('Nữ')),
-                      ],
+                    CustomDropdown<String>(
+                      selectedValue: _selectedGender,
+                      availableItems: const ['Nam', 'Nữ'],
+                      labelText: 'Gender',
+                      getDisplayText: (value) => value,
+                      padding: const EdgeInsets.symmetric(horizontal: 0),
+                      height: 60,
                       onChanged: (value) {
                         setState(() {
                           _selectedGender = value!;
                         });
                       },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please select gender';
-                        }
-                        return null;
-                      },
-                      decoration: const InputDecoration(
-                        labelText: 'Gender',
-                        border: OutlineInputBorder(),
-                        labelStyle: TextStyle(color: AppPallete.textColor),
-                        floatingLabelStyle:
-                            TextStyle(color: AppPallete.textColor),
-                      ),
-                      dropdownColor: AppPallete.backgroundColor,
-                      style: const TextStyle(color: AppPallete.textColor),
-                      iconEnabledColor: AppPallete.textColor,
                     ),
                     const SizedBox(height: 12),
-                    DropdownButtonFormField<String>(
-                      value: _selectedRole,
-                      items: const [
-                        DropdownMenuItem(
-                            value: 'doctor', child: Text('Doctor')),
-                        DropdownMenuItem(
-                            value: 'receptionist', child: Text('Receptionist')),
-                      ],
+                    CustomDropdown<String>(
+                      selectedValue: _selectedRole,
+                      availableItems: const ['doctor', 'receptionist'],
+                      labelText: 'Role',
+                      getDisplayText: (value) =>
+                          value == 'doctor' ? 'Doctor' : 'Receptionist',
+                      padding: const EdgeInsets.symmetric(horizontal: 0),
+                      height: 60,
                       onChanged: (value) {
                         setState(() {
                           _selectedRole = value!;
                         });
                       },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please select role';
-                        }
-                        return null;
-                      },
-                      decoration: const InputDecoration(
-                        labelText: 'Role',
-                        border: OutlineInputBorder(),
-                        labelStyle: TextStyle(color: AppPallete.textColor),
-                        floatingLabelStyle:
-                            TextStyle(color: AppPallete.textColor),
-                      ),
-                      dropdownColor: AppPallete.backgroundColor,
-                      style: const TextStyle(color: AppPallete.textColor),
-                      iconEnabledColor: AppPallete.textColor,
                     ),
                     const SizedBox(height: 12),
                     AppField(

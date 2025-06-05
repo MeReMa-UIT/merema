@@ -1,3 +1,5 @@
+// TODO: Change layout, patient info on left, add records and prescriptions
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:merema/core/theme/app_pallete.dart';
