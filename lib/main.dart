@@ -1,5 +1,3 @@
-// TODO: Strip date and time format
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:merema/core/services/service_locator.dart';

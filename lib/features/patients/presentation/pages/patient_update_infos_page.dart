@@ -117,7 +117,7 @@ class _PatientUpdateInfosPageState extends State<PatientUpdateInfosPage> {
                 child: AbsorbPointer(
                   child: AppField(
                     labelText: 'Date of Birth',
-                    hintText: info.dateOfBirth,
+                    hintText: info.dateOfBirth.split('T')[0],
                     controller: _dateOfBirthController,
                     alwaysShowLabel: true,
                     required: false,
@@ -195,7 +195,7 @@ class _PatientUpdateInfosPageState extends State<PatientUpdateInfosPage> {
                 child: AbsorbPointer(
                   child: AppField(
                     labelText: 'Health Insurance Expired Date',
-                    hintText: info.healthInsuranceExpiredDate,
+                    hintText: info.healthInsuranceExpiredDate.split('T')[0],
                     controller: _healthInsuranceExpiredDateController,
                     alwaysShowLabel: true,
                     required: false,

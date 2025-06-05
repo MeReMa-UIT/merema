@@ -190,7 +190,7 @@ class _PatientsPageState extends State<PatientsPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'DOB: ${patient.dateOfBirth}',
+                                'DOB: ${patient.dateOfBirth.split('T')[0]}',
                                 style: const TextStyle(
                                   color: AppPallete.darkGrayColor,
                                 ),

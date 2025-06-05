@@ -100,7 +100,8 @@ class StaffInfosPage extends StatelessWidget {
                       fields: [
                         InfoField(label: 'Full Name', value: staff.fullName),
                         InfoField(
-                            label: 'Date of Birth', value: staff.dateOfBirth),
+                            label: 'Date of Birth',
+                            value: staff.dateOfBirth.split('T')[0]),
                         InfoField(label: 'Gender', value: staff.gender),
                       ],
                     ),

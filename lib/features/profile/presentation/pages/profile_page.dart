@@ -108,7 +108,7 @@ class ProfilePage extends StatelessWidget {
                 InfoField(label: 'Full Name', value: patientInfo['full_name']),
                 InfoField(
                     label: 'Date of Birth',
-                    value: patientInfo['date_of_birth']),
+                    value: patientInfo['date_of_birth'].split('T')[0]),
                 InfoField(label: 'Gender', value: patientInfo['gender']),
                 InfoField(
                     label: 'Patient ID', value: patientInfo['patient_id']),
@@ -128,7 +128,8 @@ class ProfilePage extends StatelessWidget {
       icon: Icons.badge,
       fields: [
         InfoField(label: 'Full Name', value: info['full_name']),
-        InfoField(label: 'Date of Birth', value: info['date_of_birth']),
+        InfoField(
+            label: 'Date of Birth', value: info['date_of_birth'].split('T')[0]),
         InfoField(label: 'Gender', value: info['gender']),
         InfoField(label: 'Staff ID', value: info['staff_id']),
         InfoField(label: 'Department', value: info['department']),

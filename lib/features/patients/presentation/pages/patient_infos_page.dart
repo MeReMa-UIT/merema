@@ -101,7 +101,8 @@ class PatientInfosPage extends StatelessWidget {
                       fields: [
                         InfoField(label: 'Full Name', value: patient.fullName),
                         InfoField(
-                            label: 'Date of Birth', value: patient.dateOfBirth),
+                            label: 'Date of Birth',
+                            value: patient.dateOfBirth.split('T')[0]),
                         InfoField(label: 'Gender', value: patient.gender),
                       ],
                     ),
@@ -136,7 +137,8 @@ class PatientInfosPage extends StatelessWidget {
                             value: patient.healthInsuranceNumber),
                         InfoField(
                             label: 'Expiry Date',
-                            value: patient.healthInsuranceExpiredDate),
+                            value: patient.healthInsuranceExpiredDate
+                                .split('T')[0]),
                       ],
                     ),
                   ],

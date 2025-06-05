@@ -5,7 +5,6 @@ import 'package:merema/core/layers/presentation/widgets/app_button.dart';
 import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/features/staffs/domain/usecases/update_staff.dart';
 import 'package:merema/features/staffs/data/models/staff_req_params.dart';
-import 'package:merema/core/layers/data/model/account_req_params.dart';
 import 'package:dartz/dartz.dart' as dartz;
 import 'package:merema/features/staffs/presentation/pages/staff_infos_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -137,7 +136,7 @@ class _StaffUpdateInfosPageState extends State<StaffUpdateInfosPage> {
                       child: AbsorbPointer(
                         child: AppField(
                           labelText: 'Date of Birth',
-                          hintText: info.dateOfBirth,
+                          hintText: info.dateOfBirth.split('T')[0],
                           controller: _dateOfBirthController,
                           alwaysShowLabel: true,
                           required: false,
@@ -190,26 +189,19 @@ class _StaffUpdateInfosPageState extends State<StaffUpdateInfosPage> {
                               !dateOfBirth.endsWith('T00:00:00Z')) {
                             dateOfBirth = '${dateOfBirth}T00:00:00Z';
                           }
-                          final accountParams = AccountReqParams(
-                            citizenId: info.citizenId,
-                            email: info.email,
-                            phone: info.phone,
-                            role: info.role,
-                          );
                           final staffParams = StaffReqParams(
                             dateOfBirth: dateOfBirth,
                             department: _departmentController.text,
                             fullName: _fullNameController.text,
                             gender: _selectedGender,
                           );
-                          final params =
-                              dartz.Tuple2<AccountReqParams, StaffReqParams>(
-                            accountParams,
+                          final params = dartz.Tuple2<StaffReqParams, int>(
                             staffParams,
+                            widget.staffId,
                           );
                           context.read<ButtonStateCubit>().execute(
                                 useCase: sl<UpdateStaffUseCase>(),
-                                params: dartz.Tuple2(params, widget.staffId),
+                                params: params,
                               );
                         }
                       },

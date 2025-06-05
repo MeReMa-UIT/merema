@@ -111,10 +111,16 @@ class _BookScheduleDialogState extends State<BookScheduleDialog> {
           children: [
             _buildInfoRow('Queue Number',
                 scheduleData['queue_number']?.toString() ?? 'N/A'),
-            _buildInfoRow('Examination Date',
-                scheduleData['examination_date']?.toString() ?? 'N/A'),
-            _buildInfoRow('Expected Reception Time',
-                scheduleData['expected_reception_time']?.toString() ?? 'N/A'),
+            _buildInfoRow(
+                'Examination Date',
+                scheduleData['examination_date']?.toString().split('T')[0] ??
+                    'N/A'),
+            _buildInfoRow(
+                'Expected Reception Time',
+                scheduleData['expected_reception_time']
+                        ?.toString()
+                        .split('+')[0] ??
+                    'N/A'),
             _buildInfoRow('Type', _getTypeText(scheduleData['type'] ?? 1)),
             _buildInfoRow(
                 'Status', _getStatusText(scheduleData['status'] ?? 1)),

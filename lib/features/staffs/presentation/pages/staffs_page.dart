@@ -196,7 +196,7 @@ class _StaffsPageState extends State<StaffsPage> {
                                 ),
                               ),
                               Text(
-                                'DOB: ${staff.dateOfBirth}',
+                                'DOB: ${staff.dateOfBirth.split('T')[0]}',
                                 style: const TextStyle(
                                   color: AppPallete.darkGrayColor,
                                 ),

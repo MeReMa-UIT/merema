@@ -65,7 +65,7 @@ class _ScheduleCardState extends State<ScheduleCard> {
   void _onStatusChanged(int? newStatus) async {
     if (newStatus != null && newStatus != selectedStatus) {
       try {
-        final currentTime = DateTime.now().toUtc().toIso8601String();
+        final currentTime = '${DateTime.now().toIso8601String()}Z';
         final result = await sl<UpdateScheduleStatusUseCase>().call(
           Tuple3(widget.schedule.scheduleId, newStatus, currentTime),
         );
@@ -141,9 +141,10 @@ class _ScheduleCardState extends State<ScheduleCard> {
               ],
             ),
             const SizedBox(height: 8),
-            _buildInfoRow('Examination Date', widget.schedule.examinationDate),
+            _buildInfoRow('Examination Date',
+                widget.schedule.examinationDate.split('T')[0]),
             _buildInfoRow('Expected Reception Time',
-                widget.schedule.expectedReceptionTime),
+                widget.schedule.expectedReceptionTime.split('+')[0]),
             _buildInfoRow('Type', _getTypeText(widget.schedule.type)),
             const SizedBox(height: 8),
             Padding(
