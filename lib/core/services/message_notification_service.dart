@@ -11,6 +11,7 @@ class MessageNotificationService {
   final Map<int, String> _lastMessageTimes = {};
   final Duration checkInterval;
   final List<Function(Message)> _listeners = [];
+  bool _isInitialLoad = true;
 
   MessageNotificationService(
       {this.checkInterval = const Duration(seconds: 30)});
@@ -46,6 +47,7 @@ class MessageNotificationService {
           for (final contact in contacts.contacts) {
             await _checkContactMessages(contact.accId, currentUserAccId);
           }
+          _isInitialLoad = false;
         },
       );
     } catch (e) {
@@ -68,9 +70,15 @@ class MessageNotificationService {
           }
 
           final lastMessageTime = _lastMessageTimes[contactId];
-          if (lastMessageTime == null ||
-              latestMessage.sentAt.compareTo(lastMessageTime) > 0) {
-            _notifyNewMessage(latestMessage);
+          if (lastMessageTime == null) {
+            _lastMessageTimes[contactId] = latestMessage.sentAt;
+            return;
+          }
+
+          if (latestMessage.sentAt.compareTo(lastMessageTime) > 0) {
+            if (!_isInitialLoad) {
+              _notifyNewMessage(latestMessage);
+            }
             _lastMessageTimes[contactId] = latestMessage.sentAt;
           }
         }
