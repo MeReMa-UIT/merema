@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:merema/core/layers/domain/entities/user_role.dart';
 import 'package:merema/core/layers/presentation/widgets/app_field.dart';
 import 'package:merema/core/layers/presentation/widgets/app_button.dart';
 import 'package:merema/core/theme/app_pallete.dart';
@@ -50,15 +51,23 @@ class _PatientsPageState extends State<PatientsPage> {
         backgroundColor: AppPallete.backgroundColor,
         foregroundColor: AppPallete.textColor,
         actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: IconButton(
-              icon: const Icon(Icons.person_add),
-              tooltip: 'Register Patient',
-              onPressed: () {
-                Navigator.of(context).push(PatientRegisterPage.route());
-              },
-            ),
+          BlocBuilder<PatientsCubit, PatientsState>(
+            builder: (context, state) {
+              if (state is PatientsLoaded &&
+                  state.userRole == UserRole.receptionist) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: IconButton(
+                    icon: const Icon(Icons.person_add),
+                    tooltip: 'Register Patient',
+                    onPressed: () {
+                      Navigator.of(context).push(PatientRegisterPage.route());
+                    },
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
           ),
         ],
       ),

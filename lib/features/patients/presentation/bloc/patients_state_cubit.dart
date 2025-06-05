@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:merema/core/services/service_locator.dart';
+import 'package:merema/features/auth/domain/usecases/get_user_role.dart';
 import 'package:merema/features/patients/domain/usecases/get_patients_list.dart';
 import 'package:merema/features/patients/presentation/bloc/patients_state.dart';
 
@@ -8,6 +9,8 @@ class PatientsCubit extends Cubit<PatientsState> {
 
   Future<void> getPatients() async {
     emit(PatientsLoading());
+
+    final userRole = await sl<GetUserRoleUseCase>().call(null);
 
     final result = await sl<GetPatientsListUseCase>().call(null);
 
@@ -18,6 +21,7 @@ class PatientsCubit extends Cubit<PatientsState> {
         emit(PatientsLoaded(
           allPatients: patients,
           filteredPatients: List.from(patients),
+          userRole: userRole,
         ));
       },
     );
