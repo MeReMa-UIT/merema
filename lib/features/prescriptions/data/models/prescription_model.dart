@@ -2,6 +2,7 @@ import 'package:merema/features/prescriptions/domain/entities/prescription.dart'
 
 class PrescriptionDetailsModel extends PrescriptionDetails {
   const PrescriptionDetailsModel({
+    super.detailId,
     required super.afternoonDosage,
     required super.dosageUnit,
     required super.durationDays,
@@ -14,6 +15,7 @@ class PrescriptionDetailsModel extends PrescriptionDetails {
 
   factory PrescriptionDetailsModel.fromJson(Map<String, dynamic> json) {
     return PrescriptionDetailsModel(
+      detailId: json['detail_id'],
       afternoonDosage: double.parse(json['afternoon_dosage'].toString()),
       dosageUnit: json['dosage_unit'],
       durationDays: json['duration_days'],
@@ -35,15 +37,16 @@ class PrescriptionModel extends Prescription {
   });
 
   factory PrescriptionModel.fromJson(Map<String, dynamic> json) {
-    final detailsList = (json['details'] as List<dynamic>)
-        .map((detailJson) => PrescriptionDetailsModel.fromJson(detailJson))
-        .toList();
+    final detailsList = (json['details'] as List<dynamic>?)
+            ?.map((detailJson) => PrescriptionDetailsModel.fromJson(detailJson))
+            .toList() ??
+        <PrescriptionDetailsModel>[];
 
     return PrescriptionModel(
       details: detailsList,
-      isInsuranceCovered: json['is_insurance_covered'],
-      prescriptionNote: json['prescription_note'],
-      recordId: json['record_id'],
+      isInsuranceCovered: json['is_insurance_covered'] ?? false,
+      prescriptionNote: json['prescription_note'] ?? '',
+      recordId: json['record_id'] ?? 0,
     );
   }
 }

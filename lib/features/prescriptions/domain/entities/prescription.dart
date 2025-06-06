@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class PrescriptionDetails extends Equatable {
+  final int? detailId;
   final double afternoonDosage;
   final String dosageUnit;
   final int durationDays;
@@ -11,6 +12,7 @@ class PrescriptionDetails extends Equatable {
   final double totalDosage;
 
   const PrescriptionDetails({
+    this.detailId,
     required this.afternoonDosage,
     required this.dosageUnit,
     required this.durationDays,
@@ -21,8 +23,33 @@ class PrescriptionDetails extends Equatable {
     required this.totalDosage,
   });
 
+  PrescriptionDetails copyWith({
+    int? detailId,
+    double? afternoonDosage,
+    String? dosageUnit,
+    int? durationDays,
+    double? eveningDosage,
+    String? instructions,
+    int? medId,
+    double? morningDosage,
+    double? totalDosage,
+  }) {
+    return PrescriptionDetails(
+      detailId: detailId ?? this.detailId,
+      afternoonDosage: afternoonDosage ?? this.afternoonDosage,
+      dosageUnit: dosageUnit ?? this.dosageUnit,
+      durationDays: durationDays ?? this.durationDays,
+      eveningDosage: eveningDosage ?? this.eveningDosage,
+      instructions: instructions ?? this.instructions,
+      medId: medId ?? this.medId,
+      morningDosage: morningDosage ?? this.morningDosage,
+      totalDosage: totalDosage ?? this.totalDosage,
+    );
+  }
+
   @override
   List<Object?> get props => [
+        detailId,
         afternoonDosage,
         dosageUnit,
         durationDays,

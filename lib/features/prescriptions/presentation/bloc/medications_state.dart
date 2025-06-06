@@ -10,6 +10,8 @@ abstract class MedicationsState extends Equatable {
 
 class MedicationsInitial extends MedicationsState {}
 
+class MedicationLoading extends MedicationsState {}
+
 class MedicationsLoaded extends MedicationsState {
   final List<Medication> medications;
 

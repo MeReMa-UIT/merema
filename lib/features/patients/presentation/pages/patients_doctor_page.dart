@@ -13,6 +13,9 @@ import 'package:merema/features/prescriptions/presentation/bloc/medications_stat
 import 'package:merema/features/prescriptions/presentation/bloc/prescriptions_state.dart';
 import 'package:merema/features/prescriptions/presentation/widgets/prescription_card.dart';
 import 'package:merema/features/prescriptions/presentation/widgets/prescription_details_dialog.dart';
+import 'package:merema/features/prescriptions/presentation/widgets/prescription_update_dialog.dart';
+import 'package:merema/features/prescriptions/domain/usecases/confirm_received.dart';
+import 'package:merema/core/services/service_locator.dart';
 import 'dart:io';
 import 'package:window_size/window_size.dart';
 
@@ -155,8 +158,13 @@ class _PatientsDoctorPageState extends State<PatientsDoctorPage> {
                     const EdgeInsets.only(bottom: 16.0, left: 8.0, right: 8.0),
                 child: PrescriptionCard(
                   prescription: prescription,
+                  isDoctor: true,
                   onViewDetails: () =>
                       _showPrescriptionDetails(prescription.prescriptionId),
+                  onUpdatePrescription: () =>
+                      _updatePrescription(prescription.prescriptionId),
+                  onConfirmReceived: () =>
+                      _confirmReceived(prescription.prescriptionId),
                 ),
               );
             },
@@ -206,7 +214,7 @@ class _PatientsDoctorPageState extends State<PatientsDoctorPage> {
                     } else if (state is PrescriptionsError) {
                       return Center(
                         child: Text(
-                          'Error loading details: ${state.message}',
+                          state.message,
                           style: const TextStyle(color: AppPallete.errorColor),
                         ),
                       );
@@ -222,7 +230,117 @@ class _PatientsDoctorPageState extends State<PatientsDoctorPage> {
     );
   }
 
-  Widget _buildLargeScreenContent(BuildContext context) {
+  void _updatePrescription(int prescriptionId,
+      {VoidCallback? onUpdated}) async {
+    final prescriptionsState = context.read<PrescriptionsCubit>().state;
+    if (prescriptionsState is! PrescriptionsLoaded) return;
+    final prescriptions = prescriptionsState.prescriptions;
+    final prescription = prescriptions.firstWhere(
+      (p) => p.prescriptionId == prescriptionId,
+      orElse: () => throw Exception('Prescription not found'),
+    );
+
+    final parentContext = context;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (_) => PrescriptionsCubit()),
+          BlocProvider(create: (_) => MedicationsCubit()),
+        ],
+        child: Dialog(
+          backgroundColor: AppPallete.backgroundColor,
+          child: Container(
+            width: 600,
+            height: MediaQuery.of(context).size.height * 0.85,
+            padding: const EdgeInsets.all(16),
+            child: Builder(
+              builder: (context) {
+                context
+                    .read<PrescriptionsCubit>()
+                    .getPrescriptionDetails(prescriptionId);
+                return BlocBuilder<PrescriptionsCubit, PrescriptionsState>(
+                  builder: (context, state) {
+                    if (state is PrescriptionDetailsLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (state is PrescriptionDetailsLoaded) {
+                      return PrescriptionUpdateDialog(
+                        prescriptionId: prescriptionId,
+                        prescriptionDetails: state.details,
+                        isInsuranceCovered: prescription.isInsuranceCovered,
+                        prescriptionNote: prescription.prescriptionNote,
+                        onCancel: () => Navigator.of(dialogContext).pop(),
+                        onSuccess: () {
+                          Navigator.of(dialogContext).pop();
+                          if (_selectedPatientId != null) {
+                            parentContext
+                                .read<PrescriptionsCubit>()
+                                .getPrescriptionsByPatient(_selectedPatientId!);
+                          }
+                          if (onUpdated != null) {
+                            onUpdated();
+                          }
+                        },
+                      );
+                    } else if (state is PrescriptionsError) {
+                      return Center(
+                        child: Text(
+                          state.message,
+                          style: const TextStyle(color: AppPallete.errorColor),
+                        ),
+                      );
+                    }
+                    return const Center(child: Text('Loading...'));
+                  },
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _confirmReceived(int prescriptionId) async {
+    try {
+      final confirmReceivedUseCase = sl<ConfirmReceivedUseCase>();
+      final result = await confirmReceivedUseCase(prescriptionId);
+
+      if (!mounted) return;
+
+      result.fold(
+        (error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error.toString()),
+            ),
+          );
+        },
+        (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Prescription confirmed as received'),
+            ),
+          );
+          if (_selectedPatientId != null) {
+            context
+                .read<PrescriptionsCubit>()
+                .getPrescriptionsByPatient(_selectedPatientId!);
+          }
+        },
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+        ),
+      );
+    }
+  }
+
+  Widget _buildScreenContent(BuildContext context) {
     if (_selectedPatientId != null && _selectedPatientName != null) {
       return Column(
         children: [
@@ -249,7 +367,7 @@ class _PatientsDoctorPageState extends State<PatientsDoctorPage> {
                       child: Padding(
                         padding: EdgeInsets.all(16.0),
                         child: Text(
-                          "Medical Records Placeholder: Patient's medical history and records will be displayed here.",
+                          'Medical Records Placeholder: Patient\'s medical history and records will be displayed here',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               color: AppPallete.darkGrayColor, fontSize: 16),
@@ -288,7 +406,7 @@ class _PatientsDoctorPageState extends State<PatientsDoctorPage> {
             ),
             SizedBox(height: 16),
             Text(
-              'Select a patient from the sidebar to view their information, medical records, and prescriptions.',
+              'Select a patient from the sidebar to view their information, medical records, and prescriptions',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppPallete.darkGrayColor,
@@ -351,7 +469,7 @@ class _PatientsDoctorPageState extends State<PatientsDoctorPage> {
               ),
             ),
           Expanded(
-            child: _buildLargeScreenContent(context),
+            child: _buildScreenContent(context),
           ),
         ],
       ),

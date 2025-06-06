@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:merema/features/prescriptions/domain/entities/medications.dart';
 import 'package:merema/features/prescriptions/domain/usecases/get_medication_by_id.dart';
+import 'package:merema/features/prescriptions/domain/usecases/get_medications.dart';
 import 'package:merema/features/prescriptions/presentation/bloc/medications_state.dart';
 import 'package:merema/core/services/service_locator.dart';
 
@@ -30,6 +31,21 @@ class MedicationsCubit extends Cubit<MedicationsState> {
       (medication) {
         _medicationsMap[medId] = medication;
         emit(MedicationLoaded(medication));
+      },
+    );
+  }
+
+  Future<void> getAllMedications() async {
+    emit(MedicationLoading());
+
+    final result = await sl<GetMedicationsUseCase>().call(null);
+
+    result.fold(
+      (failure) => emit(MedicationError(failure.toString())),
+      (medicationsModel) {
+        final medsList = medicationsModel.medications ?? [];
+        _medicationsMap = {for (var med in medsList) med.medId: med};
+        emit(MedicationsLoaded(medsList));
       },
     );
   }
