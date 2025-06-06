@@ -186,7 +186,7 @@ class _PeopleSidebarState<T> extends State<PeopleSidebar<T>> {
         final person = widget.people[index];
         final isSelected = widget.selectedPerson != null &&
             widget.getPersonId(person) ==
-                widget.getPersonId(widget.selectedPerson!);
+                widget.getPersonId(widget.selectedPerson as T);
 
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
