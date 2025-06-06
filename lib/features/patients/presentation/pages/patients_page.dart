@@ -1,21 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:merema/core/layers/domain/entities/user_role.dart';
-import 'package:merema/core/layers/presentation/widgets/app_field.dart';
-import 'package:merema/core/layers/presentation/widgets/app_button.dart';
 import 'package:merema/core/theme/app_pallete.dart';
 import 'package:merema/features/patients/presentation/bloc/patients_state_cubit.dart';
-import 'package:merema/features/patients/presentation/bloc/patients_state.dart';
-import 'package:merema/features/patients/presentation/pages/patient_infos_page.dart';
-import 'package:merema/features/patients/presentation/pages/patient_register_page.dart';
+import 'package:merema/features/patients/presentation/bloc/patient_infos_state_cubit.dart';
+import 'package:merema/features/patients/presentation/widgets/patients_sidebar.dart';
+import 'package:merema/features/patients/presentation/widgets/patient_info_view.dart';
+import 'package:merema/features/patients/presentation/widgets/patient_register_view.dart';
 
 class PatientsPage extends StatefulWidget {
-  const PatientsPage({super.key});
+  final int? patientId;
+  final String? patientName;
 
-  static Route route() => MaterialPageRoute(
-        builder: (context) => BlocProvider(
-          create: (context) => PatientsCubit()..getPatients(),
-          child: const PatientsPage(),
+  const PatientsPage({
+    super.key,
+    this.patientId,
+    this.patientName,
+  });
+
+  static Route route({int? patientId, String? patientName}) =>
+      MaterialPageRoute(
+        builder: (context) => MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (context) => PatientsCubit()..getPatients(),
+            ),
+            BlocProvider(
+              create: (context) => PatientInfosCubit(),
+            ),
+          ],
+          child: PatientsPage(
+            patientId: patientId,
+            patientName: patientName,
+          ),
         ),
       );
 
@@ -24,128 +40,179 @@ class PatientsPage extends StatefulWidget {
 }
 
 class _PatientsPageState extends State<PatientsPage> {
-  final TextEditingController _searchController = TextEditingController();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  int? _selectedPatientId;
+  String? _selectedPatientName;
+  bool _isShowingRegisterView = false;
 
   @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    if (widget.patientId != null && widget.patientName != null) {
+      _selectedPatientId = widget.patientId;
+      _selectedPatientName = widget.patientName;
+    }
   }
 
-  void _onSearch() {
-    context.read<PatientsCubit>().searchPatients(
-          searchQuery: _searchController.text,
-        );
+  void _onPatientSelected(int patientId, String patientName) {
+    setState(() {
+      _selectedPatientId = patientId;
+      _selectedPatientName = patientName;
+      _isShowingRegisterView = false;
+    });
+
+    if (_scaffoldKey.currentState?.isDrawerOpen == true) {
+      Navigator.of(context).pop();
+    }
   }
 
-  void _onClear() {
-    _searchController.clear();
-    context.read<PatientsCubit>().clearSearch();
+  void _onShowRegisterView() {
+    setState(() {
+      _isShowingRegisterView = true;
+      _selectedPatientId = null;
+      _selectedPatientName = null;
+    });
+  }
+
+  void _onCancelRegister() {
+    setState(() {
+      _isShowingRegisterView = false;
+    });
+  }
+
+  void _onSuccessRegister() {
+    setState(() {
+      _isShowingRegisterView = false;
+      _selectedPatientId = null;
+      _selectedPatientName = null;
+    });
+    context.read<PatientsCubit>().getPatients();
   }
 
   @override
   Widget build(BuildContext context) {
+    final isLargeScreen = MediaQuery.of(context).size.width >= 768;
+
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: const Text('Patients'),
         backgroundColor: AppPallete.backgroundColor,
         foregroundColor: AppPallete.textColor,
-        actions: [
-          BlocBuilder<PatientsCubit, PatientsState>(
-            builder: (context, state) {
-              if (state is PatientsLoaded &&
-                  state.userRole == UserRole.receptionist) {
-                return Padding(
+        leading: isLargeScreen
+            ? (Navigator.of(context).canPop()
+                ? const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: BackButton(),
+                  )
+                : null)
+            : (Navigator.of(context).canPop()
+                ? const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: BackButton(),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: IconButton(
+                      icon: const Icon(Icons.menu),
+                      onPressed: () {
+                        _scaffoldKey.currentState?.openDrawer();
+                      },
+                    ),
+                  )),
+        automaticallyImplyLeading: false,
+        actions: !isLargeScreen
+            ? [
+                Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: IconButton(
-                    icon: const Icon(Icons.person_add),
-                    tooltip: 'Register Patient',
+                    icon: const Icon(Icons.people),
                     onPressed: () {
-                      Navigator.of(context).push(PatientRegisterPage.route());
+                      _scaffoldKey.currentState?.openDrawer();
                     },
                   ),
-                );
-              }
-              return const SizedBox.shrink();
-            },
-          ),
-        ],
-      ),
-      backgroundColor: AppPallete.backgroundColor,
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                AppField(
-                  labelText: 'Search patients',
-                  controller: _searchController,
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: AppButton(
-                        text: 'Clear',
-                        onPressed: _onClear,
+              ]
+            : null,
+      ),
+      drawer: isLargeScreen
+          ? null
+          : Drawer(
+              backgroundColor: AppPallete.backgroundColor,
+              child: PatientsSidebar(
+                onPatientSelected: _onPatientSelected,
+                onShowRegisterView: _onShowRegisterView,
+                selectedPatientId: _selectedPatientId,
+              ),
+            ),
+      backgroundColor: AppPallete.backgroundColor,
+      body: isLargeScreen
+          ? Row(
+              children: [
+                SizedBox(
+                  width: 350,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        right: BorderSide(
+                          color: AppPallete.lightGrayColor.withOpacity(0.3),
+                          width: 1,
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: AppButton(
-                        text: 'Search',
-                        onPressed: _onSearch,
-                      ),
+                    child: PatientsSidebar(
+                      onPatientSelected: _onPatientSelected,
+                      onShowRegisterView: _onShowRegisterView,
+                      selectedPatientId: _selectedPatientId,
                     ),
-                  ],
+                  ),
+                ),
+                Expanded(
+                  child: _isShowingRegisterView
+                      ? PatientRegisterView(
+                          onCancel: _onCancelRegister,
+                          onSuccess: _onSuccessRegister,
+                        )
+                      : _selectedPatientId != null &&
+                              _selectedPatientName != null
+                          ? PatientInfoView(
+                              patientId: _selectedPatientId!,
+                              patientName: _selectedPatientName!,
+                            )
+                          : const Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.person_outline,
+                                    color: AppPallete.lightGrayColor,
+                                    size: 64,
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'Select a patient to view information',
+                                    style: TextStyle(
+                                      color: AppPallete.darkGrayColor,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                 ),
               ],
-            ),
-          ),
-          Expanded(
-            child: BlocBuilder<PatientsCubit, PatientsState>(
-              builder: (context, state) {
-                if (state is PatientsLoading) {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: AppPallete.primaryColor,
-                    ),
-                  );
-                } else if (state is PatientsError) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.error_outline,
-                          color: AppPallete.errorColor,
-                          size: 64,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          state.message,
-                          style: const TextStyle(
-                            color: AppPallete.errorColor,
-                            fontSize: 16,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                          child: AppButton(
-                            text: 'Retry',
-                            onPressed: () =>
-                                context.read<PatientsCubit>().getPatients(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                } else if (state is PatientsLoaded) {
-                  if (state.filteredPatients.isEmpty) {
-                    return const Center(
+            )
+          : _isShowingRegisterView
+              ? PatientRegisterView(
+                  onCancel: _onCancelRegister,
+                  onSuccess: _onSuccessRegister,
+                )
+              : _selectedPatientId != null && _selectedPatientName != null
+                  ? PatientInfoView(
+                      patientId: _selectedPatientId!,
+                      patientName: _selectedPatientName!,
+                    )
+                  : const Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -156,7 +223,7 @@ class _PatientsPageState extends State<PatientsPage> {
                           ),
                           SizedBox(height: 16),
                           Text(
-                            'No patients found',
+                            'Open patients list to select a patient',
                             style: TextStyle(
                               color: AppPallete.darkGrayColor,
                               fontSize: 16,
@@ -164,74 +231,7 @@ class _PatientsPageState extends State<PatientsPage> {
                           ),
                         ],
                       ),
-                    );
-                  }
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(16.0),
-                    itemCount: state.filteredPatients.length,
-                    itemBuilder: (context, index) {
-                      final patient = state.filteredPatients[index];
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        elevation: 2,
-                        color: Colors.white,
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: AppPallete.secondaryColor,
-                            child: Text(
-                              patient.fullName.isNotEmpty
-                                  ? patient.fullName[0]
-                                  : '',
-                              style: const TextStyle(
-                                color: AppPallete.textColor,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          title: Text(
-                            patient.fullName,
-                            style: const TextStyle(
-                              color: AppPallete.textColor,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'DOB: ${patient.dateOfBirth.split('T')[0]}',
-                                style: const TextStyle(
-                                  color: AppPallete.darkGrayColor,
-                                ),
-                              ),
-                              Text(
-                                'Gender: ${patient.gender}',
-                                style: const TextStyle(
-                                  color: AppPallete.darkGrayColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                          trailing: const Icon(
-                            Icons.arrow_forward_ios,
-                            color: AppPallete.lightGrayColor,
-                          ),
-                          onTap: () {
-                            Navigator.of(context).push(
-                              PatientInfosPage.route(patient.patientId),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-          ),
-        ],
-      ),
+                    ),
     );
   }
 }

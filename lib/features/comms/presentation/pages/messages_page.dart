@@ -75,7 +75,7 @@ class _MessagesPageState extends State<MessagesPage> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(_selectedContactName ?? 'Messages'),
+        title: const Text('Messages'),
         backgroundColor: AppPallete.backgroundColor,
         foregroundColor: AppPallete.textColor,
         leading: isLargeScreen

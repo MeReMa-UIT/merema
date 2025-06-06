@@ -96,6 +96,46 @@ class _MessagesViewState extends State<MessagesView> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: AppPallete.lightGrayColor.withOpacity(0.3),
+                width: 1,
+              ),
+            ),
+          ),
+          child: Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: AppPallete.primaryColor,
+                radius: 20,
+                child: Text(
+                  widget.contactName.isNotEmpty
+                      ? widget.contactName[0].toUpperCase()
+                      : '',
+                  style: const TextStyle(
+                    color: AppPallete.backgroundColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  widget.contactName,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppPallete.textColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
         Expanded(
           child: BlocBuilder<MessagesCubit, MessagesState>(
             builder: (context, state) {
@@ -257,7 +297,6 @@ class _MessagesViewState extends State<MessagesView> {
         Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
-            color: AppPallete.backgroundColor,
             border: Border(
               top: BorderSide(
                 color: AppPallete.lightGrayColor.withOpacity(0.3),
