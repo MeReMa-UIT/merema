@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:merema/core/layers/presentation/widgets/app_field.dart';
-import 'package:merema/core/layers/presentation/widgets/app_button.dart';
-import 'package:merema/core/theme/app_pallete.dart';
+import 'package:merema/core/layers/presentation/widgets/people_sidebar.dart';
 import 'package:merema/features/comms/presentation/bloc/contacts_state_cubit.dart';
 import 'package:merema/features/comms/presentation/bloc/contacts_state.dart';
 
@@ -42,191 +40,40 @@ class _ContactsSidebarState extends State<ContactsSidebar> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Contacts',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppPallete.textColor,
-                ),
-              ),
-              const SizedBox(height: 16),
-              AppField(
-                labelText: 'Search contacts',
-                controller: _searchController,
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: AppButton(
-                      text: 'Clear',
-                      onPressed: _onClear,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: AppButton(
-                      text: 'Search',
-                      onPressed: _onSearch,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: BlocBuilder<ContactsCubit, ContactsState>(
-            builder: (context, state) {
-              if (state is ContactsLoading) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    color: AppPallete.primaryColor,
-                  ),
-                );
-              } else if (state is ContactsError) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.error_outline,
-                        color: AppPallete.errorColor,
-                        size: 64,
-                      ),
-                      const SizedBox(height: 16),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text(
-                          state.message,
-                          style: const TextStyle(
-                            color: AppPallete.errorColor,
-                            fontSize: 16,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                        child: AppButton(
-                          text: 'Retry',
-                          onPressed: () =>
-                              context.read<ContactsCubit>().getContacts(),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              } else if (state is ContactsLoaded) {
-                if (state.filteredContacts.isEmpty) {
-                  return const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.contacts_outlined,
-                          color: AppPallete.lightGrayColor,
-                          size: 64,
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          'No contacts found',
-                          style: TextStyle(
-                            color: AppPallete.darkGrayColor,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  itemCount: state.filteredContacts.length,
-                  itemBuilder: (context, index) {
-                    final contact = state.filteredContacts[index];
-                    final isSelected =
-                        widget.selectedContactId == contact.accId;
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      elevation: 2,
-                      color:
-                          isSelected ? AppPallete.primaryColor : Colors.white,
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: isSelected
-                              ? AppPallete.backgroundColor
-                              : AppPallete.secondaryColor,
-                          child: Text(
-                            contact.fullName.isNotEmpty
-                                ? contact.fullName[0].toUpperCase()
-                                : '',
-                            style: TextStyle(
-                              color: isSelected
-                                  ? AppPallete.primaryColor
-                                  : AppPallete.textColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        title: Text(
-                          contact.fullName,
-                          style: TextStyle(
-                            color: AppPallete.textColor,
-                            fontWeight:
-                                isSelected ? FontWeight.bold : FontWeight.w600,
-                          ),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Role: ${contact.role}',
-                              style: const TextStyle(
-                                color: AppPallete.darkGrayColor,
-                                fontSize: 12,
-                              ),
-                            ),
-                            Text(
-                              'ID: ${contact.accId}',
-                              style: const TextStyle(
-                                color: AppPallete.darkGrayColor,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                        trailing: Icon(
-                          isSelected
-                              ? Icons.keyboard_arrow_right
-                              : Icons.arrow_forward_ios,
-                          color: isSelected
-                              ? AppPallete.textColor
-                              : AppPallete.lightGrayColor,
-                        ),
-                        onTap: () {
-                          widget.onContactSelected(
-                              contact.accId, contact.fullName);
-                        },
-                      ),
-                    );
-                  },
-                );
-              }
-              return const SizedBox.shrink();
-            },
-          ),
-        ),
-      ],
+    return BlocBuilder<ContactsCubit, ContactsState>(
+      builder: (context, state) {
+        final contacts = state is ContactsLoaded ? state.filteredContacts : [];
+        final isLoading = state is ContactsLoading;
+        final hasError = state is ContactsError;
+        final errorMessage = state is ContactsError ? state.message : null;
+        final selectedContact = state is ContactsLoaded
+            ? contacts
+                .where((c) => c.accId == widget.selectedContactId)
+                .firstOrNull
+            : null;
+
+        return PeopleSidebar(
+          title: 'Contacts',
+          people: contacts,
+          isLoading: isLoading,
+          hasError: hasError,
+          errorMessage: errorMessage,
+          onPersonSelected: (contact) {
+            widget.onContactSelected(contact.accId, contact.fullName);
+          },
+          onShowRegisterView: null,
+          onRetry: () => context.read<ContactsCubit>().getContacts(),
+          onSearch: _onSearch,
+          onClearSearch: _onClear,
+          searchController: _searchController,
+          selectedPerson: selectedContact,
+          getPersonId: (contact) => contact.accId.toString(),
+          getPersonName: (contact) => contact.fullName,
+          getPersonSubtitle: (contact) =>
+              'Role: ${contact.role}\nID: ${contact.accId}',
+          showRegisterButton: false,
+        );
+      },
     );
   }
 }

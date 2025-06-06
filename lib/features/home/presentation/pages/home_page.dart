@@ -30,7 +30,6 @@ class MenuItemConfig {
 final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
   // TODO: Implement menu items for each user role
   UserRole.doctor: [
-    // TODO: Use seperate pages for doctor?
     MenuItemConfig(
         title: 'Patients',
         icon: Icons.people,
@@ -72,7 +71,6 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
         }),
   ],
   UserRole.admin: [
-    // TODO: Use seperate pages for admin?
     MenuItemConfig(
         title: 'Staffs',
         icon: Icons.people,
@@ -88,7 +86,6 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
         }),
   ],
   UserRole.receptionist: [
-    // TODO: Use seperate pages for receptionist?
     MenuItemConfig(
         title: 'Patients',
         icon: Icons.people,
