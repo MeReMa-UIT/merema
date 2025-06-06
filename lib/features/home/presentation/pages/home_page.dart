@@ -9,9 +9,10 @@ import 'package:merema/features/comms/domain/entities/messages.dart';
 import 'package:merema/features/comms/domain/usecases/get_contacts.dart';
 import 'package:merema/features/comms/presentation/pages/messages_page.dart';
 import 'package:merema/features/home/presentation/widgets/menu_items_layout.dart';
+import 'package:merema/features/patients/presentation/pages/patients_doctor_page.dart';
 import 'package:merema/features/prescriptions/presentation/pages/prescriptions_patient_page.dart';
 import 'package:merema/features/profile/presentation/pages/profile_page.dart';
-import 'package:merema/features/patients/presentation/pages/patients_page.dart';
+import 'package:merema/features/patients/presentation/pages/patients_receptionist_page.dart';
 import 'package:merema/features/schedules/presentation/pages/schedules_page.dart';
 import 'package:merema/features/staffs/presentation/pages/staffs_page.dart';
 
@@ -34,7 +35,7 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
         title: 'Patients',
         icon: Icons.people,
         onTap: (context) {
-          Navigator.push(context, PatientsPage.route());
+          Navigator.push(context, PatientsDoctorPage.route());
         }),
     MenuItemConfig(
         title: 'Messages',
@@ -90,7 +91,7 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
         title: 'Patients',
         icon: Icons.people,
         onTap: (context) {
-          Navigator.push(context, PatientsPage.route());
+          Navigator.push(context, PatientsReceptionistPage.route());
         }),
     MenuItemConfig(
         title: 'Schedules',

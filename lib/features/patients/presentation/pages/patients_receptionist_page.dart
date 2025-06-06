@@ -4,14 +4,14 @@ import 'package:merema/core/theme/app_pallete.dart';
 import 'package:merema/features/patients/presentation/bloc/patients_state_cubit.dart';
 import 'package:merema/features/patients/presentation/bloc/patient_infos_state_cubit.dart';
 import 'package:merema/features/patients/presentation/widgets/patients_sidebar.dart';
-import 'package:merema/features/patients/presentation/widgets/patient_info_view.dart';
+import 'package:merema/features/patients/presentation/widgets/patient_info_receptionist_view.dart';
 import 'package:merema/features/patients/presentation/widgets/patient_register_view.dart';
 
-class PatientsPage extends StatefulWidget {
+class PatientsReceptionistPage extends StatefulWidget {
   final int? patientId;
   final String? patientName;
 
-  const PatientsPage({
+  const PatientsReceptionistPage({
     super.key,
     this.patientId,
     this.patientName,
@@ -28,7 +28,7 @@ class PatientsPage extends StatefulWidget {
               create: (context) => PatientInfosCubit(),
             ),
           ],
-          child: PatientsPage(
+          child: PatientsReceptionistPage(
             patientId: patientId,
             patientName: patientName,
           ),
@@ -36,10 +36,11 @@ class PatientsPage extends StatefulWidget {
       );
 
   @override
-  State<PatientsPage> createState() => _PatientsPageState();
+  State<PatientsReceptionistPage> createState() =>
+      _PatientsReceptionistPageState();
 }
 
-class _PatientsPageState extends State<PatientsPage> {
+class _PatientsReceptionistPageState extends State<PatientsReceptionistPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int? _selectedPatientId;
   String? _selectedPatientName;
@@ -175,7 +176,7 @@ class _PatientsPageState extends State<PatientsPage> {
                         )
                       : _selectedPatientId != null &&
                               _selectedPatientName != null
-                          ? PatientInfoView(
+                          ? PatientInfoReceptionistView(
                               patientId: _selectedPatientId!,
                               patientName: _selectedPatientName!,
                             )
@@ -208,7 +209,7 @@ class _PatientsPageState extends State<PatientsPage> {
                   onSuccess: _onSuccessRegister,
                 )
               : _selectedPatientId != null && _selectedPatientName != null
-                  ? PatientInfoView(
+                  ? PatientInfoReceptionistView(
                       patientId: _selectedPatientId!,
                       patientName: _selectedPatientName!,
                     )
