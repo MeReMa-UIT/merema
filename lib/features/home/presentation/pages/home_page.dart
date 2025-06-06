@@ -7,7 +7,6 @@ import 'package:merema/features/auth/domain/usecases/logout.dart';
 import 'package:merema/core/layers/domain/entities/user_role.dart';
 import 'package:merema/features/comms/domain/entities/messages.dart';
 import 'package:merema/features/comms/domain/usecases/get_contacts.dart';
-import 'package:merema/features/comms/presentation/pages/contacts_page.dart';
 import 'package:merema/features/comms/presentation/pages/messages_page.dart';
 import 'package:merema/features/home/presentation/widgets/menu_items_layout.dart';
 import 'package:merema/features/prescriptions/presentation/pages/prescriptions_patient_page.dart';
@@ -42,7 +41,7 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
         title: 'Messages',
         icon: Icons.message,
         onTap: (context) {
-          Navigator.push(context, ContactsPage.route());
+          Navigator.push(context, MessagesPage.route());
         }),
   ],
   UserRole.patient: [
@@ -69,7 +68,7 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
         title: 'Messages',
         icon: Icons.message,
         onTap: (context) {
-          Navigator.push(context, ContactsPage.route());
+          Navigator.push(context, MessagesPage.route());
         }),
   ],
   UserRole.admin: [
