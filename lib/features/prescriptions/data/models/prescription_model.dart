@@ -14,14 +14,14 @@ class PrescriptionDetailsModel extends PrescriptionDetails {
 
   factory PrescriptionDetailsModel.fromJson(Map<String, dynamic> json) {
     return PrescriptionDetailsModel(
-      afternoonDosage: json['afternoon_dosage'],
+      afternoonDosage: double.parse(json['afternoon_dosage'].toString()),
       dosageUnit: json['dosage_unit'],
       durationDays: json['duration_days'],
-      eveningDosage: json['evening_dosage'],
+      eveningDosage: double.parse(json['evening_dosage'].toString()),
       instructions: json['instructions'],
       medId: json['med_id'],
-      morningDosage: json['morning_dosage'],
-      totalDosage: json['total_dosage'],
+      morningDosage: double.parse(json['morning_dosage'].toString()),
+      totalDosage: double.parse(json['total_dosage'].toString()),
     );
   }
 }
