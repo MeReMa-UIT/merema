@@ -40,4 +40,23 @@ abstract class PrescriptionRepository {
     int medicationId,
     String token,
   );
+
+  Future<Either<Error, dynamic>> updatePrescriptionMedication(
+    int prescriptionId,
+    int medId,
+    Map<String, dynamic> updates,
+    String token,
+  );
+
+  Future<Either<Error, dynamic>> deletePrescriptionMedication(
+    int prescriptionId,
+    int medId,
+    String token,
+  );
+
+  Future<Either<Error, dynamic>> addPrescriptionMedication(
+    int prescriptionId,
+    List<Map<String, dynamic>> medData,
+    String token,
+  );
 }

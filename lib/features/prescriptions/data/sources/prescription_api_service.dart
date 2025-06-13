@@ -40,6 +40,24 @@ abstract class PrescriptionApiService {
     int medicationId,
     String token,
   );
+
+  Future<Either<ApiError, dynamic>> updatePrescriptionMedication(
+    int prescriptionId,
+    int medId,
+    Map<String, dynamic> updates,
+    String token,
+  );
+  Future<Either<ApiError, dynamic>> deletePrescriptionMedication(
+    int prescriptionId,
+    int medId,
+    String token,
+  );
+
+  Future<Either<ApiError, dynamic>> addPrescriptionMedication(
+    int prescriptionId,
+    List<Map<String, dynamic>> medData,
+    String token,
+  );
 }
 
 class PrescriptionApiServiceImpl implements PrescriptionApiService {
@@ -209,6 +227,66 @@ class PrescriptionApiServiceImpl implements PrescriptionApiService {
 
       final medicationModel = MedicationModel.fromJson(response.data);
       return Right(medicationModel);
+    } catch (e) {
+      return Left(ApiErrorHandler.handleError(e));
+    }
+  }
+
+  @override
+  Future<Either<ApiError, dynamic>> updatePrescriptionMedication(
+    int prescriptionId,
+    int medId,
+    Map<String, dynamic> updates,
+    String token,
+  ) async {
+    try {
+      final response = await sl<DioClient>().put(
+        '/prescriptions/$prescriptionId/$medId',
+        data: updates,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+      return Right(response.data);
+    } catch (e) {
+      return Left(ApiErrorHandler.handleError(e));
+    }
+  }
+
+  @override
+  Future<Either<ApiError, dynamic>> deletePrescriptionMedication(
+    int prescriptionId,
+    int medId,
+    String token,
+  ) async {
+    try {
+      final response = await sl<DioClient>().delete(
+        '/prescriptions/$prescriptionId/$medId',
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+      return Right(response.data);
+    } catch (e) {
+      return Left(ApiErrorHandler.handleError(e));
+    }
+  }
+
+  @override
+  Future<Either<ApiError, dynamic>> addPrescriptionMedication(
+    int prescriptionId,
+    List<Map<String, dynamic>> medData,
+    String token,
+  ) async {
+    try {
+      final response = await sl<DioClient>().post(
+        '/prescriptions/$prescriptionId',
+        data: medData,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+      return Right(response.data);
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));
     }

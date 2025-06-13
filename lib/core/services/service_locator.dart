@@ -30,14 +30,17 @@ import 'package:merema/features/prescriptions/data/repositories/prescription_rep
 import 'package:merema/features/prescriptions/data/sources/prescription_api_service.dart';
 import 'package:merema/features/prescriptions/data/sources/prescription_local_service.dart';
 import 'package:merema/features/prescriptions/domain/repositories/prescription_repository.dart';
+import 'package:merema/features/prescriptions/domain/usecases/add_prescription_medication.dart';
 import 'package:merema/features/prescriptions/domain/usecases/confirm_received.dart';
 import 'package:merema/features/prescriptions/domain/usecases/create_prescription.dart';
+import 'package:merema/features/prescriptions/domain/usecases/delete_prescription_medication.dart';
 import 'package:merema/features/prescriptions/domain/usecases/get_medication_by_id.dart';
 import 'package:merema/features/prescriptions/domain/usecases/get_medications.dart';
 import 'package:merema/features/prescriptions/domain/usecases/get_prescription_details.dart';
 import 'package:merema/features/prescriptions/domain/usecases/get_prescriptions_by_patient.dart';
 import 'package:merema/features/prescriptions/domain/usecases/get_prescriptions_by_record.dart';
 import 'package:merema/features/prescriptions/domain/usecases/update_prescription.dart';
+import 'package:merema/features/prescriptions/domain/usecases/update_prescription_medication.dart';
 import 'package:merema/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:merema/features/profile/data/sources/profile_api_service.dart';
 import 'package:merema/features/profile/data/sources/profile_local_service.dart';
@@ -189,5 +192,14 @@ void setupServiceLocator() {
   );
   sl.registerSingleton<ConfirmReceivedUseCase>(
     ConfirmReceivedUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<AddPrescriptionMedicationUseCase>(
+    AddPrescriptionMedicationUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<UpdatePrescriptionMedicationUseCase>(
+    UpdatePrescriptionMedicationUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<DeletePrescriptionMedicationUseCase>(
+    DeletePrescriptionMedicationUseCase(authRepository: sl()),
   );
 }

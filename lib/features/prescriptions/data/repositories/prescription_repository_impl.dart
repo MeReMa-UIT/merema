@@ -147,4 +147,59 @@ class PrescriptionRepositoryImpl implements PrescriptionRepository {
       return Left(ApiErrorHandler.handleError(e));
     }
   }
+
+  @override
+  Future<Either<Error, dynamic>> updatePrescriptionMedication(
+    int prescriptionId,
+    int medId,
+    Map<String, dynamic> updates,
+    String token,
+  ) async {
+    try {
+      final result = await sl<PrescriptionApiService>()
+          .updatePrescriptionMedication(prescriptionId, medId, updates, token);
+      return result.fold(
+        (error) => Left(error),
+        (response) => Right(response),
+      );
+    } catch (e) {
+      return Left(ApiErrorHandler.handleError(e));
+    }
+  }
+
+  @override
+  Future<Either<Error, dynamic>> deletePrescriptionMedication(
+    int prescriptionId,
+    int medId,
+    String token,
+  ) async {
+    try {
+      final result = await sl<PrescriptionApiService>()
+          .deletePrescriptionMedication(prescriptionId, medId, token);
+      return result.fold(
+        (error) => Left(error),
+        (response) => Right(response),
+      );
+    } catch (e) {
+      return Left(ApiErrorHandler.handleError(e));
+    }
+  }
+
+  @override
+  Future<Either<Error, dynamic>> addPrescriptionMedication(
+    int prescriptionId,
+    List<Map<String, dynamic>> medData,
+    String token,
+  ) async {
+    try {
+      final result = await sl<PrescriptionApiService>()
+          .addPrescriptionMedication(prescriptionId, medData, token);
+      return result.fold(
+        (error) => Left(error),
+        (response) => Right(response),
+      );
+    } catch (e) {
+      return Left(ApiErrorHandler.handleError(e));
+    }
+  }
 }

@@ -6,6 +6,9 @@ import 'package:merema/core/layers/presentation/widgets/app_field.dart';
 import 'package:merema/features/prescriptions/presentation/bloc/medications_state_cubit.dart';
 import 'package:merema/features/prescriptions/presentation/bloc/medications_state.dart';
 import 'package:merema/features/prescriptions/domain/usecases/update_prescription.dart';
+import 'package:merema/features/prescriptions/domain/usecases/update_prescription_medication.dart';
+import 'package:merema/features/prescriptions/domain/usecases/delete_prescription_medication.dart';
+import 'package:merema/features/prescriptions/domain/usecases/add_prescription_medication.dart';
 import 'package:merema/features/prescriptions/domain/entities/prescription.dart';
 import 'package:merema/core/services/service_locator.dart';
 
@@ -49,7 +52,6 @@ class _PrescriptionUpdateDialogState extends State<PrescriptionUpdateDialog> {
 
     _details = widget.prescriptionDetails
         .map((detail) => PrescriptionDetails(
-              detailId: detail.detailId ?? -1,
               medId: detail.medId,
               morningDosage: detail.morningDosage,
               afternoonDosage: detail.afternoonDosage,
@@ -184,7 +186,6 @@ class _PrescriptionUpdateDialogState extends State<PrescriptionUpdateDialog> {
     setState(() {
       _details.add(
         const PrescriptionDetails(
-          detailId: null,
           medId: 0,
           morningDosage: 0.0,
           afternoonDosage: 0.0,
@@ -222,57 +223,19 @@ class _PrescriptionUpdateDialogState extends State<PrescriptionUpdateDialog> {
     });
 
     try {
+      final updateMedUseCase = sl<UpdatePrescriptionMedicationUseCase>();
+      final deleteMedUseCase = sl<DeletePrescriptionMedicationUseCase>();
+      final addMedUseCase = sl<AddPrescriptionMedicationUseCase>();
       final noteText = _prescriptionNoteController.text.trim();
-      final updateData = {
-        'details': _details.asMap().entries.map((entry) {
-          final i = entry.key;
-          final detail = entry.value;
-          final orig = i < widget.prescriptionDetails.length
-              ? widget.prescriptionDetails[i]
-              : null;
-
-          return {
-            'detail_id': detail.detailId,
-            'med_id': orig == null || detail.medId != orig.medId
-                ? detail.medId
-                : orig.medId,
-            'morning_dosage':
-                orig == null || detail.morningDosage != orig.morningDosage
-                    ? detail.morningDosage
-                    : orig.morningDosage,
-            'afternoon_dosage':
-                orig == null || detail.afternoonDosage != orig.afternoonDosage
-                    ? detail.afternoonDosage
-                    : orig.afternoonDosage,
-            'evening_dosage':
-                orig == null || detail.eveningDosage != orig.eveningDosage
-                    ? detail.eveningDosage
-                    : orig.eveningDosage,
-            'total_dosage':
-                orig == null || detail.totalDosage != orig.totalDosage
-                    ? detail.totalDosage
-                    : orig.totalDosage,
-            'dosage_unit': orig == null || detail.dosageUnit != orig.dosageUnit
-                ? detail.dosageUnit
-                : orig.dosageUnit,
-            'duration_days':
-                orig == null || detail.durationDays != orig.durationDays
-                    ? detail.durationDays
-                    : orig.durationDays,
-            'instructions':
-                orig == null || detail.instructions != orig.instructions
-                    ? detail.instructions
-                    : orig.instructions,
-          };
-        }).toList(),
-        'is_insurance_covered': _isInsuranceCovered,
-        'prescription_note': noteText,
-      };
-
-      final updateUseCase = sl<UpdatePrescriptionUseCase>();
-      final result = await updateUseCase((widget.prescriptionId, updateData));
-
-      result.fold(
+      final updatePrescriptionUseCase = sl<UpdatePrescriptionUseCase>();
+      final updatePrescriptionResult = await updatePrescriptionUseCase((
+        widget.prescriptionId,
+        {
+          'is_insurance_covered': _isInsuranceCovered,
+          'prescription_note': noteText,
+        }
+      ));
+      updatePrescriptionResult.fold(
         (error) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -281,18 +244,136 @@ class _PrescriptionUpdateDialogState extends State<PrescriptionUpdateDialog> {
               ),
             );
           }
+          setState(() {
+            _isLoading = false;
+          });
+          return;
         },
-        (success) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Prescription updated successfully'),
-              ),
-            );
-            widget.onSuccess();
-          }
-        },
+        (_) {},
       );
+
+      for (int i = 0; i < widget.prescriptionDetails.length; i++) {
+        final orig = widget.prescriptionDetails[i];
+        final updated = i < _details.length ? _details[i] : null;
+        if (updated == null) {
+          final deleteResult =
+              await deleteMedUseCase((widget.prescriptionId, orig.medId));
+          deleteResult.fold(
+            (error) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Delete failed: $error')),
+                );
+              }
+            },
+            (_) {},
+          );
+        } else if (updated.medId != orig.medId) {
+          final deleteResult =
+              await deleteMedUseCase((widget.prescriptionId, orig.medId));
+          deleteResult.fold(
+            (error) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Delete failed: $error')),
+                );
+              }
+            },
+            (_) {},
+          );
+          final addResult = await addMedUseCase((
+            widget.prescriptionId,
+            [
+              {
+                'afternoon_dosage': updated.afternoonDosage,
+                'dosage_unit': updated.dosageUnit,
+                'duration_days': updated.durationDays,
+                'evening_dosage': updated.eveningDosage,
+                'instructions': updated.instructions,
+                'med_id': updated.medId,
+                'morning_dosage': updated.morningDosage,
+                'total_dosage': updated.totalDosage,
+              }
+            ],
+          ));
+          addResult.fold(
+            (error) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Add failed: $error')),
+                );
+              }
+            },
+            (_) {},
+          );
+        } else {
+          final updateResult = await updateMedUseCase((
+            widget.prescriptionId,
+            updated.medId,
+            {
+              'afternoon_dosage': updated.afternoonDosage,
+              'dosage_unit': updated.dosageUnit,
+              'duration_days': updated.durationDays,
+              'evening_dosage': updated.eveningDosage,
+              'instructions': updated.instructions,
+              'morning_dosage': updated.morningDosage,
+              'total_dosage': updated.totalDosage,
+            }
+          ));
+          updateResult.fold(
+            (error) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Update failed: $error')),
+                );
+              }
+            },
+            (_) {},
+          );
+        }
+      }
+
+      final newMeds = <Map<String, dynamic>>[];
+      for (int i = widget.prescriptionDetails.length;
+          i < _details.length;
+          i++) {
+        final newMed = _details[i];
+        newMeds.add({
+          'afternoon_dosage': newMed.afternoonDosage,
+          'dosage_unit': newMed.dosageUnit,
+          'duration_days': newMed.durationDays,
+          'evening_dosage': newMed.eveningDosage,
+          'instructions': newMed.instructions,
+          'med_id': newMed.medId,
+          'morning_dosage': newMed.morningDosage,
+          'total_dosage': newMed.totalDosage,
+        });
+      }
+      if (newMeds.isNotEmpty) {
+        final addResult = await addMedUseCase((
+          widget.prescriptionId,
+          newMeds,
+        ));
+        addResult.fold(
+          (error) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Add failed: $error')),
+              );
+            }
+          },
+          (_) {},
+        );
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Prescription updated successfully'),
+          ),
+        );
+        widget.onSuccess();
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

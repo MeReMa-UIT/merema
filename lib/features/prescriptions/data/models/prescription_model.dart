@@ -2,7 +2,6 @@ import 'package:merema/features/prescriptions/domain/entities/prescription.dart'
 
 class PrescriptionDetailsModel extends PrescriptionDetails {
   const PrescriptionDetailsModel({
-    super.detailId,
     required super.afternoonDosage,
     required super.dosageUnit,
     required super.durationDays,
@@ -15,7 +14,6 @@ class PrescriptionDetailsModel extends PrescriptionDetails {
 
   factory PrescriptionDetailsModel.fromJson(Map<String, dynamic> json) {
     return PrescriptionDetailsModel(
-      detailId: json['detail_id'],
       afternoonDosage: double.parse(json['afternoon_dosage'].toString()),
       dosageUnit: json['dosage_unit'],
       durationDays: json['duration_days'],
@@ -25,6 +23,19 @@ class PrescriptionDetailsModel extends PrescriptionDetails {
       morningDosage: double.parse(json['morning_dosage'].toString()),
       totalDosage: double.parse(json['total_dosage'].toString()),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'afternoon_dosage': afternoonDosage,
+      'dosage_unit': dosageUnit,
+      'duration_days': durationDays,
+      'evening_dosage': eveningDosage,
+      'instructions': instructions,
+      'med_id': medId,
+      'morning_dosage': morningDosage,
+      'total_dosage': totalDosage,
+    };
   }
 }
 
