@@ -1,14 +1,14 @@
 import 'package:merema/core/usecases/usecase.dart';
 import 'package:merema/features/comms/domain/repositories/comms_repository.dart';
 import 'package:merema/core/services/service_locator.dart';
-import 'package:merema/features/comms/domain/entities/send_message_params.dart';
+import 'package:merema/features/comms/domain/entities/mark_seen_message_params.dart';
 
-class SendMessageUseCase implements UseCase<void, SendMessageParams> {
+class MarkSeenMessageUseCase implements UseCase<void, MarkSeenMessageParams> {
   @override
-  Future<void> call(SendMessageParams params) async {
-    await sl<CommsRepository>().sendMessage(
+  Future<void> call(MarkSeenMessageParams params) async {
+    await sl<CommsRepository>().markSeenMessage(
       partnerAccId: params.partnerAccId,
-      text: params.text,
+      readTime: params.readTime,
       conversationId: params.conversationId,
     );
   }

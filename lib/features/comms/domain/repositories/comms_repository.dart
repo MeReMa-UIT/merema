@@ -1,13 +1,31 @@
-import 'package:dartz/dartz.dart';
-import 'package:merema/features/comms/domain/entities/contacts.dart';
-import 'package:merema/features/comms/domain/entities/messages.dart';
-
 abstract class CommsRepository {
-  Future<Either<Error, Contacts>> getContacts(String token);
-  Future<Either<Error, Messages>> getMessages(int contactId, String token);
-  Future<Either<Error, dynamic>> sendMessage(
-    String content,
-    int receiverId,
-    String token,
-  );
+  Future<void> openConnection(String token);
+  Future<void> closeConnection();
+
+  Stream<Map<String, dynamic>> get onMessageHistory;
+  Stream<Map<String, dynamic>> get onConversationList;
+
+  Future<void> sendMessage({
+    required int partnerAccId,
+    required String text,
+    required int conversationId,
+  });
+
+  Future<void> loadHistory({
+    required int conversationId,
+    int? limit,
+    int? offset,
+  });
+
+  Future<void> markSeenMessage({
+    required int partnerAccId,
+    required String readTime,
+    required int conversationId,
+  });
+
+  Future<List<Map<String, dynamic>>> getMessages(int conversationId,
+      {int? limit, int? offset});
+  Future<List<Map<String, dynamic>>> getContacts();
+
+  List<Map<String, dynamic>> get cachedConversations;
 }

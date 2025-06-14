@@ -48,7 +48,7 @@ class _ContactsSidebarState extends State<ContactsSidebar> {
         final errorMessage = state is ContactsError ? state.message : null;
         final selectedContact = state is ContactsLoaded
             ? contacts
-                .where((c) => c.accId == widget.selectedContactId)
+                .where((c) => c.partnerAccId == widget.selectedContactId)
                 .firstOrNull
             : null;
 
@@ -59,7 +59,7 @@ class _ContactsSidebarState extends State<ContactsSidebar> {
           hasError: hasError,
           errorMessage: errorMessage,
           onPersonSelected: (contact) {
-            widget.onContactSelected(contact.accId, contact.fullName);
+            widget.onContactSelected(contact.partnerAccId, contact.partnerName);
           },
           onShowRegisterView: null,
           onRetry: () => context.read<ContactsCubit>().getContacts(),
@@ -67,10 +67,9 @@ class _ContactsSidebarState extends State<ContactsSidebar> {
           onClearSearch: _onClear,
           searchController: _searchController,
           selectedPerson: selectedContact,
-          getPersonId: (contact) => contact.accId.toString(),
-          getPersonName: (contact) => contact.fullName,
-          getPersonSubtitle: (contact) =>
-              'Role: ${contact.role}\nID: ${contact.accId}',
+          getPersonId: (contact) => contact.partnerAccId.toString(),
+          getPersonName: (contact) => contact.partnerName,
+          getPersonSubtitle: (contact) => 'ID: ${contact.partnerAccId}',
           showRegisterButton: false,
         );
       },

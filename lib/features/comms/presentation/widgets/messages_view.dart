@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:merema/core/layers/presentation/widgets/app_button.dart';
 import 'package:merema/core/layers/presentation/widgets/app_field.dart';
-import 'package:merema/core/services/message_notification_service.dart';
 import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/core/theme/app_pallete.dart';
 import 'package:merema/features/auth/domain/usecases/get_acc_id.dart';
-import 'package:merema/features/comms/domain/entities/messages.dart';
+import 'package:merema/features/comms/domain/entities/send_message_params.dart';
 import 'package:merema/features/comms/presentation/bloc/messages_state_cubit.dart';
 import 'package:merema/features/comms/presentation/bloc/messages_state.dart';
 
@@ -27,15 +26,13 @@ class MessagesView extends StatefulWidget {
 class _MessagesViewState extends State<MessagesView> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  late MessageNotificationService _notificationService;
   int? _currentUserAccId;
 
   @override
   void initState() {
     super.initState();
-    _notificationService = sl<MessageNotificationService>();
-    _notificationService.addListener(_onNewMessage);
     _getCurrentUserAccId();
+    context.read<MessagesCubit>().getMessages(widget.contactId);
   }
 
   @override
@@ -55,21 +52,20 @@ class _MessagesViewState extends State<MessagesView> {
 
   @override
   void dispose() {
-    _notificationService.removeListener(_onNewMessage);
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
-  void _onNewMessage(Message message) {
-    context.read<MessagesCubit>().getMessages(widget.contactId);
-  }
-
   void _sendMessage() {
-    if (_messageController.text.trim().isNotEmpty) {
+    if (_messageController.text.trim().isNotEmpty &&
+        _currentUserAccId != null) {
       context.read<MessagesCubit>().sendMessage(
-            _messageController.text.trim(),
-            widget.contactId,
+            SendMessageParams(
+              partnerAccId: widget.contactId,
+              text: _messageController.text,
+              conversationId: widget.contactId,
+            ),
           );
       _messageController.clear();
     }
@@ -209,7 +205,7 @@ class _MessagesViewState extends State<MessagesView> {
                     final reversedIndex = state.messages.length - 1 - index;
                     final message = state.messages[reversedIndex];
                     final isMyMessage = _currentUserAccId != null &&
-                        message.senderId == _currentUserAccId;
+                        message.senderAccId == _currentUserAccId;
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 8),

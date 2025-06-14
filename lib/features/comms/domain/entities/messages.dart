@@ -1,19 +1,28 @@
 class Message {
   final String content;
-  final int senderId;
+  final int conversationId;
+  final bool isSeen;
+  final int messageId;
+  final int senderAccId;
   final String sentAt;
 
-  const Message({
+  Message({
     required this.content,
-    required this.senderId,
+    required this.conversationId,
+    required this.isSeen,
+    required this.messageId,
+    required this.senderAccId,
     required this.sentAt,
   });
-}
 
-class Messages {
-  final List<Message> messages;
-
-  const Messages({
-    required this.messages,
-  });
+  factory Message.fromMap(Map<String, dynamic> map) {
+    return Message(
+      content: map['content'] ?? '',
+      conversationId: map['conversation_id'] ?? 0,
+      isSeen: map['is_seen'] ?? false,
+      messageId: map['message_id'] ?? 0,
+      senderAccId: map['sender_acc_id'] ?? 0,
+      sentAt: map['sent_at'] ?? '',
+    );
+  }
 }

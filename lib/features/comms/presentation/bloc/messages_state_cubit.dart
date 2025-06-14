@@ -1,36 +1,66 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:dartz/dartz.dart';
 import 'package:merema/core/services/service_locator.dart';
-import 'package:merema/features/comms/domain/usecases/get_messages.dart';
 import 'package:merema/features/comms/domain/usecases/send_message.dart';
+import 'package:merema/features/comms/domain/usecases/get_messages.dart';
 import 'package:merema/features/comms/presentation/bloc/messages_state.dart';
+import 'package:merema/features/comms/presentation/notifiers/comms_notifier.dart';
+import 'package:merema/features/comms/domain/entities/send_message_params.dart';
+import 'package:merema/features/comms/domain/entities/messages.dart';
 
 class MessagesCubit extends Cubit<MessagesState> {
-  MessagesCubit() : super(MessagesInitial());
+  final CommsNotifier _commsNotifier = sl<CommsNotifier>();
+  int? _currentConversationId;
 
-  Future<void> getMessages(int contactId) async {
-    emit(MessagesLoading());
-
-    final result = await sl<GetMessagesUseCase>().call(contactId);
-
-    result.fold(
-      (error) => emit(MessagesError(error.toString())),
-      (messagesData) {
-        final messages = messagesData.messages;
-        emit(MessagesLoaded(
-          messages: messages,
-        ));
-      },
-    );
+  MessagesCubit() : super(MessagesInitial()) {
+    _setupCommsListener();
   }
 
-  Future<void> sendMessage(String content, int contactId) async {
-    final result =
-        await sl<SendMessageUseCase>().call(Tuple2(content, contactId));
+  void _setupCommsListener() {
+    _commsNotifier.addListener(() {
+      if (_commsNotifier.newMessages.isNotEmpty &&
+          _currentConversationId != null) {
+        getMessages(_currentConversationId!);
+        _commsNotifier.clearNewMessages();
+      }
+    });
+  }
 
-    result.fold(
-      (error) => emit(MessagesError(error.toString())),
-      (success) => getMessages(contactId),
-    );
+  Future<void> getMessages(int conversationId) async {
+    _currentConversationId = conversationId;
+    emit(MessagesLoading());
+    try {
+      final messages = await sl<GetMessagesUseCase>().call(conversationId);
+      emit(MessagesLoaded(messages: messages));
+    } catch (error) {
+      emit(MessagesError(error.toString()));
+    }
+  }
+
+  Future<void> getMessagesFromData({
+    required List<Map<String, dynamic>> messagesData,
+  }) async {
+    emit(MessagesLoading());
+    try {
+      final messages = messagesData.map((e) => Message.fromMap(e)).toList();
+      emit(MessagesLoaded(messages: messages));
+    } catch (error) {
+      emit(MessagesError(error.toString()));
+    }
+  }
+
+  Future<void> sendMessage(SendMessageParams params) async {
+    try {
+      await sl<SendMessageUseCase>().call(params);
+
+      await getMessages(params.conversationId);
+    } catch (error) {
+      emit(MessagesError(error.toString()));
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _commsNotifier.removeListener(() {});
+    return super.close();
   }
 }

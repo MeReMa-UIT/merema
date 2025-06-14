@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:merema/features/comms/domain/entities/contacts.dart';
+import 'package:merema/features/comms/domain/entities/contact.dart';
 
 abstract class ContactsState extends Equatable {
   const ContactsState();

@@ -13,12 +13,16 @@ import 'package:merema/features/auth/domain/usecases/recovery.dart';
 import 'package:merema/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:merema/features/auth/data/sources/auth_api_service.dart';
 import 'package:merema/features/comms/data/repositories/comms_repository_impl.dart';
-import 'package:merema/features/comms/data/sources/comms_api_service.dart';
 import 'package:merema/features/comms/data/sources/comms_local_service.dart';
+import 'package:merema/features/comms/data/sources/comms_websocket_service.dart';
 import 'package:merema/features/comms/domain/repositories/comms_repository.dart';
+import 'package:merema/features/comms/domain/usecases/close_ws_connection.dart';
 import 'package:merema/features/comms/domain/usecases/get_contacts.dart';
 import 'package:merema/features/comms/domain/usecases/get_messages.dart';
+import 'package:merema/features/comms/domain/usecases/mark_seen_message.dart';
+import 'package:merema/features/comms/domain/usecases/open_ws_connection.dart';
 import 'package:merema/features/comms/domain/usecases/send_message.dart';
+import 'package:merema/features/comms/presentation/notifiers/comms_notifier.dart';
 import 'package:merema/features/patients/data/repositories/patient_repository_impl.dart';
 import 'package:merema/features/patients/data/sources/patient_api_service.dart';
 import 'package:merema/features/patients/domain/repositories/patient_repository.dart';
@@ -60,7 +64,6 @@ import 'package:merema/features/staffs/domain/usecases/get_staff_infos.dart';
 import 'package:merema/features/staffs/domain/usecases/get_staffs_list.dart';
 import 'package:merema/features/staffs/domain/usecases/register_staff.dart';
 import 'package:merema/features/staffs/domain/usecases/update_staff.dart';
-import 'package:merema/core/services/message_notification_service.dart';
 
 final sl = GetIt.instance;
 
@@ -71,8 +74,9 @@ void setupServiceLocator() {
   sl.registerSingleton<AuthApiService>(AuthApiServiceImpl());
   sl.registerSingleton<AuthLocalService>(AuthLocalServiceImpl());
 
-  sl.registerSingleton<MessageNotificationService>(
-      MessageNotificationService());
+  sl.registerSingleton<CommsWebSocketService>(CommsWebSocketService());
+  sl.registerSingleton<CommsLocalService>(CommsLocalServiceImpl());
+  sl.registerSingleton<CommsNotifier>(CommsNotifier());
 
   sl.registerSingleton<ProfileApiService>(ProfileApiServiceImpl());
   sl.registerSingleton<ProfileLocalService>(ProfileLocalServiceImpl());
@@ -85,15 +89,14 @@ void setupServiceLocator() {
 
   sl.registerSingleton<ScheduleApiService>(ScheduleApiServiceImpl());
 
-  sl.registerSingleton<CommsApiService>(CommsApiServiceImpl());
-  sl.registerSingleton<CommsLocalService>(CommsLocalServiceImpl());
-
   sl.registerSingleton<PrescriptionApiService>(PrescriptionApiServiceImpl());
   sl.registerSingleton<PrescriptionLocalService>(
       PrescriptionLocalServiceImpl());
 
   // Repositories
   sl.registerSingleton<AuthRepository>(AuthRepositoryImpl());
+
+  sl.registerSingleton<CommsRepository>(CommsRepositoryImpl());
 
   sl.registerSingleton<ProfileRepository>(ProfileRepositoryImpl());
 
@@ -102,8 +105,6 @@ void setupServiceLocator() {
   sl.registerSingleton<StaffRepository>(StaffRepositoryImpl());
 
   sl.registerSingleton<ScheduleRepository>(ScheduleRepositoryImpl());
-
-  sl.registerSingleton<CommsRepository>(CommsRepositoryImpl());
 
   sl.registerSingleton<PrescriptionRepository>(PrescriptionRepositoryImpl());
 
@@ -117,6 +118,14 @@ void setupServiceLocator() {
   sl.registerSingleton<GetUserRoleUseCase>(GetUserRoleUseCase());
   sl.registerSingleton<GetAccIdUseCase>(GetAccIdUseCase());
   sl.registerSingleton<LogoutUseCase>(LogoutUseCase());
+
+  sl.registerSingleton<OpenWsConnectionUseCase>(
+      OpenWsConnectionUseCase(authRepository: sl()));
+  sl.registerSingleton<CloseWsConnectionUseCase>(CloseWsConnectionUseCase());
+  sl.registerSingleton<GetContactsUseCase>(GetContactsUseCase());
+  sl.registerSingleton<GetMessagesUseCase>(GetMessagesUseCase());
+  sl.registerSingleton<SendMessageUseCase>(SendMessageUseCase());
+  sl.registerSingleton<MarkSeenMessageUseCase>(MarkSeenMessageUseCase());
 
   sl.registerSingleton<GetUserProfileUseCase>(
       GetUserProfileUseCase(authRepository: sl()));
@@ -157,16 +166,6 @@ void setupServiceLocator() {
   );
   sl.registerSingleton<UpdateScheduleStatusUseCase>(
     UpdateScheduleStatusUseCase(authRepository: sl()),
-  );
-
-  sl.registerSingleton<GetContactsUseCase>(
-    GetContactsUseCase(authRepository: sl()),
-  );
-  sl.registerSingleton<GetMessagesUseCase>(
-    GetMessagesUseCase(authRepository: sl()),
-  );
-  sl.registerSingleton<SendMessageUseCase>(
-    SendMessageUseCase(authRepository: sl()),
   );
 
   sl.registerSingleton<GetMedicationsUseCase>(

@@ -1,22 +1,12 @@
-import 'package:dartz/dartz.dart';
-import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/core/usecases/usecase.dart';
-import 'package:merema/features/auth/domain/repositories/auth_repository.dart';
 import 'package:merema/features/comms/domain/repositories/comms_repository.dart';
+import 'package:merema/core/services/service_locator.dart';
+import 'package:merema/features/comms/domain/entities/contact.dart';
 
-class GetContactsUseCase implements UseCase<Either, dynamic> {
-  final AuthRepository authRepository;
-
-  GetContactsUseCase({required this.authRepository});
-
+class GetContactsUseCase implements UseCase<List<Contact>, dynamic> {
   @override
-  Future<Either> call(dynamic params) async {
-    final token = await authRepository.getToken();
-
-    if (token.isEmpty) {
-      return Left(Error());
-    }
-
-    return await sl<CommsRepository>().getContacts(token);
+  Future<List<Contact>> call(dynamic params) async {
+    final rawList = await sl<CommsRepository>().getContacts();
+    return rawList.map((e) => Contact.fromMap(e)).toList();
   }
 }

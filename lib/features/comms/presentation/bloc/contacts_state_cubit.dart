@@ -9,18 +9,15 @@ class ContactsCubit extends Cubit<ContactsState> {
   Future<void> getContacts() async {
     emit(ContactsLoading());
 
-    final result = await sl<GetContactsUseCase>().call(null);
-
-    result.fold(
-      (error) => emit(ContactsError(error.toString())),
-      (contactsData) {
-        final contacts = contactsData.contacts;
-        emit(ContactsLoaded(
-          contacts: contacts,
-          filteredContacts: List.from(contacts),
-        ));
-      },
-    );
+    try {
+      final contacts = await sl<GetContactsUseCase>().call(null);
+      emit(ContactsLoaded(
+        contacts: contacts,
+        filteredContacts: List.from(contacts),
+      ));
+    } catch (error) {
+      emit(ContactsError(error.toString()));
+    }
   }
 
   void searchContacts({required String searchQuery}) {
@@ -33,11 +30,9 @@ class ContactsCubit extends Cubit<ContactsState> {
         ));
       } else {
         final filteredContacts = currentState.contacts.where((contact) {
-          final fullName = contact.fullName.toLowerCase();
-          final role = contact.role.toLowerCase();
+          final partnerName = contact.partnerName.toLowerCase();
           final query = searchQuery.toLowerCase();
-
-          return fullName.contains(query) || role.contains(query);
+          return partnerName.contains(query);
         }).toList();
 
         emit(currentState.copyWith(

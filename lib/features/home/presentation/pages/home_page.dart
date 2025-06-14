@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:merema/core/services/service_locator.dart';
-import 'package:merema/core/services/message_notification_service.dart';
-import 'package:merema/core/layers/presentation/widgets/desktop_notification.dart';
 import 'package:merema/features/auth/domain/usecases/get_user_role.dart';
 import 'package:merema/features/auth/domain/usecases/logout.dart';
 import 'package:merema/core/layers/domain/entities/user_role.dart';
-import 'package:merema/features/comms/domain/entities/messages.dart';
-import 'package:merema/features/comms/domain/usecases/get_contacts.dart';
 import 'package:merema/features/comms/presentation/pages/messages_page.dart';
+import 'package:merema/features/comms/presentation/notifiers/comms_notifier.dart';
 import 'package:merema/features/home/presentation/widgets/menu_items_layout.dart';
 import 'package:merema/features/patients/presentation/pages/patients_doctor_page.dart';
 import 'package:merema/features/prescriptions/presentation/pages/prescriptions_patient_page.dart';
@@ -116,7 +113,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   UserRole _currentUserRole = UserRole.noRole;
   bool _isLoadingRole = true;
-  MessageNotificationService? _notificationService;
 
   @override
   void initState() {
@@ -127,8 +123,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    _notificationService?.removeListener(_onNewMessage);
-    _notificationService?.stopPeriodicCheck();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -137,57 +131,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        _notificationService?.startPeriodicCheck();
         break;
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
-        _notificationService?.stopPeriodicCheck();
         break;
       default:
         break;
-    }
-  }
-
-  void _setupNotificationService() {
-    if (_currentUserRole == UserRole.doctor ||
-        _currentUserRole == UserRole.patient) {
-      _notificationService = sl<MessageNotificationService>();
-      _notificationService?.addListener(_onNewMessage);
-      _notificationService?.startPeriodicCheck();
-    }
-  }
-
-  void _onNewMessage(Message message) async {
-    if (mounted) {
-      final contactsResult = await sl<GetContactsUseCase>().call(null);
-
-      if (!mounted) return;
-
-      String senderName = 'Unknown Contact';
-      contactsResult.fold(
-        (error) => null,
-        (contacts) {
-          final senderContact = contacts.contacts.firstWhere(
-            (contact) => contact.accId == message.senderId,
-          );
-          senderName = senderContact.fullName;
-        },
-      );
-
-      DesktopNotificationManager.showNotification(
-        context,
-        title: 'New Message',
-        message: 'You have received a new message from $senderName',
-        onTap: () {
-          Navigator.push(
-            context,
-            MessagesPage.route(
-              contactId: message.senderId,
-              contactName: senderName,
-            ),
-          );
-        },
-      );
     }
   }
 
@@ -198,7 +147,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         _currentUserRole = userRole;
         _isLoadingRole = false;
       });
-      _setupNotificationService();
+      
+      if (userRole == UserRole.doctor || userRole == UserRole.patient) {
+        await sl<CommsNotifier>().openConnectionForRole(userRole);
+      }
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -212,6 +164,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Future<void> _logout() async {
+    if (_currentUserRole == UserRole.doctor || _currentUserRole == UserRole.patient) {
+      await sl<CommsNotifier>().closeConnection();
+    }
     await sl<LogoutUseCase>().call(null);
   }
 
