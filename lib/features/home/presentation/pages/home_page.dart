@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:merema/core/services/service_locator.dart';
+import 'package:merema/core/services/notification_service.dart';
 import 'package:merema/features/auth/domain/usecases/get_user_role.dart';
 import 'package:merema/features/auth/domain/usecases/logout.dart';
 import 'package:merema/core/layers/domain/entities/user_role.dart';
@@ -118,12 +119,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      NotificationService().initialize(context);
+    });
     _getRole();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    NotificationService().hideNotification();
     super.dispose();
   }
 
@@ -147,7 +152,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         _currentUserRole = userRole;
         _isLoadingRole = false;
       });
-      
+
       if (userRole == UserRole.doctor || userRole == UserRole.patient) {
         await sl<CommsNotifier>().openConnectionForRole(userRole);
       }
@@ -164,7 +169,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Future<void> _logout() async {
-    if (_currentUserRole == UserRole.doctor || _currentUserRole == UserRole.patient) {
+    if (_currentUserRole == UserRole.doctor ||
+        _currentUserRole == UserRole.patient) {
       await sl<CommsNotifier>().closeConnection();
     }
     await sl<LogoutUseCase>().call(null);

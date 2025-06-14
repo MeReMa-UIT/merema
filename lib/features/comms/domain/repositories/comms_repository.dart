@@ -2,6 +2,7 @@ abstract class CommsRepository {
   Future<void> openConnection(String token);
   Future<void> closeConnection();
 
+  Stream<Map<String, dynamic>> get onNewMessage;
   Stream<Map<String, dynamic>> get onMessageHistory;
   Stream<Map<String, dynamic>> get onConversationList;
 

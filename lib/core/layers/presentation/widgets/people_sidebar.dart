@@ -20,6 +20,7 @@ class PeopleSidebar<T> extends StatefulWidget {
   final String Function(T person) getPersonName;
   final String Function(T person) getPersonSubtitle;
   final bool showRegisterButton;
+  final bool Function(T person)? hasUnreadMessages;
 
   const PeopleSidebar({
     super.key,
@@ -39,6 +40,7 @@ class PeopleSidebar<T> extends StatefulWidget {
     required this.getPersonName,
     required this.getPersonSubtitle,
     this.showRegisterButton = true,
+    this.hasUnreadMessages,
   });
 
   @override
@@ -187,6 +189,7 @@ class _PeopleSidebarState<T> extends State<PeopleSidebar<T>> {
         final isSelected = widget.selectedPerson != null &&
             widget.getPersonId(person) ==
                 widget.getPersonId(widget.selectedPerson as T);
+        final hasUnread = widget.hasUnreadMessages?.call(person) ?? false;
 
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
@@ -223,10 +226,28 @@ class _PeopleSidebarState<T> extends State<PeopleSidebar<T>> {
                 fontSize: 12,
               ),
             ),
-            trailing: Icon(
-              isSelected ? Icons.keyboard_arrow_right : Icons.arrow_forward_ios,
-              color:
-                  isSelected ? AppPallete.textColor : AppPallete.lightGrayColor,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (hasUnread)
+                  Container(
+                    width: 10,
+                    height: 10,
+                    margin: const EdgeInsets.only(right: 8),
+                    decoration: const BoxDecoration(
+                      color: AppPallete.primaryColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                Icon(
+                  isSelected
+                      ? Icons.keyboard_arrow_right
+                      : Icons.arrow_forward_ios,
+                  color: isSelected
+                      ? AppPallete.textColor
+                      : AppPallete.lightGrayColor,
+                ),
+              ],
             ),
             onTap: () {
               widget.onPersonSelected(person);

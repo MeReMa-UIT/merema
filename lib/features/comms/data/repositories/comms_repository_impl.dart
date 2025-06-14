@@ -6,8 +6,18 @@ import 'package:merema/core/services/service_locator.dart';
 class CommsRepositoryImpl extends CommsRepository {
   List<Map<String, dynamic>> _cachedConversations = [];
   final Map<int, List<Map<String, dynamic>>> _cachedMessages = {};
+  final Set<int> _historyLoaded = {};
+  bool _isInitialized = false;
 
   CommsRepositoryImpl();
+
+  Future<void> _initializeFromCache() async {
+    if (_isInitialized) return;
+
+    _cachedConversations =
+        await sl<CommsLocalService>().getCachedConversations();
+    _isInitialized = true;
+  }
 
   @override
   Future<void> openConnection(String token) async {
@@ -17,7 +27,7 @@ class CommsRepositoryImpl extends CommsRepository {
 
   @override
   Future<void> closeConnection() async {
-    sl<CommsWebSocketService>().dispose();
+    await sl<CommsWebSocketService>().closeConnection();
   }
 
   @override
@@ -31,6 +41,11 @@ class CommsRepositoryImpl extends CommsRepository {
       sl<CommsWebSocketService>()
           .stream
           .where((event) => event['type'] == 'messageHistory');
+
+  @override
+  Stream<Map<String, dynamic>> get onNewMessage => sl<CommsWebSocketService>()
+      .stream
+      .where((event) => event['type'] == 'newMessage');
 
   void cacheConversationsFromStream() {
     onConversationList.listen((event) async {
@@ -61,15 +76,26 @@ class CommsRepositoryImpl extends CommsRepository {
   @override
   Future<List<Map<String, dynamic>>> getMessages(int conversationId,
       {int? limit, int? offset}) async {
+    await _initializeFromCache();
+
+    if (!_cachedMessages.containsKey(conversationId)) {
+      _cachedMessages[conversationId] =
+          await sl<CommsLocalService>().getCachedMessages(conversationId);
+    }
+
     List<Map<String, dynamic>> messages = _cachedMessages[conversationId] ?? [];
 
     _setupMessageHistoryListener(conversationId);
+    _setupNewMessageListener(conversationId);
 
-    await loadHistory(
-      conversationId: conversationId,
-      limit: limit ?? 20,
-      offset: offset ?? 0,
-    );
+    if (!_historyLoaded.contains(conversationId)) {
+      _historyLoaded.add(conversationId);
+      await loadHistory(
+        conversationId: conversationId,
+        limit: limit ?? 50,
+        offset: offset ?? 0,
+      );
+    }
 
     return List.from(messages);
   }
@@ -88,11 +114,34 @@ class CommsRepositoryImpl extends CommsRepository {
     });
   }
 
+  void _setupNewMessageListener(int conversationId) {
+    onNewMessage.listen((event) async {
+      if (event.containsKey('conversation_id') &&
+          event['conversation_id'] == conversationId &&
+          event.containsKey('message')) {
+        final messageData = event['message'];
+        if (messageData is Map<String, dynamic>) {
+          final existing = _cachedMessages[conversationId] ?? [];
+          final messageId = messageData['message_id'];
+
+          final messageExists =
+              existing.any((m) => m['message_id'] == messageId);
+          if (!messageExists) {
+            _cachedMessages[conversationId] = [...existing, messageData];
+            await sl<CommsLocalService>().cacheMessagesFromWs(
+                conversationId, _cachedMessages[conversationId]!);
+          }
+        }
+      }
+    });
+  }
+
   @override
   List<Map<String, dynamic>> get cachedConversations => _cachedConversations;
 
   @override
   Future<List<Map<String, dynamic>>> getContacts() async {
+    await _initializeFromCache();
     return _cachedConversations;
   }
 

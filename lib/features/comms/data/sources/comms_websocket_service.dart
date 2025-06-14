@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:merema/core/consts/consts.dart';
 
@@ -12,16 +13,34 @@ class CommsWebSocketService {
   }
 
   Future<void> openConnection(String token) async {
+    await closeConnection();
+
+    if (_controller.isClosed) {
+      _controller = StreamController<Map<String, dynamic>>.broadcast();
+    }
+
     _channel = IOWebSocketChannel.connect(
       Uri.parse(Consts.wsUrl),
       headers: {
         'Authorization': token,
       },
     );
-    _channel!.stream.listen((data) {
-      final decoded = json.decode(data);
-      _controller.add(decoded);
-    });
+    _channel!.stream.listen(
+      (data) {
+        if (!_controller.isClosed) {
+          final decoded = json.decode(data);
+          _controller.add(decoded);
+        }
+      },
+      onError: (error) {
+        if (!_controller.isClosed) {
+          _controller.addError(error);
+        }
+      },
+      onDone: () {
+        debugPrint('Connection closed');
+      },
+    );
   }
 
   Stream<Map<String, dynamic>> get stream => _controller.stream;
@@ -66,6 +85,11 @@ class CommsWebSocketService {
       'conversation_id': conversationId,
     };
     _channel?.sink.add(json.encode(payload));
+  }
+
+  Future<void> closeConnection() async {
+    await _channel?.sink.close();
+    _channel = null;
   }
 
   void dispose() {

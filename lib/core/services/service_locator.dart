@@ -19,6 +19,8 @@ import 'package:merema/features/comms/domain/repositories/comms_repository.dart'
 import 'package:merema/features/comms/domain/usecases/close_ws_connection.dart';
 import 'package:merema/features/comms/domain/usecases/get_contacts.dart';
 import 'package:merema/features/comms/domain/usecases/get_messages.dart';
+import 'package:merema/features/comms/domain/usecases/listen_to_message_history.dart';
+import 'package:merema/features/comms/domain/usecases/listen_to_new_message.dart';
 import 'package:merema/features/comms/domain/usecases/mark_seen_message.dart';
 import 'package:merema/features/comms/domain/usecases/open_ws_connection.dart';
 import 'package:merema/features/comms/domain/usecases/send_message.dart';
@@ -122,6 +124,9 @@ void setupServiceLocator() {
   sl.registerSingleton<OpenWsConnectionUseCase>(
       OpenWsConnectionUseCase(authRepository: sl()));
   sl.registerSingleton<CloseWsConnectionUseCase>(CloseWsConnectionUseCase());
+  sl.registerSingleton<ListenToNewMessageUseCase>(ListenToNewMessageUseCase());
+  sl.registerSingleton<ListenToMessageHistoryUseCase>(
+      ListenToMessageHistoryUseCase());
   sl.registerSingleton<GetContactsUseCase>(GetContactsUseCase());
   sl.registerSingleton<GetMessagesUseCase>(GetMessagesUseCase());
   sl.registerSingleton<SendMessageUseCase>(SendMessageUseCase());

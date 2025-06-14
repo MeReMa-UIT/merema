@@ -42,6 +42,7 @@ class _MessagesPageState extends State<MessagesPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int? _selectedContactId;
   String? _selectedContactName;
+  int? _selectedConversationId;
 
   @override
   void initState() {
@@ -49,19 +50,16 @@ class _MessagesPageState extends State<MessagesPage> {
     if (widget.contactId != null && widget.contactName != null) {
       _selectedContactId = widget.contactId;
       _selectedContactName = widget.contactName;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.read<MessagesCubit>().getMessages(widget.contactId!);
-      });
     }
   }
 
-  void _onContactSelected(int contactId, String contactName) {
+  void _onContactSelected(
+      int contactId, String contactName, int conversationId) {
     setState(() {
       _selectedContactId = contactId;
       _selectedContactName = contactName;
+      _selectedConversationId = conversationId;
     });
-
-    context.read<MessagesCubit>().getMessages(contactId);
 
     if (_scaffoldKey.currentState?.isDrawerOpen == true) {
       Navigator.of(context).pop();
@@ -145,39 +143,44 @@ class _MessagesPageState extends State<MessagesPage> {
                   ),
                 ),
                 Expanded(
-                  child:
-                      _selectedContactId != null && _selectedContactName != null
-                          ? MessagesView(
-                              contactId: _selectedContactId!,
-                              contactName: _selectedContactName!,
-                            )
-                          : const Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.chat_bubble_outline,
-                                    color: AppPallete.lightGrayColor,
-                                    size: 64,
-                                  ),
-                                  SizedBox(height: 16),
-                                  Text(
-                                    'Select a contact to start messaging',
-                                    style: TextStyle(
-                                      color: AppPallete.darkGrayColor,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ],
+                  child: _selectedContactId != null &&
+                          _selectedContactName != null &&
+                          _selectedConversationId != null
+                      ? MessagesView(
+                          contactId: _selectedContactId!,
+                          contactName: _selectedContactName!,
+                          conversationId: _selectedConversationId!,
+                        )
+                      : const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.chat_bubble_outline,
+                                color: AppPallete.lightGrayColor,
+                                size: 64,
                               ),
-                            ),
+                              SizedBox(height: 16),
+                              Text(
+                                'Select a contact to start messaging',
+                                style: TextStyle(
+                                  color: AppPallete.darkGrayColor,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                 ),
               ],
             )
-          : _selectedContactId != null && _selectedContactName != null
+          : _selectedContactId != null &&
+                  _selectedContactName != null &&
+                  _selectedConversationId != null
               ? MessagesView(
                   contactId: _selectedContactId!,
                   contactName: _selectedContactName!,
+                  conversationId: _selectedConversationId!,
                 )
               : const Center(
                   child: Column(

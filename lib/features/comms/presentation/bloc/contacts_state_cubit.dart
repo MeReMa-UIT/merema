@@ -7,20 +7,28 @@ class ContactsCubit extends Cubit<ContactsState> {
   ContactsCubit() : super(ContactsInitial());
 
   Future<void> getContacts() async {
+    if (isClosed) return;
+
     emit(ContactsLoading());
 
     try {
       final contacts = await sl<GetContactsUseCase>().call(null);
-      emit(ContactsLoaded(
-        contacts: contacts,
-        filteredContacts: List.from(contacts),
-      ));
+      if (!isClosed) {
+        emit(ContactsLoaded(
+          contacts: contacts,
+          filteredContacts: List.from(contacts),
+        ));
+      }
     } catch (error) {
-      emit(ContactsError(error.toString()));
+      if (!isClosed) {
+        emit(ContactsError(error.toString()));
+      }
     }
   }
 
   void searchContacts({required String searchQuery}) {
+    if (isClosed) return;
+
     final currentState = state;
     if (currentState is ContactsLoaded) {
       if (searchQuery.isEmpty) {
@@ -44,6 +52,8 @@ class ContactsCubit extends Cubit<ContactsState> {
   }
 
   void clearSearch() {
+    if (isClosed) return;
+
     final currentState = state;
     if (currentState is ContactsLoaded) {
       emit(currentState.copyWith(
