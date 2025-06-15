@@ -55,6 +55,20 @@ import 'package:merema/features/profile/data/sources/profile_local_service.dart'
 import 'package:merema/features/profile/domain/repositories/profile_repository.dart';
 import 'package:merema/features/profile/domain/usecases/get_user_profile.dart';
 import 'package:merema/features/profile/domain/usecases/update_profile.dart';
+import 'package:merema/features/records/data/repositories/record_repository_impl.dart';
+import 'package:merema/features/records/data/sources/record_api_service.dart';
+import 'package:merema/features/records/domain/repositories/record_repository.dart';
+import 'package:merema/features/records/domain/usecases/add_record.dart';
+import 'package:merema/features/records/domain/usecases/add_record_attachments.dart';
+import 'package:merema/features/records/domain/usecases/delete_record_attachments.dart';
+import 'package:merema/features/records/domain/usecases/get_diagnoses.dart';
+import 'package:merema/features/records/domain/usecases/get_diagnosis_by_code.dart';
+import 'package:merema/features/records/domain/usecases/get_record_attachments.dart';
+import 'package:merema/features/records/domain/usecases/get_record_details.dart';
+import 'package:merema/features/records/domain/usecases/get_record_type_template.dart';
+import 'package:merema/features/records/domain/usecases/get_record_types.dart';
+import 'package:merema/features/records/domain/usecases/get_records.dart';
+import 'package:merema/features/records/domain/usecases/update_record.dart';
 import 'package:merema/features/schedules/data/repositories/schedule_repository_impl.dart';
 import 'package:merema/features/schedules/data/sources/schedule_api_service.dart';
 import 'package:merema/features/schedules/domain/repositories/schedule_repository.dart';
@@ -97,6 +111,8 @@ void setupServiceLocator() {
   sl.registerSingleton<PrescriptionLocalService>(
       PrescriptionLocalServiceImpl());
 
+  sl.registerSingleton<RecordApiService>(RecordApiServiceImpl());
+
   // Repositories
   sl.registerSingleton<AuthRepository>(AuthRepositoryImpl());
 
@@ -111,6 +127,8 @@ void setupServiceLocator() {
   sl.registerSingleton<ScheduleRepository>(ScheduleRepositoryImpl());
 
   sl.registerSingleton<PrescriptionRepository>(PrescriptionRepositoryImpl());
+
+  sl.registerSingleton<RecordRepository>(RecordRepositoryImpl());
 
   // Use cases
   sl.registerSingleton<LoginUseCase>(LoginUseCase());
@@ -211,5 +229,39 @@ void setupServiceLocator() {
   );
   sl.registerSingleton<DeletePrescriptionMedicationUseCase>(
     DeletePrescriptionMedicationUseCase(authRepository: sl()),
+  );
+
+  sl.registerSingleton<GetRecordsUseCase>(
+    GetRecordsUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<AddRecordUseCase>(
+    AddRecordUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<GetRecordDetailsUseCase>(
+    GetRecordDetailsUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<GetRecordTypesUseCase>(
+    GetRecordTypesUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<GetRecordTypeTemplateUseCase>(
+    GetRecordTypeTemplateUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<UpdateRecordUseCase>(
+    UpdateRecordUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<GetRecordAttachmentsUseCase>(
+    GetRecordAttachmentsUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<AddRecordAttachmentsUseCase>(
+    AddRecordAttachmentsUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<DeleteRecordAttachmentsUseCase>(
+    DeleteRecordAttachmentsUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<GetDiagnosesUseCase>(
+    GetDiagnosesUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<GetDiagnosisByCodeUseCase>(
+    GetDiagnosisByCodeUseCase(authRepository: sl()),
   );
 }

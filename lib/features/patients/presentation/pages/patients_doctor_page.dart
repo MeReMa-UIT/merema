@@ -361,9 +361,9 @@ class _PatientsDoctorPageState extends State<PatientsDoctorPage> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Expanded(
-                    flex: 2,
-                    child: Center(
+                  Expanded(
+                    flex: _showSidebar ? 1 : 2,
+                    child: const Center(
                       child: Padding(
                         padding: EdgeInsets.all(16.0),
                         child: Text(
@@ -375,20 +375,21 @@ class _PatientsDoctorPageState extends State<PatientsDoctorPage> {
                       ),
                     ),
                   ),
-                  Expanded(
-                    flex: 1,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          left: BorderSide(
-                            color: AppPallete.lightGrayColor.withOpacity(0.3),
-                            width: 1,
+                  if (!_showSidebar)
+                    Expanded(
+                      flex: 1,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            left: BorderSide(
+                              color: AppPallete.lightGrayColor.withOpacity(0.3),
+                              width: 1,
+                            ),
                           ),
                         ),
+                        child: _buildPrescriptionsList(),
                       ),
-                      child: _buildPrescriptionsList(),
                     ),
-                  ),
                 ],
               ),
             ),

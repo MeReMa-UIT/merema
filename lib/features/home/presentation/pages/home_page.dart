@@ -11,6 +11,7 @@ import 'package:merema/features/patients/presentation/pages/patients_doctor_page
 import 'package:merema/features/prescriptions/presentation/pages/prescriptions_patient_page.dart';
 import 'package:merema/features/profile/presentation/pages/profile_page.dart';
 import 'package:merema/features/patients/presentation/pages/patients_receptionist_page.dart';
+import 'package:merema/features/records/presentation/pages/records_patient_page.dart';
 import 'package:merema/features/schedules/presentation/pages/schedules_page.dart';
 import 'package:merema/features/staffs/presentation/pages/staffs_page.dart';
 
@@ -47,8 +48,7 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
         title: 'Medical Records',
         icon: Icons.medical_information,
         onTap: (context) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Medical records unimplemented')));
+          Navigator.push(context, RecordsPatientPage.route());
         }),
     MenuItemConfig(
         title: 'Prescriptions',

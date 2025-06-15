@@ -99,4 +99,19 @@ class DioClient {
       options: Options(headers: headers),
     );
   }
+
+  Future<Response> download(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+  }) {
+    return _dio.get(
+      path,
+      queryParameters: queryParameters,
+      options: Options(
+        headers: headers,
+        responseType: ResponseType.bytes,
+      ),
+    );
+  }
 }
