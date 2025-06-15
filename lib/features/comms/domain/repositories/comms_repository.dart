@@ -5,6 +5,7 @@ abstract class CommsRepository {
   Stream<Map<String, dynamic>> get onNewMessage;
   Stream<Map<String, dynamic>> get onMessageHistory;
   Stream<Map<String, dynamic>> get onConversationList;
+  Stream<Map<String, dynamic>> get onSeenMessage;
 
   Future<void> sendMessage({
     required int partnerAccId,
@@ -29,4 +30,6 @@ abstract class CommsRepository {
   Future<List<Map<String, dynamic>>> getContacts();
 
   List<Map<String, dynamic>> get cachedConversations;
+  
+  String? getConversationReadTime(int conversationId);
 }

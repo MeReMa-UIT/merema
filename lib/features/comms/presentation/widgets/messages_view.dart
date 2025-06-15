@@ -31,6 +31,8 @@ class _MessagesViewState extends State<MessagesView>
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   int? _currentUserAccId;
+  String? _selectedMessageId;
+  bool _hasMarkedAsSeen = false;
 
   @override
   void initState() {
@@ -38,6 +40,8 @@ class _MessagesViewState extends State<MessagesView>
     WidgetsBinding.instance.addObserver(this);
     _initializeCurrentUser();
     context.read<MessagesCubit>().getMessages(widget.conversationId);
+    
+    sl<CommsNotifier>().setActiveConversation(widget.conversationId);
   }
 
   Future<void> _initializeCurrentUser() async {
@@ -54,6 +58,9 @@ class _MessagesViewState extends State<MessagesView>
     super.didUpdateWidget(oldWidget);
     if (oldWidget.contactId != widget.contactId ||
         oldWidget.conversationId != widget.conversationId) {
+      _hasMarkedAsSeen = false;
+      // Update active conversation when switching to a different contact
+      sl<CommsNotifier>().setActiveConversation(widget.conversationId);
       context.read<MessagesCubit>().getMessages(widget.conversationId);
     }
   }
@@ -71,6 +78,8 @@ class _MessagesViewState extends State<MessagesView>
     WidgetsBinding.instance.removeObserver(this);
     _messageController.dispose();
     _scrollController.dispose();
+    
+    sl<CommsNotifier>().clearActiveConversation();
     super.dispose();
   }
 
@@ -78,6 +87,7 @@ class _MessagesViewState extends State<MessagesView>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
+      _hasMarkedAsSeen = false;
       _markMessagesAsSeen();
     }
   }
@@ -110,6 +120,31 @@ class _MessagesViewState extends State<MessagesView>
     } catch (e) {
       return dateTimeString;
     }
+  }
+
+  Widget _buildReadStatusWidget(String messageSentAt) {
+    return FutureBuilder<String>(
+      future: context.read<MessagesCubit>().getSeenStatus(messageSentAt),
+      builder: (context, snapshot) {
+        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+          return Text(
+            snapshot.data!,
+            style: TextStyle(
+              color: AppPallete.darkGrayColor.withOpacity(0.7),
+              fontSize: 11,
+              fontStyle: FontStyle.italic,
+            ),
+          );
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  void _onMessageTap(String messageId, String messageSentAt) {
+    setState(() {
+      _selectedMessageId = _selectedMessageId == messageId ? null : messageId;
+    });
   }
 
   @override
@@ -159,7 +194,10 @@ class _MessagesViewState extends State<MessagesView>
         Expanded(
           child: BlocListener<MessagesCubit, MessagesState>(
             listener: (context, state) {
-              if (state is MessagesLoaded && state.messages.isNotEmpty) {
+              if (state is MessagesLoaded &&
+                  state.messages.isNotEmpty &&
+                  !_hasMarkedAsSeen) {
+                _hasMarkedAsSeen = true;
                 final commsNotifier = sl<CommsNotifier>();
                 final messagesData = state.messages
                     .map((msg) => {
@@ -249,83 +287,110 @@ class _MessagesViewState extends State<MessagesView>
                       final message = state.messages[reversedIndex];
                       final isMyMessage = _currentUserAccId != null &&
                           message.senderAccId == _currentUserAccId;
+                      final isLastMessage =
+                          reversedIndex == state.messages.length - 1;
+                      final shouldShowStatus = isLastMessage ||
+                          _selectedMessageId == message.messageId.toString();
 
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: Row(
-                          mainAxisAlignment: isMyMessage
-                              ? MainAxisAlignment.end
-                              : MainAxisAlignment.start,
-                          children: [
-                            if (!isMyMessage) ...[
-                              CircleAvatar(
-                                backgroundColor: AppPallete.primaryColor,
-                                radius: 16,
-                                child: Text(
-                                  widget.contactName.isNotEmpty
-                                      ? widget.contactName[0].toUpperCase()
-                                      : '',
-                                  style: const TextStyle(
-                                    color: AppPallete.backgroundColor,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
+                      return GestureDetector(
+                        onTap: () => _onMessageTap(
+                            message.messageId.toString(), message.sentAt),
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          child: Column(
+                            crossAxisAlignment: isMyMessage
+                                ? CrossAxisAlignment.end
+                                : CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: isMyMessage
+                                    ? MainAxisAlignment.end
+                                    : MainAxisAlignment.start,
+                                children: [
+                                  if (!isMyMessage) ...[
+                                    CircleAvatar(
+                                      backgroundColor: AppPallete.primaryColor,
+                                      radius: 16,
+                                      child: Text(
+                                        widget.contactName.isNotEmpty
+                                            ? widget.contactName[0]
+                                                .toUpperCase()
+                                            : '',
+                                        style: const TextStyle(
+                                          color: AppPallete.backgroundColor,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                  ],
+                                  Flexible(
+                                    child: Container(
+                                      constraints: BoxConstraints(
+                                        maxWidth:
+                                            MediaQuery.of(context).size.width *
+                                                0.7,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 10,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: isMyMessage
+                                            ? AppPallete.primaryColor
+                                            : AppPallete.backgroundColor,
+                                        borderRadius: BorderRadius.circular(18),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.1),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            message.content,
+                                            style: TextStyle(
+                                              color: isMyMessage
+                                                  ? AppPallete.backgroundColor
+                                                  : AppPallete.textColor,
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            _formatTime(message.sentAt),
+                                            style: TextStyle(
+                                              color: isMyMessage
+                                                  ? AppPallete.backgroundColor
+                                                      .withOpacity(0.8)
+                                                  : AppPallete.darkGrayColor,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
-                              const SizedBox(width: 8),
+                              if (shouldShowStatus && isMyMessage)
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    right: 16,
+                                    top: 4,
+                                  ),
+                                  child: _buildReadStatusWidget(message.sentAt),
+                                ),
                             ],
-                            Flexible(
-                              child: Container(
-                                constraints: BoxConstraints(
-                                  maxWidth:
-                                      MediaQuery.of(context).size.width * 0.7,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: isMyMessage
-                                      ? AppPallete.primaryColor
-                                      : AppPallete.backgroundColor,
-                                  borderRadius: BorderRadius.circular(18),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      message.content,
-                                      style: TextStyle(
-                                        color: isMyMessage
-                                            ? AppPallete.backgroundColor
-                                            : AppPallete.textColor,
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      _formatTime(message.sentAt),
-                                      style: TextStyle(
-                                        color: isMyMessage
-                                            ? AppPallete.backgroundColor
-                                                .withOpacity(0.8)
-                                            : AppPallete.darkGrayColor,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       );
                     },

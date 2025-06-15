@@ -7,6 +7,7 @@ import 'package:merema/features/comms/domain/usecases/close_ws_connection.dart';
 import 'package:merema/features/comms/domain/usecases/mark_seen_message.dart';
 import 'package:merema/features/comms/domain/usecases/listen_to_message_history.dart';
 import 'package:merema/features/comms/domain/usecases/listen_to_new_message.dart';
+import 'package:merema/features/comms/domain/usecases/listen_to_seen_message.dart';
 import 'package:merema/features/comms/domain/usecases/get_messages.dart';
 import 'package:merema/features/comms/domain/usecases/get_contacts.dart';
 import 'package:merema/features/comms/domain/entities/mark_seen_message_params.dart';
@@ -20,6 +21,7 @@ class CommsNotifier extends ChangeNotifier {
   final Set<int> _conversationsWithUnreadMessages = {};
   Timer? _debounceTimer;
   int? _currentUserAccId;
+  int? _activeConversationId;
 
   bool get isConnected => _isConnected;
   List<Map<String, dynamic>> get newMessages => _newMessages;
@@ -106,6 +108,16 @@ class CommsNotifier extends ChangeNotifier {
         }
       }
     });
+
+    sl<ListenToSeenMessageUseCase>().call().listen((event) {
+      if (event.containsKey('conversation_id') &&
+          event.containsKey('read_time')) {
+        _debounceTimer?.cancel();
+        _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+          notifyListeners();
+        });
+      }
+    });
   }
 
   Future<void> closeConnection() async {
@@ -134,18 +146,61 @@ class CommsNotifier extends ChangeNotifier {
     return _conversationsWithUnreadMessages.contains(conversationId);
   }
 
-  bool shouldMarkMessageAsSeen(Map<String, dynamic> message) {
-    final senderAccId = message['sender_acc_id'];
-    final isSeen = message['is_seen'] ?? false;
+  void setActiveConversation(int conversationId) {
+    _activeConversationId = conversationId;
+  }
 
-    return senderAccId != _currentUserAccId && !isSeen;
+  void clearActiveConversation() {
+    _activeConversationId = null;
+  }
+
+  bool isConversationActive(int conversationId) {
+    return _activeConversationId == conversationId;
   }
 
   Future<void> markMessagesAsSeen({
     required int partnerAccId,
     required int conversationId,
   }) async {
-    if (_currentUserAccId != null) {
+    if (_currentUserAccId == null) return;
+
+    try {
+      final messages = await sl<GetMessagesUseCase>().call(conversationId);
+      if (messages.isEmpty) return;
+      final newestMessage = messages.last;
+      
+      if (newestMessage.senderAccId == _currentUserAccId) {
+        return;
+      }
+      if (newestMessage.isSeen) {
+        return;
+      }
+
+      await sl<MarkSeenMessageUseCase>().call(
+        MarkSeenMessageParams(
+          partnerAccId: partnerAccId,
+          readTime: '${DateTime.now().toIso8601String()}Z',
+          conversationId: conversationId,
+        ),
+      );
+      markConversationAsRead(conversationId);
+    } catch (e) {
+      debugPrint('Error marking messages as seen: $e');
+    }
+  }
+
+  Future<void> checkAndMarkMessagesAsSeen({
+    required List<Map<String, dynamic>> messages,
+    required int partnerAccId,
+    required int conversationId,
+  }) async {
+    if (messages.isEmpty || _currentUserAccId == null) return;
+
+    final newestMessage = messages.last;
+    final senderAccId = newestMessage['sender_acc_id'];
+    final isSeen = newestMessage['is_seen'] ?? false;
+
+    if (senderAccId != _currentUserAccId && !isSeen) {
       try {
         await sl<MarkSeenMessageUseCase>().call(
           MarkSeenMessageParams(
@@ -161,25 +216,14 @@ class CommsNotifier extends ChangeNotifier {
     }
   }
 
-  Future<void> checkAndMarkMessagesAsSeen({
-    required List<Map<String, dynamic>> messages,
-    required int partnerAccId,
-    required int conversationId,
-  }) async {
-    if (messages.isNotEmpty) {
-      final newestMessage = messages.last;
-      if (shouldMarkMessageAsSeen(newestMessage)) {
-        await markMessagesAsSeen(
-          partnerAccId: partnerAccId,
-          conversationId: conversationId,
-        );
-      }
-    }
-  }
-
   void _showNotificationForMessage(Map<String, dynamic> message) async {
     final senderAccId = message['sender_acc_id'] as int;
+    final conversationId = message['conversation_id'] as int;
     final content = message['content'] as String? ?? '';
+
+    if (isConversationActive(conversationId)) {
+      return;
+    }
 
     try {
       final contacts = await sl<GetContactsUseCase>().call(null);

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:merema/features/comms/data/sources/comms_websocket_service.dart';
 import 'package:merema/features/comms/domain/repositories/comms_repository.dart';
 import 'package:merema/features/comms/data/sources/comms_local_service.dart';
@@ -7,6 +8,7 @@ class CommsRepositoryImpl extends CommsRepository {
   List<Map<String, dynamic>> _cachedConversations = [];
   final Map<int, List<Map<String, dynamic>>> _cachedMessages = {};
   final Set<int> _historyLoaded = {};
+  final Map<int, String?> _conversationReadTimes = {};
   bool _isInitialized = false;
 
   CommsRepositoryImpl();
@@ -23,6 +25,7 @@ class CommsRepositoryImpl extends CommsRepository {
   Future<void> openConnection(String token) async {
     sl<CommsWebSocketService>().openConnection(token);
     cacheConversationsFromStream();
+    _setupSeenMessageListener();
   }
 
   @override
@@ -46,6 +49,11 @@ class CommsRepositoryImpl extends CommsRepository {
   Stream<Map<String, dynamic>> get onNewMessage => sl<CommsWebSocketService>()
       .stream
       .where((event) => event['type'] == 'newMessage');
+
+  @override
+  Stream<Map<String, dynamic>> get onSeenMessage => sl<CommsWebSocketService>()
+      .stream
+      .where((event) => event['type'] == 'seenMessage');
 
   void cacheConversationsFromStream() {
     onConversationList.listen((event) async {
@@ -134,6 +142,55 @@ class CommsRepositoryImpl extends CommsRepository {
         }
       }
     });
+  }
+
+  void _setupSeenMessageListener() {
+    onSeenMessage.listen((event) {
+      if (event.containsKey('conversation_id') &&
+          event.containsKey('read_time')) {
+        final conversationId = event['conversation_id'] as int;
+        final readTime = event['read_time'] as String;
+        _conversationReadTimes[conversationId] = readTime;
+
+        _updateMessagesSeenStatus(conversationId, readTime);
+      }
+    });
+  }
+
+  void _updateMessagesSeenStatus(int conversationId, String readTime) {
+    if (!_cachedMessages.containsKey(conversationId)) return;
+
+    try {
+      final readDateTime = DateTime.parse(readTime);
+      final messages = _cachedMessages[conversationId]!;
+      bool hasUpdates = false;
+
+      for (var message in messages) {
+        if (message.containsKey('sent_at') && message.containsKey('is_seen')) {
+          final sentAt = message['sent_at'] as String;
+          final messageDateTime = DateTime.parse(sentAt);
+
+          if ((messageDateTime.isBefore(readDateTime) ||
+                  messageDateTime.isAtSameMomentAs(readDateTime)) &&
+              message['is_seen'] != true) {
+            message['is_seen'] = true;
+            hasUpdates = true;
+          }
+        }
+      }
+
+      if (hasUpdates) {
+        sl<CommsLocalService>().cacheMessagesFromWs(conversationId, messages);
+      }
+    } catch (e) {
+      debugPrint(
+          'Error updating seen status for conversation $conversationId: $e');
+    }
+  }
+
+  @override
+  String? getConversationReadTime(int conversationId) {
+    return _conversationReadTimes[conversationId];
   }
 
   @override
