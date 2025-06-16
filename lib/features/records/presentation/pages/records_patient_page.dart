@@ -31,7 +31,6 @@ class _RecordsPatientPageState extends State<RecordsPatientPage> {
   @override
   void initState() {
     super.initState();
-    // Load all records when the page starts
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<RecordsCubit>().getAllRecords();
     });
@@ -153,7 +152,6 @@ class _RecordsPatientPageState extends State<RecordsPatientPage> {
         patientId:
             selectedPatientId != null ? int.parse(selectedPatientId!) : null,
         emptyMessage: 'No medical records found for $selectedPatientName',
-        useNavigation: false, // Use dialog instead of navigation
       ),
     );
   }

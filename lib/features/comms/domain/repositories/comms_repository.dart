@@ -15,8 +15,6 @@ abstract class CommsRepository {
 
   Future<void> loadHistory({
     required int conversationId,
-    int? limit,
-    int? offset,
   });
 
   Future<void> markSeenMessage({
@@ -25,11 +23,10 @@ abstract class CommsRepository {
     required int conversationId,
   });
 
-  Future<List<Map<String, dynamic>>> getMessages(int conversationId,
-      {int? limit, int? offset});
+  Future<List<Map<String, dynamic>>> getMessages(int conversationId);
   Future<List<Map<String, dynamic>>> getContacts();
 
   List<Map<String, dynamic>> get cachedConversations;
-  
+
   String? getConversationReadTime(int conversationId);
 }

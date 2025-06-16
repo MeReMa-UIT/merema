@@ -4,15 +4,63 @@ import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/features/records/domain/usecases/get_records.dart';
 import 'package:merema/features/records/domain/usecases/get_record_details.dart';
 import 'package:merema/features/records/domain/usecases/get_record_types.dart';
+import 'package:merema/features/records/domain/usecases/get_diagnosis_by_code.dart';
+import 'package:merema/features/records/domain/entities/diagnosis.dart';
 import 'package:merema/features/records/presentation/bloc/records_state.dart';
 
 class RecordsCubit extends Cubit<RecordsState> {
   RecordsCubit() : super(RecordsInitial());
 
   Map<String, String> _recordTypesMap = {};
+  final Map<String, Diagnosis> _diagnosesMap = {};
 
   String getRecordTypeName(String typeId) {
     return _recordTypesMap[typeId] ?? 'Unknown Type';
+  }
+
+  Diagnosis? getDiagnosisByCode(String icdCode) {
+    return _diagnosesMap[icdCode];
+  }
+
+  String getDiagnosisName(String icdCode) {
+    final diagnosis = _diagnosesMap[icdCode];
+    return diagnosis?.name ?? 'Unknown Diagnosis';
+  }
+
+  Future<void> _loadDiagnosisByCode(String icdCode) async {
+    if (_diagnosesMap.containsKey(icdCode) || icdCode.isEmpty) {
+      return;
+    }
+
+    try {
+      final result = await sl<GetDiagnosisByCodeUseCase>().call(icdCode);
+      result.fold(
+        (error) {
+          debugPrint('Error loading diagnosis for code $icdCode: $error');
+        },
+        (diagnosis) {
+          _diagnosesMap[icdCode] = diagnosis;
+        },
+      );
+    } catch (e) {
+      debugPrint('Exception loading diagnosis for code $icdCode: $e');
+    }
+  }
+
+  Future<void> _loadDiagnosesForRecords(List<dynamic> records) async {
+    final icdCodes = <String>{};
+    for (var record in records) {
+      if (record.primaryDiagnosis.isNotEmpty) {
+        icdCodes.add(record.primaryDiagnosis);
+      }
+      if (record.secondaryDiagnosis.isNotEmpty) {
+        icdCodes.add(record.secondaryDiagnosis);
+      }
+    }
+
+    await Future.wait(
+      icdCodes.map((icdCode) => _loadDiagnosisByCode(icdCode)),
+    );
   }
 
   Future<void> getAllRecords() async {
@@ -25,11 +73,15 @@ class RecordsCubit extends Cubit<RecordsState> {
 
       result.fold(
         (error) => emit(RecordsError(error.toString())),
-        (records) => emit(RecordsLoaded(
-          allRecords: records,
-          filteredRecords: List.from(records),
-          recordTypesMap: _recordTypesMap,
-        )),
+        (records) async {
+          await _loadDiagnosesForRecords(records);
+
+          emit(RecordsLoaded(
+            allRecords: records,
+            filteredRecords: List.from(records),
+            recordTypesMap: _recordTypesMap,
+          ));
+        },
       );
     } catch (e) {
       emit(RecordsError(e.toString()));
@@ -107,7 +159,9 @@ class RecordsCubit extends Cubit<RecordsState> {
 
       result.fold(
         (error) => emit(RecordsError(error.toString())),
-        (recordDetail) => emit(RecordDetailsLoaded(recordDetail: recordDetail)),
+        (recordDetail) async {
+          emit(RecordDetailsLoaded(recordDetail: recordDetail));
+        },
       );
     } catch (e) {
       emit(RecordsError(e.toString()));

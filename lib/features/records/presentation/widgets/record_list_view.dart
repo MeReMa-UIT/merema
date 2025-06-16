@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:merema/core/theme/app_pallete.dart';
+import 'package:merema/core/layers/presentation/widgets/json_tree_view.dart';
 import 'package:merema/features/records/domain/entities/record.dart';
 import 'package:merema/features/records/presentation/bloc/records_state_cubit.dart';
 import 'package:merema/features/records/presentation/bloc/records_state.dart';
 import 'package:merema/features/records/presentation/widgets/record_card.dart';
-import 'package:merema/features/records/presentation/pages/record_details_page.dart';
 
 class RecordListView extends StatelessWidget {
   final int? patientId;
   final String? emptyMessage;
   final bool showPatientInfo;
-  final bool useNavigation; // If true, navigate to page; if false, show dialog
 
   const RecordListView({
     super.key,
     this.patientId,
     this.emptyMessage,
     this.showPatientInfo = false,
-    this.useNavigation = false,
   });
 
   @override
@@ -116,16 +114,7 @@ class RecordListView extends StatelessWidget {
   }
 
   void _handleViewDetails(BuildContext context, Record record) {
-    if (useNavigation) {
-      Navigator.of(context).push(
-        RecordDetailsPage.route(
-          recordId: record.recordId,
-          title: 'Medical Record #${record.recordId}',
-        ),
-      );
-    } else {
-      _showRecordDetailsDialog(context, record.recordId);
-    }
+    _showRecordDetailsDialog(context, record.recordId);
   }
 
   void _showRecordDetailsDialog(BuildContext context, int recordId) {
@@ -146,8 +135,8 @@ class RecordListView extends StatelessWidget {
         child: Dialog(
           backgroundColor: AppPallete.backgroundColor,
           child: Container(
-            width: 600,
-            height: MediaQuery.of(context).size.height * 0.8,
+            width: MediaQuery.of(context).size.width * 0.8,
+            height: MediaQuery.of(context).size.height * 0.95,
             padding: const EdgeInsets.all(16),
             child: BlocBuilder<RecordsCubit, RecordsState>(
               builder: (context, state) {
@@ -181,86 +170,32 @@ class RecordListView extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Expanded(
-                        child: SingleChildScrollView(
+                        child: DefaultTabController(
+                          length: 2,
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Basic Information
-                              Card(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.info,
-                                              color: AppPallete.primaryColor),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            'Basic Information',
-                                            style: const TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: AppPallete.textColor,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 12),
-                                      _buildInfoRow(
-                                          'Record ID',
-                                          state.recordDetail.recordId
-                                              .toString()),
-                                      _buildInfoRow(
-                                          'Type',
-                                          context
-                                              .read<RecordsCubit>()
-                                              .getRecordTypeName(
-                                                  state.recordDetail.typeId)),
-                                      _buildInfoRow(
-                                          'Created At',
-                                          _formatDateTime(
-                                              state.recordDetail.createdAt)),
-                                      if (state.recordDetail.expiredAt != null)
-                                        _buildInfoRow(
-                                            'Expired At',
-                                            _formatDateTime(
-                                                state.recordDetail.expiredAt!)),
-                                    ],
+                              const TabBar(
+                                labelColor: AppPallete.primaryColor,
+                                unselectedLabelColor: AppPallete.darkGrayColor,
+                                indicatorColor: AppPallete.primaryColor,
+                                tabs: [
+                                  Tab(
+                                    icon: Icon(Icons.info),
+                                    text: 'Details',
                                   ),
-                                ),
+                                  Tab(
+                                    icon: Icon(Icons.attachment),
+                                    text: 'Attachments',
+                                  ),
+                                ],
                               ),
                               const SizedBox(height: 16),
-                              // Record Details
-                              Card(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.description,
-                                              color: AppPallete.primaryColor),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            'Record Details',
-                                            style: const TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: AppPallete.textColor,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 12),
-                                      ..._buildRecordDetailRows(
-                                          state.recordDetail.recordDetail),
-                                    ],
-                                  ),
+                              Expanded(
+                                child: TabBarView(
+                                  children: [
+                                    _buildDetailsTab(state, context),
+                                    _buildAttachmentsTab(),
+                                  ],
                                 ),
                               ),
                             ],
@@ -295,6 +230,87 @@ class RecordListView extends StatelessWidget {
     });
   }
 
+  Widget _buildDetailsTab(RecordDetailsLoaded state, BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.info, color: AppPallete.primaryColor),
+                      SizedBox(width: 8),
+                      Text(
+                        'Basic Information',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppPallete.textColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  _buildInfoRow(
+                      'Record ID', state.recordDetail.recordId.toString()),
+                  _buildInfoRow(
+                      'Type',
+                      context
+                          .read<RecordsCubit>()
+                          .getRecordTypeName(state.recordDetail.typeId)),
+                  _buildInfoRow('Created At',
+                      _formatDateTime(state.recordDetail.createdAt)),
+                  if (state.recordDetail.expiredAt != null)
+                    _buildInfoRow('Expired At',
+                        _formatDateTime(state.recordDetail.expiredAt!)),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildJsonTreeView(state.recordDetail.recordDetail),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAttachmentsTab() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.attachment_outlined,
+            size: 64,
+            color: AppPallete.lightGrayColor,
+          ),
+          SizedBox(height: 16),
+          Text(
+            'Attachments feature coming soon',
+            style: TextStyle(
+              color: AppPallete.darkGrayColor,
+              fontSize: 16,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'This will display medical record attachments\nsuch as X-rays, CT scans, test results, etc.',
+            style: TextStyle(
+              color: AppPallete.lightGrayColor,
+              fontSize: 14,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildInfoRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -322,67 +338,6 @@ class RecordListView extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildRecordDetailRows(Map<String, dynamic> recordDetail) {
-    final rows = <Widget>[];
-
-    for (final entry in recordDetail.entries) {
-      final key = _formatFieldKey(entry.key);
-      final value = _formatFieldValue(entry.value);
-
-      rows.add(_buildInfoRow(key, value));
-    }
-
-    return rows;
-  }
-
-  String _formatFieldKey(String key) {
-    return key
-        .replaceAll('_', ' ')
-        .replaceAllMapped(RegExp(r'([a-z])([A-Z])'),
-            (match) => '${match.group(1)} ${match.group(2)}')
-        .split(' ')
-        .map((word) => word.isNotEmpty
-            ? word[0].toUpperCase() + word.substring(1).toLowerCase()
-            : '')
-        .join(' ');
-  }
-
-  String _formatFieldValue(dynamic value) {
-    if (value == null) return 'Not specified';
-
-    if (value is String) {
-      if (value.isEmpty) return 'Not specified';
-
-      if (RegExp(r'^\d{4}-\d{2}-\d{2}').hasMatch(value)) {
-        try {
-          final parsedDate = DateTime.parse(value);
-          return '${parsedDate.day}/${parsedDate.month}/${parsedDate.year}';
-        } catch (e) {
-          return value;
-        }
-      }
-
-      return value;
-    }
-
-    if (value is num) return value.toString();
-    if (value is bool) return value ? 'Yes' : 'No';
-    if (value is List) {
-      if (value.isEmpty) return 'None';
-      return value.map((item) => _formatFieldValue(item)).join(', ');
-    }
-
-    if (value is Map) {
-      final entries = value.entries
-          .map((entry) =>
-              '${_formatFieldKey(entry.key.toString())}: ${_formatFieldValue(entry.value)}')
-          .join('\n');
-      return entries.isNotEmpty ? entries : 'Empty';
-    }
-
-    return value.toString();
-  }
-
   String _formatDateTime(String dateTime) {
     try {
       final parsedDate = DateTime.parse(dateTime);
@@ -390,5 +345,12 @@ class RecordListView extends StatelessWidget {
     } catch (e) {
       return dateTime;
     }
+  }
+
+  Widget _buildJsonTreeView(Map<String, dynamic> recordDetail) {
+    return JsonTreeView(
+      data: recordDetail,
+      title: 'Record Details',
+    );
   }
 }

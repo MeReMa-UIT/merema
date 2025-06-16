@@ -20,6 +20,14 @@ class RecordCard extends StatelessWidget {
     final recordsCubit = context.read<RecordsCubit>();
     final typeName = recordsCubit.getRecordTypeName(record.typeId);
 
+    final primaryDiagnosisName = record.primaryDiagnosis.isNotEmpty
+        ? recordsCubit.getDiagnosisName(record.primaryDiagnosis)
+        : 'Not specified';
+
+    final secondaryDiagnosisName = record.secondaryDiagnosis.isNotEmpty
+        ? recordsCubit.getDiagnosisName(record.secondaryDiagnosis)
+        : 'Not specified';
+
     return Column(
       children: [
         InfoCard(
@@ -27,16 +35,9 @@ class RecordCard extends StatelessWidget {
           icon: Icons.medical_information,
           fields: [
             InfoField(label: 'Type', value: typeName),
+            InfoField(label: 'Primary Diagnosis', value: primaryDiagnosisName),
             InfoField(
-                label: 'Primary Diagnosis',
-                value: record.primaryDiagnosis.isNotEmpty
-                    ? record.primaryDiagnosis
-                    : 'Not specified'),
-            InfoField(
-                label: 'Secondary Diagnosis',
-                value: record.secondaryDiagnosis.isNotEmpty
-                    ? record.secondaryDiagnosis
-                    : 'Not specified'),
+                label: 'Secondary Diagnosis', value: secondaryDiagnosisName),
           ],
         ),
         const SizedBox(height: 8),

@@ -9,7 +9,7 @@ class DiagnosisModel extends Diagnosis {
 
   factory DiagnosisModel.fromJson(Map<String, dynamic> json) {
     return DiagnosisModel(
-      description: json['description'] as String,
+      description: json['description'] as String? ?? 'No description available',
       icdCode: json['icd_code'] as String,
       name: json['name'] as String,
     );

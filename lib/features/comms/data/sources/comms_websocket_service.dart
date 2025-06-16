@@ -61,14 +61,10 @@ class CommsWebSocketService {
 
   void loadHistory({
     required int conversationId,
-    int? limit,
-    int? offset,
   }) {
     final payload = {
       'type': 'loadHistory',
       'conversation_id': conversationId,
-      if (limit != null) 'limit': limit,
-      if (offset != null) 'offset': offset,
     };
     _channel?.sink.add(json.encode(payload));
   }

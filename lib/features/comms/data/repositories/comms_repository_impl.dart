@@ -82,8 +82,7 @@ class CommsRepositoryImpl extends CommsRepository {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getMessages(int conversationId,
-      {int? limit, int? offset}) async {
+  Future<List<Map<String, dynamic>>> getMessages(int conversationId) async {
     await _initializeFromCache();
 
     if (!_cachedMessages.containsKey(conversationId)) {
@@ -100,8 +99,6 @@ class CommsRepositoryImpl extends CommsRepository {
       _historyLoaded.add(conversationId);
       await loadHistory(
         conversationId: conversationId,
-        limit: limit ?? 50,
-        offset: offset ?? 0,
       );
     }
 
@@ -218,13 +215,9 @@ class CommsRepositoryImpl extends CommsRepository {
   @override
   Future<void> loadHistory({
     required int conversationId,
-    int? limit,
-    int? offset,
   }) async {
     sl<CommsWebSocketService>().loadHistory(
       conversationId: conversationId,
-      limit: limit,
-      offset: offset,
     );
   }
 
