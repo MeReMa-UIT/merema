@@ -6,7 +6,7 @@ import 'package:merema/features/prescriptions/data/models/prescription_model.dar
 import 'package:merema/features/prescriptions/data/models/medications_model.dart';
 
 abstract class PrescriptionApiService {
-  Future<Either<ApiError, PrescriptionModel>> createPrescription(
+  Future<Either<ApiError, int>> createPrescription(
     Map<String, dynamic> prescriptionData,
     String token,
   );
@@ -15,7 +15,7 @@ abstract class PrescriptionApiService {
     int patientId,
     String token,
   );
-  Future<Either<ApiError, List<PrescriptionResponseModel>>>
+  Future<Either<ApiError, PrescriptionResponseModel>>
       fetchPrescriptionsByRecordId(
     int recordId,
     String token,
@@ -62,7 +62,7 @@ abstract class PrescriptionApiService {
 
 class PrescriptionApiServiceImpl implements PrescriptionApiService {
   @override
-  Future<Either<ApiError, PrescriptionModel>> createPrescription(
+  Future<Either<ApiError, int>> createPrescription(
     Map<String, dynamic> prescriptionData,
     String token,
   ) async {
@@ -75,8 +75,8 @@ class PrescriptionApiServiceImpl implements PrescriptionApiService {
         },
       );
 
-      final prescriptionModel = PrescriptionModel.fromJson(response.data);
-      return Right(prescriptionModel);
+      final prescriptionId = response.data['prescription_id'];
+      return Right(prescriptionId);
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));
     }
@@ -107,7 +107,7 @@ class PrescriptionApiServiceImpl implements PrescriptionApiService {
   }
 
   @override
-  Future<Either<ApiError, List<PrescriptionResponseModel>>>
+  Future<Either<ApiError, PrescriptionResponseModel>>
       fetchPrescriptionsByRecordId(
     int recordId,
     String token,
@@ -120,11 +120,8 @@ class PrescriptionApiServiceImpl implements PrescriptionApiService {
         },
       );
 
-      final prescriptionsList = (response.data as List<dynamic>)
-          .map((prescriptionJson) =>
-              PrescriptionResponseModel.fromJson(prescriptionJson))
-          .toList();
-      return Right(prescriptionsList);
+      final prescription = PrescriptionResponseModel.fromJson(response.data);
+      return Right(prescription);
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));
     }

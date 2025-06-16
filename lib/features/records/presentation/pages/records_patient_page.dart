@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:merema/core/theme/app_pallete.dart';
 import 'package:merema/features/records/presentation/bloc/records_state_cubit.dart';
+import 'package:merema/features/records/presentation/bloc/records_state.dart';
+import 'package:merema/features/records/presentation/widgets/record_card.dart';
+import 'package:merema/features/records/presentation/widgets/record_details_dialog.dart';
 import 'package:merema/features/profile/presentation/bloc/profile_state_cubit.dart';
 import 'package:merema/features/profile/presentation/bloc/profile_state.dart';
 import 'package:merema/core/layers/presentation/widgets/custom_dropdown.dart';
-import 'package:merema/features/records/presentation/widgets/record_list_view.dart';
 
 class RecordsPatientPage extends StatefulWidget {
   const RecordsPatientPage({super.key});
@@ -27,6 +29,7 @@ class RecordsPatientPage extends StatefulWidget {
 class _RecordsPatientPageState extends State<RecordsPatientPage> {
   String? selectedPatientId;
   String? selectedPatientName;
+  RecordsState? _storedRecordsState;
 
   @override
   void initState() {
@@ -146,13 +149,98 @@ class _RecordsPatientPageState extends State<RecordsPatientPage> {
   }
 
   Widget _buildRecordsList() {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.6,
-      child: RecordListView(
-        patientId:
-            selectedPatientId != null ? int.parse(selectedPatientId!) : null,
-        emptyMessage: 'No medical records found for $selectedPatientName',
-      ),
+    return BlocBuilder<RecordsCubit, RecordsState>(
+      builder: (context, state) {
+        if (state is RecordsLoading) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (state is RecordsLoaded) {
+          final records = state.filteredRecords;
+
+          if (records.isEmpty) {
+            return Center(
+              child: Text(
+                'No medical records found for $selectedPatientName',
+                style: const TextStyle(
+                  color: AppPallete.textColor,
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            );
+          }
+
+          return Column(
+            children: records.map((record) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: RecordCard(
+                  record: record,
+                  onViewDetails: () => _showRecordDetails(record.recordId),
+                ),
+              );
+            }).toList(),
+          );
+        } else if (state is RecordsError) {
+          return Center(
+            child: Text(
+              'Error: ${state.message}',
+              style: const TextStyle(
+                color: AppPallete.errorColor,
+                fontSize: 16,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          );
+        }
+        return const SizedBox.shrink();
+      },
     );
+  }
+
+  void _showRecordDetails(int recordId) {
+    final currentState = context.read<RecordsCubit>().state;
+    if (currentState is RecordsLoaded) {
+      _storedRecordsState = currentState;
+    }
+
+    context.read<RecordsCubit>().getRecordDetails(recordId);
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => BlocProvider.value(
+        value: context.read<RecordsCubit>(),
+        child: Dialog(
+          backgroundColor: AppPallete.backgroundColor,
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.8,
+            height: MediaQuery.of(context).size.height * 0.95,
+            padding: const EdgeInsets.all(16),
+            child: BlocBuilder<RecordsCubit, RecordsState>(
+              builder: (context, state) {
+                if (state is RecordDetailsLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is RecordDetailsLoaded) {
+                  return RecordDetailsDialog(
+                    recordDetail: state.recordDetail,
+                  );
+                } else if (state is RecordsError) {
+                  return Center(
+                    child: Text(
+                      'Error loading details: ${state.message}',
+                      style: const TextStyle(color: AppPallete.errorColor),
+                    ),
+                  );
+                }
+                return const Center(child: Text('Loading...'));
+              },
+            ),
+          ),
+        ),
+      ),
+    ).then((_) {
+      if (_storedRecordsState != null && mounted) {
+        context.read<RecordsCubit>().restoreRecordsState(_storedRecordsState!);
+      }
+    });
   }
 }

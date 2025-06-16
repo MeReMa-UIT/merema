@@ -130,14 +130,31 @@ class RecordsCubit extends Cubit<RecordsState> {
 
       emit(currentState.copyWith(filteredRecords: filteredRecords));
     } else {
-      await getAllRecords();
-      final newState = state;
-      if (newState is RecordsLoaded) {
-        final filteredRecords = newState.allRecords
-            .where((record) => record.patientId == patientId)
-            .toList();
+      emit(RecordsLoading());
 
-        emit(newState.copyWith(filteredRecords: filteredRecords));
+      try {
+        await _loadRecordTypes();
+
+        final result = await sl<GetRecordsUseCase>().call(null);
+
+        result.fold(
+          (error) => emit(RecordsError(error.toString())),
+          (records) async {
+            await _loadDiagnosesForRecords(records);
+
+            final filteredRecords = records
+                .where((record) => record.patientId == patientId)
+                .toList();
+
+            emit(RecordsLoaded(
+              allRecords: records,
+              filteredRecords: filteredRecords,
+              recordTypesMap: _recordTypesMap,
+            ));
+          },
+        );
+      } catch (e) {
+        emit(RecordsError(e.toString()));
       }
     }
   }
@@ -160,7 +177,9 @@ class RecordsCubit extends Cubit<RecordsState> {
       result.fold(
         (error) => emit(RecordsError(error.toString())),
         (recordDetail) async {
-          emit(RecordDetailsLoaded(recordDetail: recordDetail));
+          emit(RecordDetailsLoaded(
+            recordDetail: recordDetail,
+          ));
         },
       );
     } catch (e) {

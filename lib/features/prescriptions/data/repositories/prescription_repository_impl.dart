@@ -9,7 +9,7 @@ import 'package:merema/features/prescriptions/domain/repositories/prescription_r
 
 class PrescriptionRepositoryImpl implements PrescriptionRepository {
   @override
-  Future<Either<Error, Prescription>> createPrescription(
+  Future<Either<Error, int>> createPrescription(
     Map<String, dynamic> prescriptionData,
     String token,
   ) async {
@@ -43,7 +43,7 @@ class PrescriptionRepositoryImpl implements PrescriptionRepository {
   }
 
   @override
-  Future<Either<Error, List<PrescriptionResponse>>> getPrescriptionsByRecordId(
+  Future<Either<Error, PrescriptionResponse>> getPrescriptionsByRecordId(
     int recordId,
     String token,
   ) async {
@@ -52,7 +52,7 @@ class PrescriptionRepositoryImpl implements PrescriptionRepository {
           .fetchPrescriptionsByRecordId(recordId, token);
       return result.fold(
         (error) => Left(error),
-        (prescriptions) => Right(prescriptions.cast<PrescriptionResponse>()),
+        (prescriptions) => Right(prescriptions as PrescriptionResponse),
       );
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));

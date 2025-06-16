@@ -3,7 +3,7 @@ import 'package:merema/features/prescriptions/domain/entities/medications.dart';
 import 'package:merema/features/prescriptions/domain/entities/prescription.dart';
 
 abstract class PrescriptionRepository {
-  Future<Either<Error, Prescription>> createPrescription(
+  Future<Either<Error, int>> createPrescription(
     Map<String, dynamic> prescriptionData,
     String token,
   );
@@ -13,7 +13,7 @@ abstract class PrescriptionRepository {
     String token,
   );
 
-  Future<Either<Error, List<PrescriptionResponse>>> getPrescriptionsByRecordId(
+  Future<Either<Error, PrescriptionResponse>> getPrescriptionsByRecordId(
     int recordId,
     String token,
   );

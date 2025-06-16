@@ -10,7 +10,7 @@ class RecordsLoading extends RecordsState {}
 class RecordsLoaded extends RecordsState {
   final List<Record> allRecords;
   final List<Record> filteredRecords;
-  final Map<String, String> recordTypesMap; // typeId -> typeName
+  final Map<String, String> recordTypesMap;
 
   RecordsLoaded({
     required this.allRecords,
@@ -42,5 +42,7 @@ class RecordDetailsLoading extends RecordsState {}
 class RecordDetailsLoaded extends RecordsState {
   final RecordDetail recordDetail;
 
-  RecordDetailsLoaded({required this.recordDetail});
+  RecordDetailsLoaded({
+    required this.recordDetail,
+  });
 }

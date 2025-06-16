@@ -16,7 +16,7 @@ class LogoutInterceptor extends Interceptor {
             error.contains('token') &&
                 (error.contains('invalid') || error.contains('expired'))) {
           await sl<AuthRepository>()
-              .logout(); // TODO: Fix clean architecture violation
+              .logout();
         }
       }
     }

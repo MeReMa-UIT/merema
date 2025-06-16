@@ -28,7 +28,6 @@ class MenuItemConfig {
 }
 
 final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
-  // TODO: Implement menu items for each user role
   UserRole.doctor: [
     MenuItemConfig(
         title: 'Patients',
@@ -77,11 +76,12 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
           Navigator.push(context, StaffsPage.route());
         }),
     MenuItemConfig(
-        title: 'Reports',
+        title: 'Statistics',
         icon: Icons.assessment,
         onTap: (context) {
+          // TODO: Implement statistics page
           ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Reports unimplemented')));
+              const SnackBar(content: Text('Statistics unimplemented')));
         }),
   ],
   UserRole.receptionist: [

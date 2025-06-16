@@ -1,5 +1,3 @@
-// TODO: Add records management
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,6 +13,8 @@ import 'package:merema/features/prescriptions/presentation/widgets/prescription_
 import 'package:merema/features/prescriptions/presentation/widgets/prescription_details_dialog.dart';
 import 'package:merema/features/prescriptions/presentation/widgets/prescription_update_dialog.dart';
 import 'package:merema/features/prescriptions/domain/usecases/confirm_received.dart';
+import 'package:merema/features/records/presentation/bloc/records_state_cubit.dart';
+import 'package:merema/features/records/presentation/widgets/record_list_view.dart';
 import 'package:merema/core/services/service_locator.dart';
 import 'dart:io';
 import 'package:window_size/window_size.dart';
@@ -45,6 +45,9 @@ class PatientsDoctorPage extends StatefulWidget {
             BlocProvider(
               create: (context) => MedicationsCubit(),
             ),
+            BlocProvider(
+              create: (context) => RecordsCubit(),
+            ),
           ],
           child: PatientsDoctorPage(
             patientId: patientId,
@@ -61,7 +64,6 @@ class _PatientsDoctorPageState extends State<PatientsDoctorPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int? _selectedPatientId;
   String? _selectedPatientName;
-  bool _showSidebar = true;
   bool _isEditingPatientInfo = false;
   Size? _originalWindowSize;
 
@@ -82,16 +84,14 @@ class _PatientsDoctorPageState extends State<PatientsDoctorPage> {
     if (widget.patientId != null && widget.patientName != null) {
       _selectedPatientId = widget.patientId;
       _selectedPatientName = widget.patientName;
-      _showSidebar = false;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           context
               .read<PrescriptionsCubit>()
               .getPrescriptionsByPatient(widget.patientId!);
+          context.read<RecordsCubit>().getRecordsByPatient(widget.patientId!);
         }
       });
-    } else {
-      _showSidebar = true;
     }
   }
 
@@ -112,20 +112,14 @@ class _PatientsDoctorPageState extends State<PatientsDoctorPage> {
     setState(() {
       _selectedPatientId = patientId;
       _selectedPatientName = patientName;
-      _showSidebar = false;
       _isEditingPatientInfo = false;
     });
     context.read<PrescriptionsCubit>().getPrescriptionsByPatient(patientId);
+    context.read<RecordsCubit>().getRecordsByPatient(patientId);
 
     if (_scaffoldKey.currentState?.isDrawerOpen == true) {
       Navigator.of(context).pop();
     }
-  }
-
-  void _toggleSidebar() {
-    setState(() {
-      _showSidebar = !_showSidebar;
-    });
   }
 
   Widget _buildPrescriptionsList() {
@@ -362,34 +356,29 @@ class _PatientsDoctorPageState extends State<PatientsDoctorPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    flex: _showSidebar ? 1 : 2,
-                    child: const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text(
-                          'Medical Records Placeholder: Patient\'s medical history and records will be displayed here',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: AppPallete.darkGrayColor, fontSize: 16),
-                        ),
-                      ),
+                    flex: 1,
+                    child: RecordListView(
+                      patientId: _selectedPatientId,
+                      patientName: _selectedPatientName,
+                      emptyMessage:
+                          'No medical records found for $_selectedPatientName',
+                      isFromDoctorPage: true,
                     ),
                   ),
-                  if (!_showSidebar)
-                    Expanded(
-                      flex: 1,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            left: BorderSide(
-                              color: AppPallete.lightGrayColor.withOpacity(0.3),
-                              width: 1,
-                            ),
+                  Expanded(
+                    flex: 1,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          left: BorderSide(
+                            color: AppPallete.lightGrayColor.withOpacity(0.3),
+                            width: 1,
                           ),
                         ),
-                        child: _buildPrescriptionsList(),
                       ),
+                      child: _buildPrescriptionsList(),
                     ),
+                  ),
                 ],
               ),
             ),
@@ -429,46 +418,34 @@ class _PatientsDoctorPageState extends State<PatientsDoctorPage> {
         title: const Text('Patients'),
         backgroundColor: AppPallete.backgroundColor,
         foregroundColor: AppPallete.textColor,
-        leading: Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ),
-            IconButton(
-              icon: Icon(_showSidebar ? Icons.close : Icons.menu),
-              onPressed: _toggleSidebar,
-              tooltip:
-                  _showSidebar ? 'Hide Patients List' : 'Show Patients List',
-            ),
-          ],
+        leading: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
         ),
-        leadingWidth: 96,
       ),
       body: Row(
         children: [
-          if (_showSidebar)
-            SizedBox(
-              width: 350,
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border(
-                    right: BorderSide(
-                      color: AppPallete.lightGrayColor.withOpacity(0.3),
-                      width: 1,
-                    ),
+          SizedBox(
+            width: 350,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  right: BorderSide(
+                    color: AppPallete.lightGrayColor.withOpacity(0.3),
+                    width: 1,
                   ),
                 ),
-                child: PatientsSidebar(
-                  onPatientSelected: _onPatientSelected,
-                  onShowRegisterView: null,
-                  selectedPatientId: _selectedPatientId,
-                ),
+              ),
+              child: PatientsSidebar(
+                onPatientSelected: _onPatientSelected,
+                onShowRegisterView: null,
+                selectedPatientId: _selectedPatientId,
               ),
             ),
+          ),
           Expanded(
             child: _buildScreenContent(context),
           ),
