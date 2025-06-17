@@ -11,8 +11,10 @@ class MedicationsCubit extends Cubit<MedicationsState> {
   Map<int, Medication> _medicationsMap = {};
 
   void setMedications(List<Medication> medications) {
-    _medicationsMap = {for (var med in medications) med.medId: med};
-    emit(MedicationsLoaded(medications));
+    if (!isClosed) {
+      _medicationsMap = {for (var med in medications) med.medId: med};
+      emit(MedicationsLoaded(medications));
+    }
   }
 
   Medication? getMedicationById(int medId) {
@@ -20,33 +22,41 @@ class MedicationsCubit extends Cubit<MedicationsState> {
   }
 
   Future<void> fetchMedicationById(int medId) async {
+    if (isClosed) return;
+
     if (_medicationsMap.containsKey(medId)) {
       return;
     }
 
     final result = await sl<GetMedicationByIdUseCase>().call(medId);
 
-    result.fold(
-      (failure) => emit(MedicationError(failure.toString())),
-      (medication) {
-        _medicationsMap[medId] = medication;
-        emit(MedicationLoaded(medication));
-      },
-    );
+    if (!isClosed) {
+      result.fold(
+        (failure) => emit(MedicationError(failure.toString())),
+        (medication) {
+          _medicationsMap[medId] = medication;
+          emit(MedicationLoaded(medication));
+        },
+      );
+    }
   }
 
   Future<void> getAllMedications() async {
+    if (isClosed) return;
+
     emit(MedicationLoading());
 
     final result = await sl<GetMedicationsUseCase>().call(null);
 
-    result.fold(
-      (failure) => emit(MedicationError(failure.toString())),
-      (medicationsModel) {
-        final medsList = medicationsModel.medications ?? [];
-        _medicationsMap = {for (var med in medsList) med.medId: med};
-        emit(MedicationsLoaded(medsList));
-      },
-    );
+    if (!isClosed) {
+      result.fold(
+        (failure) => emit(MedicationError(failure.toString())),
+        (medicationsModel) {
+          final medsList = medicationsModel.medications ?? [];
+          _medicationsMap = {for (var med in medsList) med.medId: med};
+          emit(MedicationsLoaded(medsList));
+        },
+      );
+    }
   }
 }

@@ -363,6 +363,27 @@ class _PatientsDoctorPageState extends State<PatientsDoctorPage> {
                       emptyMessage:
                           'No medical records found for $_selectedPatientName',
                       isFromDoctorPage: true,
+                      onPrescriptionCreated: () {
+                        if (_selectedPatientId != null) {
+                          context
+                              .read<PrescriptionsCubit>()
+                              .getPrescriptionsByPatient(_selectedPatientId!);
+                        }
+                      },
+                      onRecordCreated: () {
+                        if (_selectedPatientId != null) {
+                          context
+                              .read<RecordsCubit>()
+                              .getRecordsByPatient(_selectedPatientId!);
+                        }
+                      },
+                      onRecordUpdated: () {
+                        if (_selectedPatientId != null) {
+                          context
+                              .read<RecordsCubit>()
+                              .getRecordsByPatient(_selectedPatientId!);
+                        }
+                      },
                     ),
                   ),
                   Expanded(

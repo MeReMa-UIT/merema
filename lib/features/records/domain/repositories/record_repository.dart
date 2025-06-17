@@ -7,7 +7,7 @@ import 'package:merema/features/records/domain/entities/diagnosis.dart';
 
 abstract class RecordRepository {
   Future<Either<Error, List<Record>>> getRecords(String token);
-  Future<Either<Error, RecordDetail>> addRecord(
+  Future<Either<Error, int>> addRecord(
     int patientId,
     Map<String, dynamic> recordDetail,
     String typeId,
@@ -20,7 +20,7 @@ abstract class RecordRepository {
     String typeId,
     String token,
   );
-  Future<Either<Error, RecordDetail>> updateRecord(
+  Future<Either<Error, void>> updateRecord(
     int recordId,
     Map<String, dynamic> newRecordDetail,
     String token,

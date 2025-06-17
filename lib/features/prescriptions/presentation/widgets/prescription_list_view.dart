@@ -17,6 +17,9 @@ class PrescriptionListView extends StatefulWidget {
   final String? emptyMessage;
   final bool showCreateButton;
   final bool isFromDoctorPage;
+  final VoidCallback? onPrescriptionCreated;
+  final VoidCallback? onSwitchToPrescriptionsTab;
+  final PrescriptionsCubit? prescriptionsCubit;
 
   const PrescriptionListView({
     super.key,
@@ -25,6 +28,9 @@ class PrescriptionListView extends StatefulWidget {
     this.emptyMessage,
     this.showCreateButton = false,
     this.isFromDoctorPage = false,
+    this.onPrescriptionCreated,
+    this.onSwitchToPrescriptionsTab,
+    this.prescriptionsCubit,
   });
 
   @override
@@ -32,13 +38,22 @@ class PrescriptionListView extends StatefulWidget {
 }
 
 class _PrescriptionListViewState extends State<PrescriptionListView> {
+  bool _hasInitialized = false;
+
+  PrescriptionsCubit get _cubit {
+    return widget.prescriptionsCubit ?? context.read<PrescriptionsCubit>();
+  }
+
   @override
   void initState() {
     super.initState();
     if (widget.recordId != null) {
-      context
-          .read<PrescriptionsCubit>()
-          .getPrescriptionsByRecord(widget.recordId!);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && !_hasInitialized) {
+          _hasInitialized = true;
+          _cubit.getPrescriptionsByRecord(widget.recordId!);
+        }
+      });
     }
   }
 
@@ -46,9 +61,7 @@ class _PrescriptionListViewState extends State<PrescriptionListView> {
   void didUpdateWidget(PrescriptionListView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.recordId != widget.recordId && widget.recordId != null) {
-      context
-          .read<PrescriptionsCubit>()
-          .getPrescriptionsByRecord(widget.recordId!);
+      _cubit.getPrescriptionsByRecord(widget.recordId!);
     }
   }
 
@@ -119,9 +132,7 @@ class _PrescriptionListViewState extends State<PrescriptionListView> {
               onSuccess: () {
                 Navigator.of(dialogContext).pop();
                 if (widget.recordId != null) {
-                  context
-                      .read<PrescriptionsCubit>()
-                      .getPrescriptionsByRecord(widget.recordId!);
+                  _cubit.getPrescriptionsByRecord(widget.recordId!);
                 }
               },
             ),
@@ -132,7 +143,7 @@ class _PrescriptionListViewState extends State<PrescriptionListView> {
   }
 
   void _handleUpdatePrescription(int prescriptionId) async {
-    final prescriptionsState = context.read<PrescriptionsCubit>().state;
+    final prescriptionsState = _cubit.state;
     if (prescriptionsState is! PrescriptionsLoaded) return;
 
     final prescriptions = prescriptionsState.prescriptions;
@@ -140,8 +151,6 @@ class _PrescriptionListViewState extends State<PrescriptionListView> {
       (p) => p.prescriptionId == prescriptionId,
       orElse: () => throw Exception('Prescription not found'),
     );
-
-    final parentContext = context;
 
     showDialog(
       context: context,
@@ -176,9 +185,7 @@ class _PrescriptionListViewState extends State<PrescriptionListView> {
                         onSuccess: () {
                           Navigator.of(dialogContext).pop();
                           if (widget.recordId != null) {
-                            parentContext
-                                .read<PrescriptionsCubit>()
-                                .getPrescriptionsByRecord(widget.recordId!);
+                            _cubit.getPrescriptionsByRecord(widget.recordId!);
                           }
                         },
                       );
@@ -224,9 +231,7 @@ class _PrescriptionListViewState extends State<PrescriptionListView> {
           );
 
           if (widget.recordId != null) {
-            context
-                .read<PrescriptionsCubit>()
-                .getPrescriptionsByRecord(widget.recordId!);
+            _cubit.getPrescriptionsByRecord(widget.recordId!);
           }
         },
       );
@@ -242,7 +247,9 @@ class _PrescriptionListViewState extends State<PrescriptionListView> {
 
   @override
   Widget build(BuildContext context) {
+    final cubit = _cubit;
     return BlocBuilder<PrescriptionsCubit, PrescriptionsState>(
+      bloc: cubit,
       builder: (context, state) {
         if (state is PrescriptionsLoading) {
           return const Center(
@@ -364,9 +371,7 @@ class _PrescriptionListViewState extends State<PrescriptionListView> {
                     ElevatedButton(
                       onPressed: () {
                         if (widget.recordId != null) {
-                          context
-                              .read<PrescriptionsCubit>()
-                              .getPrescriptionsByRecord(widget.recordId!);
+                          _cubit.getPrescriptionsByRecord(widget.recordId!);
                         }
                       },
                       style: ElevatedButton.styleFrom(

@@ -61,21 +61,21 @@ class PrescriptionCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: onUpdatePrescription,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppPallete.primaryColor,
-                    foregroundColor: AppPallete.textColor,
-                  ),
-                  child: const FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text('Update'),
+              if (!isReceived) ...[
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: onUpdatePrescription,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppPallete.primaryColor,
+                      foregroundColor: AppPallete.textColor,
+                    ),
+                    child: const FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text('Update'),
+                    ),
                   ),
                 ),
-              ),
-              if (!isReceived) ...[
                 const SizedBox(width: 8),
                 Expanded(
                   child: ElevatedButton(
@@ -93,7 +93,7 @@ class PrescriptionCard extends StatelessWidget {
               ],
             ],
           )
-        else
+        else if (!isReceived)
           ElevatedButton(
             onPressed: onViewDetails,
             style: ElevatedButton.styleFrom(

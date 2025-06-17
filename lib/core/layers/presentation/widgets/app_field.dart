@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:merema/core/theme/app_pallete.dart';
 
 class AppField extends StatelessWidget {
-  final String labelText;
+  final String? labelText;
   final String? hintText;
   final TextEditingController controller;
   final bool isPassword;
@@ -12,7 +12,7 @@ class AppField extends StatelessWidget {
 
   const AppField({
     super.key,
-    required this.labelText,
+    this.labelText,
     this.hintText,
     required this.controller,
     this.isPassword = false,
@@ -23,7 +23,7 @@ class AppField extends StatelessWidget {
 
   String? _defaultValidator(String? value) {
     if (required && (value == null || value.isEmpty)) {
-      return 'Please enter $labelText';
+      return 'Please enter ${labelText ?? hintText ?? "this field"}';
     }
     return null;
   }
@@ -36,9 +36,11 @@ class AppField extends StatelessWidget {
         labelText: labelText,
         hintText: hintText,
         labelStyle: const TextStyle(color: AppPallete.textColor),
-        floatingLabelBehavior: alwaysShowLabel
+        floatingLabelBehavior: (labelText != null && alwaysShowLabel)
             ? FloatingLabelBehavior.always
-            : FloatingLabelBehavior.auto,
+            : (labelText != null
+                ? FloatingLabelBehavior.auto
+                : FloatingLabelBehavior.never),
       ),
       validator: validator ?? _defaultValidator,
       obscureText: isPassword,

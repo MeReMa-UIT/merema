@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
@@ -12,7 +13,7 @@ import 'package:merema/features/records/data/models/diagnosis_model.dart';
 
 abstract class RecordApiService {
   Future<Either<ApiError, List<RecordModel>>> getRecords(String token);
-  Future<Either<ApiError, RecordDetailModel>> addRecord(
+  Future<Either<ApiError, int>> addRecord(
     int patientId,
     Map<String, dynamic> recordDetail,
     String typeId,
@@ -27,7 +28,7 @@ abstract class RecordApiService {
     String typeId,
     String token,
   );
-  Future<Either<ApiError, RecordDetailModel>> updateRecord(
+  Future<Either<ApiError, void>> updateRecord(
     int recordId,
     Map<String, dynamic> newRecordDetail,
     String token,
@@ -73,7 +74,7 @@ class RecordApiServiceImpl implements RecordApiService {
   }
 
   @override
-  Future<Either<ApiError, RecordDetailModel>> addRecord(
+  Future<Either<ApiError, int>> addRecord(
     int patientId,
     Map<String, dynamic> recordDetail,
     String typeId,
@@ -82,18 +83,17 @@ class RecordApiServiceImpl implements RecordApiService {
     try {
       final response = await sl<DioClient>().post(
         '/records',
-        data: {
+        data: jsonEncode({
           'patient_id': patientId,
           'record_detail': recordDetail,
           'type_id': typeId,
-        },
+        }),
         headers: {
           'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
         },
       );
-
-      final recordDetailModel = RecordDetailModel.fromJson(response.data);
-      return Right(recordDetailModel);
+      return Right(response.data['record_id']);
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));
     }
@@ -159,22 +159,20 @@ class RecordApiServiceImpl implements RecordApiService {
   }
 
   @override
-  Future<Either<ApiError, RecordDetailModel>> updateRecord(
+  Future<Either<ApiError, void>> updateRecord(
     int recordId,
     Map<String, dynamic> newRecordDetail,
     String token,
   ) async {
     try {
-      final response = await sl<DioClient>().put(
+      await sl<DioClient>().put(
         '/records/$recordId',
-        data: {'new_record_detail': newRecordDetail},
+        data: jsonEncode({'new_record_detail': newRecordDetail}),
         headers: {
           'Authorization': 'Bearer $token',
         },
       );
-
-      final recordDetailModel = RecordDetailModel.fromJson(response.data);
-      return Right(recordDetailModel);
+      return const Right(null);
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));
     }

@@ -24,8 +24,9 @@ class RecordCard extends StatelessWidget {
         ? recordsCubit.getDiagnosisName(record.primaryDiagnosis)
         : 'Not specified';
 
-    final secondaryDiagnosisName = record.secondaryDiagnosis.isNotEmpty
-        ? recordsCubit.getDiagnosisName(record.secondaryDiagnosis)
+    final secondaryDiagnosisName = (record.secondaryDiagnosis != null &&
+            record.secondaryDiagnosis!.isNotEmpty)
+        ? recordsCubit.getDiagnosisName(record.secondaryDiagnosis!)
         : 'Not specified';
 
     return Column(

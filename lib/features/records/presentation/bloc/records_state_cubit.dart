@@ -53,8 +53,9 @@ class RecordsCubit extends Cubit<RecordsState> {
       if (record.primaryDiagnosis.isNotEmpty) {
         icdCodes.add(record.primaryDiagnosis);
       }
-      if (record.secondaryDiagnosis.isNotEmpty) {
-        icdCodes.add(record.secondaryDiagnosis);
+      if (record.secondaryDiagnosis != null &&
+          record.secondaryDiagnosis!.isNotEmpty) {
+        icdCodes.add(record.secondaryDiagnosis!);
       }
     }
 
@@ -122,40 +123,26 @@ class RecordsCubit extends Cubit<RecordsState> {
   }
 
   Future<void> getRecordsByPatient(int patientId) async {
-    final currentState = state;
-    if (currentState is RecordsLoaded) {
-      final filteredRecords = currentState.allRecords
-          .where((record) => record.patientId == patientId)
-          .toList();
-
-      emit(currentState.copyWith(filteredRecords: filteredRecords));
-    } else {
-      emit(RecordsLoading());
-
-      try {
-        await _loadRecordTypes();
-
-        final result = await sl<GetRecordsUseCase>().call(null);
-
-        result.fold(
-          (error) => emit(RecordsError(error.toString())),
-          (records) async {
-            await _loadDiagnosesForRecords(records);
-
-            final filteredRecords = records
-                .where((record) => record.patientId == patientId)
-                .toList();
-
-            emit(RecordsLoaded(
-              allRecords: records,
-              filteredRecords: filteredRecords,
-              recordTypesMap: _recordTypesMap,
-            ));
-          },
-        );
-      } catch (e) {
-        emit(RecordsError(e.toString()));
-      }
+    emit(RecordsLoading());
+    try {
+      await _loadRecordTypes();
+      final result = await sl<GetRecordsUseCase>().call(null);
+      result.fold(
+        (error) => emit(RecordsError(error.toString())),
+        (records) async {
+          await _loadDiagnosesForRecords(records);
+          final filteredRecords = records
+              .where((record) => record.patientId == patientId)
+              .toList();
+          emit(RecordsLoaded(
+            allRecords: records,
+            filteredRecords: filteredRecords,
+            recordTypesMap: _recordTypesMap,
+          ));
+        },
+      );
+    } catch (e) {
+      emit(RecordsError(e.toString()));
     }
   }
 

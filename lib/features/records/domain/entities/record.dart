@@ -5,7 +5,7 @@ class Record extends Equatable {
   final int patientId;
   final String primaryDiagnosis;
   final int recordId;
-  final String secondaryDiagnosis;
+  final String? secondaryDiagnosis;
   final String typeId;
 
   const Record({
@@ -13,7 +13,7 @@ class Record extends Equatable {
     required this.patientId,
     required this.primaryDiagnosis,
     required this.recordId,
-    required this.secondaryDiagnosis,
+    this.secondaryDiagnosis,
     required this.typeId,
   });
 

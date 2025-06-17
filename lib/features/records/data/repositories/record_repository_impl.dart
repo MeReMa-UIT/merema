@@ -24,7 +24,7 @@ class RecordRepositoryImpl implements RecordRepository {
   }
 
   @override
-  Future<Either<Error, RecordDetail>> addRecord(
+  Future<Either<Error, int>> addRecord(
     int patientId,
     Map<String, dynamic> recordDetail,
     String typeId,
@@ -39,7 +39,7 @@ class RecordRepositoryImpl implements RecordRepository {
       );
       return result.fold(
         (error) => Left(error),
-        (recordDetail) => Right(recordDetail),
+        (recordId) => Right(recordId),
       );
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));
@@ -98,7 +98,7 @@ class RecordRepositoryImpl implements RecordRepository {
   }
 
   @override
-  Future<Either<Error, RecordDetail>> updateRecord(
+  Future<Either<Error, void>> updateRecord(
     int recordId,
     Map<String, dynamic> newRecordDetail,
     String token,
@@ -111,7 +111,7 @@ class RecordRepositoryImpl implements RecordRepository {
       );
       return result.fold(
         (error) => Left(error),
-        (recordDetail) => Right(recordDetail),
+        (_) => const Right(null),
       );
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));

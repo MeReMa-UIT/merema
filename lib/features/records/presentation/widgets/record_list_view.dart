@@ -9,12 +9,16 @@ import 'package:merema/features/records/presentation/bloc/records_state.dart';
 import 'package:merema/features/records/presentation/widgets/record_card.dart';
 import 'package:merema/features/records/presentation/widgets/record_details_dialog.dart';
 import 'package:merema/features/records/presentation/widgets/record_create_dialog.dart';
+import 'package:merema/features/patients/presentation/bloc/patient_infos_state_cubit.dart';
 
 class RecordListView extends StatefulWidget {
   final int? patientId;
   final String? patientName;
   final String? emptyMessage;
   final bool isFromDoctorPage;
+  final VoidCallback? onPrescriptionCreated;
+  final VoidCallback? onRecordCreated;
+  final VoidCallback? onRecordUpdated;
 
   const RecordListView({
     super.key,
@@ -22,6 +26,9 @@ class RecordListView extends StatefulWidget {
     this.patientName,
     this.emptyMessage,
     this.isFromDoctorPage = false,
+    this.onPrescriptionCreated,
+    this.onRecordCreated,
+    this.onRecordUpdated,
   });
 
   @override
@@ -184,20 +191,23 @@ class _RecordListViewState extends State<RecordListView> {
   void _showCreateRecordDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (dialogContext) => RecordCreateDialog(
-        patientId: widget.patientId!,
-        patientName: widget.patientName!,
-        onCancel: () => Navigator.of(dialogContext).pop(),
-        onSuccess: () {
-          Navigator.of(dialogContext).pop();
-          context.read<RecordsCubit>().getRecordsByPatient(widget.patientId!);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Record created successfully'),
-              backgroundColor: AppPallete.primaryColor,
-            ),
-          );
-        },
+      builder: (dialogContext) => MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) =>
+                PatientInfosCubit()..getInfos(widget.patientId!),
+          ),
+        ],
+        child: RecordCreateDialog(
+          patientId: widget.patientId!,
+          patientName: widget.patientName!,
+          onCancel: () => Navigator.of(dialogContext).pop(),
+          onSuccess: () {
+            Navigator.of(dialogContext).pop();
+            context.read<RecordsCubit>().getRecordsByPatient(widget.patientId!);
+            widget.onRecordCreated!();
+          },
+        ),
       ),
     );
   }
@@ -232,6 +242,10 @@ class _RecordListViewState extends State<RecordListView> {
                       return RecordDetailsDialog(
                         recordDetail: state.recordDetail,
                         isFromDoctorPage: widget.isFromDoctorPage,
+                        onPrescriptionCreated: widget.onPrescriptionCreated,
+                        onRecordUpdated: () {
+                          widget.onRecordUpdated?.call();
+                        },
                       );
                     } else if (state is RecordsError) {
                       return Center(

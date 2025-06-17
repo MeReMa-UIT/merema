@@ -1,6 +1,5 @@
-// TODO: Complete record creation dialog implementation
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:merema/core/theme/app_pallete.dart';
 import 'package:merema/core/layers/presentation/widgets/app_field.dart';
 import 'package:merema/core/layers/presentation/widgets/app_button.dart';
@@ -12,6 +11,8 @@ import 'package:merema/features/records/domain/usecases/get_diagnoses.dart';
 import 'package:merema/features/records/domain/usecases/add_record.dart';
 import 'package:merema/features/records/domain/entities/record_type.dart';
 import 'package:merema/features/records/domain/entities/diagnosis.dart';
+import 'package:merema/features/patients/presentation/bloc/patient_infos_state_cubit.dart';
+import 'package:merema/features/patients/presentation/bloc/patient_infos_state.dart';
 
 class RecordCreateDialog extends StatefulWidget {
   final int patientId;
@@ -41,6 +42,7 @@ class _RecordCreateDialogState extends State<RecordCreateDialog> {
   RecordType? _selectedRecordType;
   Map<String, dynamic>? _template;
   List<Diagnosis> _diagnoses = [];
+  dynamic _patientInfo;
 
   final _formKey = GlobalKey<FormState>();
   final Map<String, TextEditingController> _controllers = {};
@@ -56,6 +58,7 @@ class _RecordCreateDialogState extends State<RecordCreateDialog> {
     super.initState();
     _initializeUseCases();
     _loadRecordTypes();
+    _loadPatientInfo();
   }
 
   void _initializeUseCases() {
@@ -63,6 +66,23 @@ class _RecordCreateDialogState extends State<RecordCreateDialog> {
     _getRecordTypeTemplateUseCase = sl<GetRecordTypeTemplateUseCase>();
     _getDiagnosesUseCase = sl<GetDiagnosesUseCase>();
     _addRecordUseCase = sl<AddRecordUseCase>();
+  }
+
+  Future<void> _loadPatientInfo() async {
+    try {
+      final cubit = context.read<PatientInfosCubit>();
+      final state = cubit.state;
+
+      if (state is PatientInfosLoaded) {
+        setState(() {
+          _patientInfo = state.patientInfo;
+        });
+      } else {
+        cubit.getInfos(widget.patientId);
+      }
+    } catch (e) {
+      debugPrint('Error loading patient info: $e');
+    }
   }
 
   Future<void> _loadRecordTypes() async {
@@ -146,6 +166,13 @@ class _RecordCreateDialogState extends State<RecordCreateDialog> {
 
       if (value is Map<String, dynamic>) {
         _buildControllersFromTemplate(value, fullKey);
+      } else if (value is List &&
+          value.isNotEmpty &&
+          value.first is Map<String, dynamic>) {
+        for (int i = 0; i < value.length; i++) {
+          _buildControllersFromTemplate(
+              value[i] as Map<String, dynamic>, '$fullKey[$i]');
+        }
       } else {
         _controllers[fullKey] = TextEditingController();
         _formData[fullKey] = '';
@@ -224,25 +251,103 @@ class _RecordCreateDialogState extends State<RecordCreateDialog> {
     return 'string';
   }
 
+  String? _getPatientInfoValueForAdministrativeField(
+      String fullKey, String displayKey) {
+    if (_patientInfo == null) return null;
+
+    final lowerFullKey = fullKey.toLowerCase();
+    if (!lowerFullKey.contains('hành chính') ||
+        lowerFullKey.contains('hành chính.liên hệ')) {
+      return null;
+    }
+
+    final fieldName = displayKey.toLowerCase();
+
+    switch (fieldName) {
+      case 'họ và tên':
+        return _patientInfo.fullName;
+
+      case 'sinh ngày':
+        return _patientInfo.dateOfBirth;
+
+      case 'giới':
+        return _patientInfo.gender;
+
+      case 'dân tộc':
+        return _patientInfo.ethnicity;
+
+      case 'ngoại kiều':
+        return _patientInfo.nationality;
+
+      default:
+        return null;
+    }
+  }
+
+  String? _getPatientInfoValueForInsuranceField(
+      String fullKey, String displayKey) {
+    if (_patientInfo == null) return null;
+
+    if (!fullKey.toLowerCase().contains('bhyt')) {
+      return null;
+    }
+
+    final fieldName = displayKey.toLowerCase();
+
+    switch (fieldName) {
+      case 'số thẻ':
+        return _patientInfo.healthInsuranceNumber;
+
+      case 'giá trị đến ngày':
+        return _patientInfo.healthInsuranceExpiredDate;
+
+      default:
+        return null;
+    }
+  }
+
+  Widget _fieldTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4.0),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: AppPallete.textColor,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: AppPallete.backgroundColor,
-      child: Container(
-        width: 600,
-        constraints: const BoxConstraints(maxHeight: 700),
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 20),
-            Expanded(
-              child: _buildContent(),
-            ),
-            const SizedBox(height: 20),
-            _buildActions(),
-          ],
+    return BlocListener<PatientInfosCubit, PatientInfosState>(
+      listener: (context, state) {
+        if (state is PatientInfosLoaded) {
+          setState(() {
+            _patientInfo = state.patientInfo;
+          });
+        }
+      },
+      child: Dialog(
+        backgroundColor: AppPallete.backgroundColor,
+        child: Container(
+          width: 600,
+          constraints: const BoxConstraints(maxHeight: 700),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 20),
+              Expanded(
+                child: _buildContent(),
+              ),
+              const SizedBox(height: 20),
+              _buildActions(),
+            ],
+          ),
         ),
       ),
     );
@@ -313,20 +418,26 @@ class _RecordCreateDialogState extends State<RecordCreateDialog> {
   }
 
   Widget _buildRecordTypeSelector() {
-    return CustomDropdown<RecordType>(
-      selectedValue: _selectedRecordType,
-      availableItems: _recordTypes,
-      onChanged: (recordType) {
-        setState(() {
-          _selectedRecordType = recordType;
-        });
-        if (recordType != null) {
-          _loadTemplate(recordType.typeId.replaceAll('/', '_'));
-        }
-      },
-      labelText: 'Select Record Type',
-      getDisplayText: (recordType) => recordType.typeName,
-      width: double.infinity,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _fieldTitle('Loại bệnh án'),
+        CustomDropdown<RecordType>(
+          selectedValue: _selectedRecordType,
+          availableItems: _recordTypes,
+          onChanged: (recordType) {
+            setState(() {
+              _selectedRecordType = recordType;
+            });
+            if (recordType != null) {
+              _loadTemplate(recordType.typeId.replaceAll('/', ''));
+            }
+          },
+          labelText: 'Loại bệnh án',
+          getDisplayText: (recordType) => recordType.typeName,
+          width: double.infinity,
+        ),
+      ],
     );
   }
 
@@ -387,29 +498,67 @@ class _RecordCreateDialogState extends State<RecordCreateDialog> {
   }
 
   List<Widget> _buildFormFields(Map<String, dynamic> template,
-      [String prefix = '']) {
+      [String prefix = '', int depth = 0]) {
     List<Widget> widgets = [];
 
     template.forEach((key, value) {
       final fullKey = prefix.isEmpty ? key : '$prefix.$key';
+      final isAllCaps = key == key.toUpperCase();
+      final isFirstLevel = depth == 0;
+      final isSecondLevel = depth == 1;
 
       if (value is Map<String, dynamic>) {
         widgets.add(
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            padding: EdgeInsets.zero,
             child: Text(
               key,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
+              style: TextStyle(
+                fontSize: isFirstLevel
+                    ? 24
+                    : isSecondLevel
+                        ? 17
+                        : 15,
+                fontWeight: isFirstLevel
+                    ? FontWeight.bold
+                    : isSecondLevel
+                        ? FontWeight.w600
+                        : FontWeight.w500,
                 color: AppPallete.primaryColor,
+                letterSpacing: isAllCaps ? 1.5 : 0.5,
               ),
             ),
           ),
         );
-        widgets.addAll(_buildFormFields(value, fullKey));
+        widgets.addAll(_buildFormFields(value, fullKey, depth + 1));
+      } else if (value is List &&
+          value.isNotEmpty &&
+          value.first is Map<String, dynamic>) {
+        widgets.add(
+          Padding(
+            padding: EdgeInsets.zero,
+            child: Text(
+              key,
+              style: TextStyle(
+                fontSize: isFirstLevel ? 24 : 17,
+                fontWeight: FontWeight.bold,
+                color: AppPallete.primaryColor,
+                letterSpacing: isAllCaps ? 1.5 : 0.5,
+              ),
+            ),
+          ),
+        );
+        for (int i = 0; i < value.length; i++) {
+          widgets.addAll(_buildFormFields(
+              value[i] as Map<String, dynamic>, '$fullKey[$i]', depth + 1));
+        }
       } else {
-        widgets.add(_buildFormField(fullKey, key, value));
+        widgets.add(
+          Padding(
+            padding: EdgeInsets.zero,
+            child: _buildFormField(fullKey, key, value, prefix, depth),
+          ),
+        );
         widgets.add(const SizedBox(height: 12));
       }
     });
@@ -418,40 +567,294 @@ class _RecordCreateDialogState extends State<RecordCreateDialog> {
   }
 
   Widget _buildFormField(
-      String fullKey, String displayKey, dynamic exampleValue) {
+      String fullKey, String displayKey, dynamic exampleValue,
+      [String prefix = '', int depth = 0]) {
     final fieldType = _getFieldType(exampleValue);
     final controller = _controllers[fullKey];
 
     if (controller == null) return const SizedBox.shrink();
 
+    String? patientValue =
+        _getPatientInfoValueForAdministrativeField(fullKey, displayKey) ??
+            _getPatientInfoValueForInsuranceField(fullKey, displayKey);
+
+    if (patientValue != null && controller.text.isEmpty) {
+      controller.text = patientValue;
+      _formData[fullKey] = patientValue;
+      String displayValue = patientValue;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _fieldTitle(displayKey),
+          AbsorbPointer(
+            child: AppField(
+              controller: TextEditingController(text: displayValue),
+              hintText: displayKey,
+              required: false,
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (prefix.toLowerCase().endsWith('bệnh án')) {
+      if (displayKey.trim().toLowerCase() == 'loại bệnh án' &&
+          _selectedRecordType != null) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _fieldTitle(displayKey),
+            AbsorbPointer(
+              child: AppField(
+                controller:
+                    TextEditingController(text: _selectedRecordType!.typeName),
+                hintText: displayKey,
+                required: false,
+              ),
+            ),
+          ],
+        );
+      }
+      if (displayKey.trim().toLowerCase() == 'ms' &&
+          _selectedRecordType != null) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _fieldTitle(displayKey),
+            AbsorbPointer(
+              child: AppField(
+                controller:
+                    TextEditingController(text: _selectedRecordType!.typeId),
+                hintText: displayKey,
+                required: false,
+              ),
+            ),
+          ],
+        );
+      }
+    }
+
+    if (displayKey.trim() == 'Thời gian') {
+      String year = '', month = '', day = '', hour = '', minute = '';
+      if (controller.text.isNotEmpty) {
+        if (controller.text.contains('T')) {
+          final dateTime = controller.text.split('T');
+          if (dateTime.length == 2) {
+            final dateParts = dateTime[0].split('-');
+            if (dateParts.length == 3) {
+              year = dateParts[0];
+              month = dateParts[1];
+              day = dateParts[2];
+            }
+            final timeParts = dateTime[1].replaceAll('Z', '').split(':');
+            if (timeParts.length >= 2) {
+              hour = timeParts[0];
+              minute = timeParts[1];
+            }
+          }
+        } else {
+          final dateTimeParts = controller.text.split(' ');
+          if (dateTimeParts.isNotEmpty) {
+            final dateParts = dateTimeParts[0].split('/');
+            if (dateParts.length == 3) {
+              year = dateParts[0];
+              month = dateParts[1];
+              day = dateParts[2];
+            }
+            if (dateTimeParts.length > 1) {
+              final timeParts = dateTimeParts[1].split(':');
+              if (timeParts.length == 2) {
+                hour = timeParts[0];
+                minute = timeParts[1];
+              }
+            }
+          }
+        }
+      }
+      final yearController = TextEditingController(text: year);
+      final monthController = TextEditingController(text: month);
+      final dayController = TextEditingController(text: day);
+      final hourController = TextEditingController(text: hour);
+      final minuteController = TextEditingController(text: minute);
+
+      void updateMainController() {
+        final y = yearController.text.padLeft(4, '0');
+        final m = monthController.text.padLeft(2, '0');
+        final d = dayController.text.padLeft(2, '0');
+        final h = hourController.text.padLeft(2, '0');
+        final min = minuteController.text.padLeft(2, '0');
+        String value = '';
+        if (y.isNotEmpty &&
+            m.isNotEmpty &&
+            d.isNotEmpty &&
+            h.isNotEmpty &&
+            min.isNotEmpty) {
+          value = '$y-$m-${d}T$h:$min:00Z';
+        } else if (y.isNotEmpty && m.isNotEmpty && d.isNotEmpty) {
+          value = '$y-$m-$d';
+        }
+        controller.text = value;
+        _formData[fullKey] = value;
+      }
+
+      yearController.addListener(updateMainController);
+      monthController.addListener(updateMainController);
+      dayController.addListener(updateMainController);
+      hourController.addListener(updateMainController);
+      minuteController.addListener(updateMainController);
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _fieldTitle(displayKey),
+          Row(
+            children: [
+              Expanded(
+                child: AppField(
+                  controller: yearController,
+                  hintText: 'YYYY',
+                  required: false,
+                ),
+              ),
+              const SizedBox(width: 4),
+              const Text('-'),
+              const SizedBox(width: 4),
+              Expanded(
+                child: AppField(
+                  controller: monthController,
+                  hintText: 'MM',
+                  required: false,
+                ),
+              ),
+              const SizedBox(width: 4),
+              const Text('-'),
+              const SizedBox(width: 4),
+              Expanded(
+                child: AppField(
+                  controller: dayController,
+                  hintText: 'DD',
+                  required: false,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: AppField(
+                  controller: hourController,
+                  hintText: 'hh',
+                  required: false,
+                ),
+              ),
+              const SizedBox(width: 4),
+              const Text(':'),
+              const SizedBox(width: 4),
+              Expanded(
+                child: AppField(
+                  controller: minuteController,
+                  hintText: 'mm',
+                  required: false,
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+
+    if (fullKey.trim().toLowerCase().endsWith(
+        'tóm tắt kết quả xét nghiệm cận lâm sàng có giá trị chẩn đoán')) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _fieldTitle(displayKey),
+          AppField(
+            controller: controller,
+            hintText: 'Enter text (string)',
+            required: false,
+          ),
+        ],
+      );
+    }
+
+    if (prefix.toLowerCase().endsWith('chẩn đoán khi vào khoa điều trị') &&
+        displayKey.trim().toLowerCase() == 'phân biệt') {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _fieldTitle(displayKey),
+          AppField(
+            controller: controller,
+            hintText: 'Enter text (string)',
+            required: false,
+          ),
+        ],
+      );
+    }
+
     if (_isDiagnosisField(fullKey) &&
         fieldType == 'string' &&
         _diagnoses.isNotEmpty) {
-      return _buildDiagnosisDropdown(fullKey, displayKey);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildDiagnosisDropdown(fullKey, displayKey, showTitle: false),
+        ],
+      );
     }
 
-    return AppField(
-      labelText: displayKey,
-      controller: controller,
-      hintText: 'Example: ${exampleValue?.toString() ?? ''}',
-      validator: (value) => _validateField(value, fieldType, displayKey),
-      required: true,
-    );
-  }
+    if (fieldType == 'bool') {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _fieldTitle(displayKey),
+          Row(
+            children: [
+              Switch(
+                value: controller.text.toLowerCase() == 'true',
+                onChanged: (val) {
+                  setState(() {
+                    controller.text = val.toString();
+                    _formData[fullKey] = val;
+                  });
+                },
+                activeColor: AppPallete.primaryColor,
+                inactiveThumbColor: AppPallete.darkGrayColor,
+                inactiveTrackColor: AppPallete.lightGrayColor,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                controller.text.toLowerCase() == 'true' ? 'Có' : 'Không',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: AppPallete.textColor,
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
 
-  Widget _buildDiagnosisDropdown(String fullKey, String displayKey) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          displayKey,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: AppPallete.textColor,
-          ),
+        _fieldTitle(displayKey),
+        AppField(
+          controller: controller,
+          hintText:
+              'Enter ${fieldType == 'int' ? 'number' : fieldType == 'double' ? 'decimal number' : 'text'} ($fieldType)',
+          validator: null,
+          required: false,
         ),
-        const SizedBox(height: 8),
+      ],
+    );
+  }
+
+  Widget _buildDiagnosisDropdown(String fullKey, String displayKey,
+      {bool showTitle = true}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _fieldTitle(displayKey),
         CustomDropdown<Diagnosis>(
           selectedValue:
               _formData[fullKey] is Diagnosis ? _formData[fullKey] : null,
@@ -469,32 +872,6 @@ class _RecordCreateDialogState extends State<RecordCreateDialog> {
         ),
       ],
     );
-  }
-
-  String? _validateField(String? value, String fieldType, String fieldName) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter $fieldName';
-    }
-
-    switch (fieldType) {
-      case 'int':
-        if (int.tryParse(value) == null) {
-          return 'Please enter a valid number';
-        }
-        break;
-      case 'double':
-        if (double.tryParse(value) == null) {
-          return 'Please enter a valid decimal number';
-        }
-        break;
-      case 'bool':
-        if (value.toLowerCase() != 'true' && value.toLowerCase() != 'false') {
-          return 'Please enter true or false';
-        }
-        break;
-    }
-
-    return null;
   }
 
   Widget _buildActions() {
@@ -537,18 +914,64 @@ class _RecordCreateDialogState extends State<RecordCreateDialog> {
     });
 
     try {
-      final recordDetail = <String, dynamic>{};
-      _controllers.forEach((key, controller) {
-        final value = controller.text;
-        final fieldType = _getFieldTypeFromTemplate(key);
+      Map<String, dynamic> recordDetail =
+          _template != null ? _deepCopyMap(_template!) : <String, dynamic>{};
 
-        recordDetail[key] = _convertValueToType(value, fieldType);
-      });
+      void fillValues(Map<String, dynamic> map, [String prefix = '']) {
+        final keys = List<String>.from(map.keys);
+        for (final key in keys) {
+          final value = map[key];
+          final fullKey = prefix.isEmpty ? key : '$prefix.$key';
+          if (value is Map<String, dynamic>) {
+            fillValues(value, fullKey);
+            continue;
+          }
+          if (_isDiagnosisField(fullKey) && _formData[fullKey] is Diagnosis) {
+            final v = (_formData[fullKey] as Diagnosis).icdCode;
+            map[key] = v;
+          } else if (_controllers.containsKey(fullKey)) {
+            final controller = _controllers[fullKey]!;
+            final fieldType = _getFieldTypeFromTemplate(fullKey);
+            final v = _convertValueToType(controller.text, fieldType);
+            map[key] = v;
+          } else {
+            final patientVal =
+                _getPatientInfoValueForAdministrativeField(fullKey, key);
+            final insVal = _getPatientInfoValueForInsuranceField(fullKey, key);
+            if (patientVal != null) {
+              map[key] = patientVal;
+            } else if (insVal != null) {
+              map[key] = insVal;
+            }
+          }
+        }
+      }
+
+      if (_template != null) {
+        fillValues(recordDetail);
+      }
+      if (_selectedRecordType != null) {
+        void setIfExists(
+            Map<String, dynamic> map, String searchKey, dynamic value) {
+          final keys = List<String>.from(map.keys);
+          for (final k in keys) {
+            if (k.trim().toLowerCase() == searchKey) {
+              map[k] = value;
+            } else if (map[k] is Map<String, dynamic>) {
+              setIfExists(map[k], searchKey, value);
+            }
+          }
+        }
+
+        setIfExists(
+            recordDetail, 'loại bệnh án', _selectedRecordType!.typeName);
+        setIfExists(recordDetail, 'ms', _selectedRecordType!.typeId);
+      }
 
       final result = await _addRecordUseCase.call((
         widget.patientId,
         recordDetail,
-        _selectedRecordType!.typeId.replaceAll('/', '\\/'),
+        _selectedRecordType!.typeId,
       ));
 
       result.fold(
@@ -599,7 +1022,7 @@ class _RecordCreateDialogState extends State<RecordCreateDialog> {
       case 'int':
         return int.tryParse(value) ?? 0;
       case 'double':
-        return double.tryParse(value) ?? 0.0;
+        return double.tryParse(value) ?? -0.1;
       case 'bool':
         return value.toLowerCase() == 'true';
       default:
@@ -611,7 +1034,6 @@ class _RecordCreateDialogState extends State<RecordCreateDialog> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: AppPallete.errorColor,
       ),
     );
   }
@@ -620,7 +1042,6 @@ class _RecordCreateDialogState extends State<RecordCreateDialog> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: AppPallete.primaryColor,
       ),
     );
   }
@@ -631,5 +1052,17 @@ class _RecordCreateDialogState extends State<RecordCreateDialog> {
       controller.dispose();
     }
     super.dispose();
+  }
+
+  Map<String, dynamic> _deepCopyMap(Map<String, dynamic> original) {
+    final copy = <String, dynamic>{};
+    original.forEach((key, value) {
+      if (value is Map<String, dynamic>) {
+        copy[key] = _deepCopyMap(value);
+      } else {
+        copy[key] = value;
+      }
+    });
+    return copy;
   }
 }

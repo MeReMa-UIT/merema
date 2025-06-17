@@ -6,7 +6,7 @@ class RecordModel extends Record {
     required super.patientId,
     required super.primaryDiagnosis,
     required super.recordId,
-    required super.secondaryDiagnosis,
+    super.secondaryDiagnosis,
     required super.typeId,
   });
 
@@ -16,7 +16,7 @@ class RecordModel extends Record {
       patientId: json['patient_id'] as int,
       primaryDiagnosis: json['primary_diagnosis'] as String,
       recordId: json['record_id'] as int,
-      secondaryDiagnosis: json['secondary_diagnosis'] as String,
+      secondaryDiagnosis: json['secondary_diagnosis'] as String?,
       typeId: json['type_id'] as String,
     );
   }

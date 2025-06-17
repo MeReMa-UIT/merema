@@ -222,6 +222,11 @@ class _RecordsPatientPageState extends State<RecordsPatientPage> {
                 } else if (state is RecordDetailsLoaded) {
                   return RecordDetailsDialog(
                     recordDetail: state.recordDetail,
+                    onRecordUpdated: () {
+                      if (selectedPatientId != null) {
+                        context.read<RecordsCubit>().getRecordsByPatient(int.parse(selectedPatientId!));
+                      }
+                    },
                   );
                 } else if (state is RecordsError) {
                   return Center(

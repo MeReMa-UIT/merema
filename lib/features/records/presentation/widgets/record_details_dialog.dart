@@ -3,18 +3,102 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:merema/core/theme/app_pallete.dart';
 import 'package:merema/core/layers/presentation/widgets/json_tree_view.dart';
 import 'package:merema/features/records/presentation/bloc/records_state_cubit.dart';
+import 'package:merema/features/records/presentation/bloc/records_state.dart';
 import 'package:merema/features/prescriptions/presentation/widgets/prescription_list_view.dart';
 import 'package:merema/features/prescriptions/presentation/bloc/prescriptions_state_cubit.dart';
+import 'package:merema/features/records/presentation/widgets/record_update_dialog.dart';
+import 'package:merema/features/patients/presentation/bloc/patient_infos_state_cubit.dart';
+import 'package:merema/core/layers/domain/entities/user_role.dart';
 
-class RecordDetailsDialog extends StatelessWidget {
+class RecordDetailsDialog extends StatefulWidget {
   final dynamic recordDetail;
   final bool isFromDoctorPage;
+  final VoidCallback? onPrescriptionCreated;
+  final VoidCallback? onRecordUpdated;
 
   const RecordDetailsDialog({
     super.key,
     required this.recordDetail,
     this.isFromDoctorPage = false,
+    this.onPrescriptionCreated,
+    this.onRecordUpdated,
   });
+
+  @override
+  State<RecordDetailsDialog> createState() => _RecordDetailsDialogState();
+}
+
+class _RecordDetailsDialogState extends State<RecordDetailsDialog>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  late PrescriptionsCubit _prescriptionsCubit;
+  dynamic _currentRecordDetail;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+    _prescriptionsCubit = PrescriptionsCubit();
+    _currentRecordDetail = widget.recordDetail;
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!_prescriptionsCubit.isClosed) {
+        _prescriptionsCubit.close();
+      }
+    });
+    super.dispose();
+  }
+
+  void _switchToPrescriptionsTab() {
+    _tabController.animateTo(1);
+  }
+
+  void _showRecordUpdateDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => BlocProvider(
+        create: (_) => PatientInfosCubit(),
+        child: Dialog(
+          backgroundColor: AppPallete.backgroundColor,
+          child: Container(
+            width: 600,
+            height: MediaQuery.of(context).size.height * 0.8,
+            padding: const EdgeInsets.all(16),
+            child: RecordUpdateDialog(
+              recordDetail: widget.recordDetail,
+              userRole: widget.isFromDoctorPage
+                  ? UserRole.doctor
+                  : UserRole.receptionist,
+              onCancel: () => Navigator.of(dialogContext).pop(),
+              onSuccess: () async {
+                Navigator.of(dialogContext).pop();
+
+                final recordsCubit = context.read<RecordsCubit?>();
+                if (recordsCubit != null) {
+                  await recordsCubit
+                      .getRecordDetails(widget.recordDetail.recordId);
+                  final state = recordsCubit.state;
+                  if (state is RecordDetailsLoaded && mounted) {
+                    setState(() {
+                      _currentRecordDetail = state.recordDetail;
+                    });
+                  }
+                }
+
+                if (widget.onRecordUpdated != null && mounted) {
+                  widget.onRecordUpdated!();
+                }
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,12 +107,14 @@ class RecordDetailsDialog extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Medical Record #${recordDetail.recordId}',
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: AppPallete.textColor,
+            Expanded(
+              child: Text(
+                'Medical Record #${widget.recordDetail.recordId}',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppPallete.textColor,
+                ),
               ),
             ),
             IconButton(
@@ -45,11 +131,12 @@ class RecordDetailsDialog extends StatelessWidget {
               children: [
                 Container(
                   color: AppPallete.backgroundColor,
-                  child: const TabBar(
+                  child: TabBar(
+                    controller: _tabController,
                     labelColor: AppPallete.primaryColor,
                     unselectedLabelColor: AppPallete.darkGrayColor,
                     indicatorColor: AppPallete.primaryColor,
-                    tabs: [
+                    tabs: const [
                       Tab(
                         icon: Icon(Icons.info),
                         text: 'Details',
@@ -67,6 +154,7 @@ class RecordDetailsDialog extends StatelessWidget {
                 ),
                 Expanded(
                   child: TabBarView(
+                    controller: _tabController,
                     children: [
                       _buildDetailsTab(context),
                       _buildPrescriptionsTab(),
@@ -83,11 +171,47 @@ class RecordDetailsDialog extends StatelessWidget {
   }
 
   Widget _buildDetailsTab(BuildContext context) {
+    final displayRecordDetail = _currentRecordDetail ?? widget.recordDetail;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (widget.isFromDoctorPage)
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    const Icon(Icons.edit, color: AppPallete.primaryColor),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'Update this medical record',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: AppPallete.textColor,
+                        ),
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () => _showRecordUpdateDialog(context),
+                      icon: const Icon(Icons.edit, size: 16),
+                      label: const Text('Update'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppPallete.primaryColor,
+                        foregroundColor: AppPallete.backgroundColor,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          if (widget.isFromDoctorPage) const SizedBox(height: 16),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -109,24 +233,25 @@ class RecordDetailsDialog extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  _buildInfoRow('Record ID', recordDetail.recordId.toString()),
+                  _buildInfoRow(
+                      'Record ID', displayRecordDetail.recordId.toString()),
                   _buildInfoRow(
                       'Type',
                       context
                           .read<RecordsCubit>()
-                          .getRecordTypeName(recordDetail.typeId)),
-                  _buildInfoRow(
-                      'Created At', _formatDateTime(recordDetail.createdAt)),
-                  if (recordDetail.expiredAt != null)
-                    _buildInfoRow(
-                        'Expired At', _formatDateTime(recordDetail.expiredAt!)),
+                          .getRecordTypeName(displayRecordDetail.typeId)),
+                  _buildInfoRow('Created At',
+                      _formatDateTime(displayRecordDetail.createdAt)),
+                  if (displayRecordDetail.expiredAt != null)
+                    _buildInfoRow('Expired At',
+                        _formatDateTime(displayRecordDetail.expiredAt!)),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 16),
           JsonTreeView(
-            data: recordDetail.recordDetail,
+            data: displayRecordDetail.recordDetail,
             title: 'Record Details',
           ),
         ],
@@ -135,12 +260,33 @@ class RecordDetailsDialog extends StatelessWidget {
   }
 
   Widget _buildPrescriptionsTab() {
-    return BlocProvider(
-      create: (context) => PrescriptionsCubit(),
+    return BlocProvider.value(
+      value: _prescriptionsCubit,
       child: PrescriptionListView(
-        recordId: recordDetail.recordId,
-        showCreateButton: isFromDoctorPage,
-        isFromDoctorPage: isFromDoctorPage,
+        recordId: widget.recordDetail.recordId,
+        showCreateButton: widget.isFromDoctorPage,
+        isFromDoctorPage: widget.isFromDoctorPage,
+        prescriptionsCubit: _prescriptionsCubit,
+        onPrescriptionCreated: () async {
+          _switchToPrescriptionsTab();
+
+          final recordsCubit = context.read<RecordsCubit?>();
+
+          await Future.delayed(const Duration(milliseconds: 100));
+
+          _prescriptionsCubit
+              .getPrescriptionsByRecord(widget.recordDetail.recordId);
+
+          if (mounted &&
+              recordsCubit != null &&
+              widget.recordDetail.patientId != null) {
+            recordsCubit.getRecordsByPatient(widget.recordDetail.patientId);
+          }
+          if (widget.onPrescriptionCreated != null) {
+            widget.onPrescriptionCreated!();
+          }
+        },
+        onSwitchToPrescriptionsTab: _switchToPrescriptionsTab,
       ),
     );
   }
