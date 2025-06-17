@@ -9,6 +9,8 @@ import 'package:merema/features/prescriptions/presentation/bloc/prescriptions_st
 import 'package:merema/features/records/presentation/widgets/record_update_dialog.dart';
 import 'package:merema/features/patients/presentation/bloc/patient_infos_state_cubit.dart';
 import 'package:merema/core/layers/domain/entities/user_role.dart';
+import 'package:merema/features/attachments/presentation/widgets/attachments_list_widget.dart';
+import 'package:merema/features/attachments/presentation/bloc/attachments_state_cubit.dart';
 
 class RecordDetailsDialog extends StatefulWidget {
   final dynamic recordDetail;
@@ -32,6 +34,7 @@ class _RecordDetailsDialogState extends State<RecordDetailsDialog>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late PrescriptionsCubit _prescriptionsCubit;
+  late AttachmentsCubit _attachmentsCubit;
   dynamic _currentRecordDetail;
 
   @override
@@ -39,15 +42,28 @@ class _RecordDetailsDialogState extends State<RecordDetailsDialog>
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _prescriptionsCubit = PrescriptionsCubit();
+    _attachmentsCubit = AttachmentsCubit();
     _currentRecordDetail = widget.recordDetail;
+    
+    _tabController.addListener(_onTabChanged);
+  }
+
+  void _onTabChanged() {
+    if (_tabController.index == 2) {
+      _attachmentsCubit.loadAttachments(widget.recordDetail.recordId);
+    }
   }
 
   @override
   void dispose() {
+    _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!_prescriptionsCubit.isClosed) {
         _prescriptionsCubit.close();
+      }
+      if (!_attachmentsCubit.isClosed) {
+        _attachmentsCubit.close();
       }
     });
     super.dispose();
@@ -292,33 +308,11 @@ class _RecordDetailsDialogState extends State<RecordDetailsDialog>
   }
 
   Widget _buildAttachmentsTab() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.attachment_outlined,
-            size: 64,
-            color: AppPallete.lightGrayColor,
-          ),
-          SizedBox(height: 16),
-          Text(
-            'Attachments feature coming soon',
-            style: TextStyle(
-              color: AppPallete.darkGrayColor,
-              fontSize: 16,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'This will display medical record attachments\nsuch as X-rays, CT scans, test results, etc.',
-            style: TextStyle(
-              color: AppPallete.lightGrayColor,
-              fontSize: 14,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+    return BlocProvider.value(
+      value: _attachmentsCubit,
+      child: AttachmentsListWidget(
+        recordId: widget.recordDetail.recordId,
+        showUploadButton: widget.isFromDoctorPage,
       ),
     );
   }

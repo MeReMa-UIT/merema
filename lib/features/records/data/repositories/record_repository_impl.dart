@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/core/utils/error_handler.dart';
@@ -112,65 +111,6 @@ class RecordRepositoryImpl implements RecordRepository {
       return result.fold(
         (error) => Left(error),
         (_) => const Right(null),
-      );
-    } catch (e) {
-      return Left(ApiErrorHandler.handleError(e));
-    }
-  }
-
-  @override
-  Future<Either<Error, File>> getRecordAttachments(
-    int recordId,
-    String token,
-  ) async {
-    try {
-      final result = await sl<RecordApiService>().getRecordAttachments(
-        recordId,
-        token,
-      );
-      return result.fold(
-        (error) => Left(error),
-        (file) => Right(file),
-      );
-    } catch (e) {
-      return Left(ApiErrorHandler.handleError(e));
-    }
-  }
-
-  @override
-  Future<Either<Error, dynamic>> addRecordAttachments(
-    int recordId,
-    File file,
-    String token,
-  ) async {
-    try {
-      final result = await sl<RecordApiService>().addRecordAttachments(
-        recordId,
-        file,
-        token,
-      );
-      return result.fold(
-        (error) => Left(error),
-        (response) => Right(response),
-      );
-    } catch (e) {
-      return Left(ApiErrorHandler.handleError(e));
-    }
-  }
-
-  @override
-  Future<Either<Error, dynamic>> deleteRecordAttachments(
-    int recordId,
-    String token,
-  ) async {
-    try {
-      final result = await sl<RecordApiService>().deleteRecordAttachments(
-        recordId,
-        token,
-      );
-      return result.fold(
-        (error) => Left(error),
-        (response) => Right(response),
       );
     } catch (e) {
       return Left(ApiErrorHandler.handleError(e));

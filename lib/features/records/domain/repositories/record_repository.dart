@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:merema/features/records/domain/entities/record.dart';
 import 'package:merema/features/records/domain/entities/record_detail.dart';
@@ -25,11 +24,6 @@ abstract class RecordRepository {
     Map<String, dynamic> newRecordDetail,
     String token,
   );
-  Future<Either<Error, File>> getRecordAttachments(int recordId, String token);
-  Future<Either<Error, dynamic>> addRecordAttachments(
-      int recordId, File file, String token);
-  Future<Either<Error, dynamic>> deleteRecordAttachments(
-      int recordId, String token);
   Future<Either<Error, List<Diagnosis>>> getDiagnoses(String token);
   Future<Either<Error, Diagnosis>> getDiagnosisByCode(
       String icdCode, String token);

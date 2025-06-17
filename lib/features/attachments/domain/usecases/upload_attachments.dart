@@ -3,15 +3,16 @@ import 'package:dartz/dartz.dart';
 import 'package:merema/core/services/service_locator.dart';
 import 'package:merema/core/usecases/usecase.dart';
 import 'package:merema/features/auth/domain/repositories/auth_repository.dart';
-import 'package:merema/features/records/domain/repositories/record_repository.dart';
+import 'package:merema/features/attachments/domain/repositories/attachment_repository.dart';
 
-class AddRecordAttachmentsUseCase implements UseCase<Either, (int, File)> {
+class UploadAttachmentsUseCase
+    implements UseCase<Either<Error, dynamic>, (int, File)> {
   final AuthRepository authRepository;
 
-  AddRecordAttachmentsUseCase({required this.authRepository});
+  UploadAttachmentsUseCase({required this.authRepository});
 
   @override
-  Future<Either> call((int, File) params) async {
+  Future<Either<Error, dynamic>> call((int, File) params) async {
     final token = await authRepository.getToken();
 
     if (token.isEmpty) {
@@ -20,7 +21,7 @@ class AddRecordAttachmentsUseCase implements UseCase<Either, (int, File)> {
 
     final (recordId, file) = params;
 
-    return await sl<RecordRepository>().addRecordAttachments(
+    return await sl<AttachmentRepository>().uploadRecordAttachments(
       recordId,
       file,
       token,

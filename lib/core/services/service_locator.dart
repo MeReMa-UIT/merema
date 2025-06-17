@@ -59,16 +59,19 @@ import 'package:merema/features/records/data/repositories/record_repository_impl
 import 'package:merema/features/records/data/sources/record_api_service.dart';
 import 'package:merema/features/records/domain/repositories/record_repository.dart';
 import 'package:merema/features/records/domain/usecases/add_record.dart';
-import 'package:merema/features/records/domain/usecases/add_record_attachments.dart';
-import 'package:merema/features/records/domain/usecases/delete_record_attachments.dart';
 import 'package:merema/features/records/domain/usecases/get_diagnoses.dart';
 import 'package:merema/features/records/domain/usecases/get_diagnosis_by_code.dart';
-import 'package:merema/features/records/domain/usecases/get_record_attachments.dart';
 import 'package:merema/features/records/domain/usecases/get_record_details.dart';
 import 'package:merema/features/records/domain/usecases/get_record_type_template.dart';
 import 'package:merema/features/records/domain/usecases/get_record_types.dart';
 import 'package:merema/features/records/domain/usecases/get_records.dart';
 import 'package:merema/features/records/domain/usecases/update_record.dart';
+import 'package:merema/features/attachments/data/repositories/attachment_repository_impl.dart';
+import 'package:merema/features/attachments/data/sources/attachment_api_service.dart';
+import 'package:merema/features/attachments/domain/repositories/attachment_repository.dart';
+import 'package:merema/features/attachments/domain/usecases/get_attachments.dart';
+import 'package:merema/features/attachments/domain/usecases/upload_attachments.dart';
+import 'package:merema/features/attachments/domain/usecases/delete_attachments.dart';
 import 'package:merema/features/schedules/data/repositories/schedule_repository_impl.dart';
 import 'package:merema/features/schedules/data/sources/schedule_api_service.dart';
 import 'package:merema/features/schedules/domain/repositories/schedule_repository.dart';
@@ -113,6 +116,8 @@ void setupServiceLocator() {
 
   sl.registerSingleton<RecordApiService>(RecordApiServiceImpl());
 
+  sl.registerSingleton<AttachmentApiService>(AttachmentApiServiceImpl());
+
   // Repositories
   sl.registerSingleton<AuthRepository>(AuthRepositoryImpl());
 
@@ -129,6 +134,8 @@ void setupServiceLocator() {
   sl.registerSingleton<PrescriptionRepository>(PrescriptionRepositoryImpl());
 
   sl.registerSingleton<RecordRepository>(RecordRepositoryImpl());
+
+  sl.registerSingleton<AttachmentRepository>(AttachmentRepositoryImpl());
 
   // Use cases
   sl.registerSingleton<LoginUseCase>(LoginUseCase());
@@ -249,19 +256,20 @@ void setupServiceLocator() {
   sl.registerSingleton<UpdateRecordUseCase>(
     UpdateRecordUseCase(authRepository: sl()),
   );
-  sl.registerSingleton<GetRecordAttachmentsUseCase>(
-    GetRecordAttachmentsUseCase(authRepository: sl()),
-  );
-  sl.registerSingleton<AddRecordAttachmentsUseCase>(
-    AddRecordAttachmentsUseCase(authRepository: sl()),
-  );
-  sl.registerSingleton<DeleteRecordAttachmentsUseCase>(
-    DeleteRecordAttachmentsUseCase(authRepository: sl()),
-  );
   sl.registerSingleton<GetDiagnosesUseCase>(
     GetDiagnosesUseCase(authRepository: sl()),
   );
   sl.registerSingleton<GetDiagnosisByCodeUseCase>(
     GetDiagnosisByCodeUseCase(authRepository: sl()),
+  );
+
+  sl.registerSingleton<GetAttachmentsUseCase>(
+    GetAttachmentsUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<UploadAttachmentsUseCase>(
+    UploadAttachmentsUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<DeleteAttachmentsUseCase>(
+    DeleteAttachmentsUseCase(authRepository: sl()),
   );
 }
