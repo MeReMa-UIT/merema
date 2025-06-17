@@ -50,7 +50,6 @@ class _BookScheduleDialogState extends State<BookScheduleDialog> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please select a date'),
-          backgroundColor: AppPallete.errorColor,
         ),
       );
       return;
@@ -68,7 +67,6 @@ class _BookScheduleDialogState extends State<BookScheduleDialog> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Failed to book schedule: ${error.message}'),
-              backgroundColor: AppPallete.errorColor,
             ),
           );
         },
@@ -88,7 +86,6 @@ class _BookScheduleDialogState extends State<BookScheduleDialog> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error: ${e.toString()}'),
-          backgroundColor: AppPallete.errorColor,
         ),
       );
     }

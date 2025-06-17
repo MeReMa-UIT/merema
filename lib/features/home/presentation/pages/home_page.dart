@@ -14,6 +14,7 @@ import 'package:merema/features/patients/presentation/pages/patients_receptionis
 import 'package:merema/features/records/presentation/pages/records_patient_page.dart';
 import 'package:merema/features/schedules/presentation/pages/schedules_page.dart';
 import 'package:merema/features/staffs/presentation/pages/staffs_page.dart';
+import 'package:merema/features/statistics/presentation/pages/statistics_page.dart';
 
 class MenuItemConfig {
   final String title;
@@ -79,9 +80,7 @@ final Map<UserRole, List<MenuItemConfig>> _roleBasedMenuItems = {
         title: 'Statistics',
         icon: Icons.assessment,
         onTap: (context) {
-          // TODO: Implement statistics page
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Statistics unimplemented')));
+          Navigator.push(context, StatisticsPage.route());
         }),
   ],
   UserRole.receptionist: [

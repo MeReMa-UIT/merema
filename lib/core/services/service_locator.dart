@@ -85,6 +85,12 @@ import 'package:merema/features/staffs/domain/usecases/get_staff_infos.dart';
 import 'package:merema/features/staffs/domain/usecases/get_staffs_list.dart';
 import 'package:merema/features/staffs/domain/usecases/register_staff.dart';
 import 'package:merema/features/staffs/domain/usecases/update_staff.dart';
+import 'package:merema/features/statistics/data/repositories/statistic_repository_impl.dart';
+import 'package:merema/features/statistics/data/sources/statistic_api_service.dart';
+import 'package:merema/features/statistics/domain/repositories/statistic_repository.dart';
+import 'package:merema/features/statistics/domain/usecases/get_records_statistics.dart';
+import 'package:merema/features/statistics/domain/usecases/get_records_statistics_by_diagnosis.dart';
+import 'package:merema/features/statistics/domain/usecases/get_records_statistics_by_doctor.dart';
 
 final sl = GetIt.instance;
 
@@ -118,6 +124,8 @@ void setupServiceLocator() {
 
   sl.registerSingleton<AttachmentApiService>(AttachmentApiServiceImpl());
 
+  sl.registerSingleton<StatisticApiService>(StatisticApiServiceImpl());
+
   // Repositories
   sl.registerSingleton<AuthRepository>(AuthRepositoryImpl());
 
@@ -136,6 +144,8 @@ void setupServiceLocator() {
   sl.registerSingleton<RecordRepository>(RecordRepositoryImpl());
 
   sl.registerSingleton<AttachmentRepository>(AttachmentRepositoryImpl());
+
+  sl.registerSingleton<StatisticRepository>(StatisticRepositoryImpl());
 
   // Use cases
   sl.registerSingleton<LoginUseCase>(LoginUseCase());
@@ -271,5 +281,15 @@ void setupServiceLocator() {
   );
   sl.registerSingleton<DeleteAttachmentsUseCase>(
     DeleteAttachmentsUseCase(authRepository: sl()),
+  );
+
+  sl.registerSingleton<GetRecordsStatisticsUseCase>(
+    GetRecordsStatisticsUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<GetRecordsStatisticsByDiagnosisUseCase>(
+    GetRecordsStatisticsByDiagnosisUseCase(authRepository: sl()),
+  );
+  sl.registerSingleton<GetRecordsStatisticsByDoctorUseCase>(
+    GetRecordsStatisticsByDoctorUseCase(authRepository: sl()),
   );
 }

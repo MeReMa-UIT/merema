@@ -100,11 +100,9 @@ class _RecordUpdateDialogState extends State<RecordUpdateDialog> {
               value[i] as Map<String, dynamic>, '$fullKey[$i]');
         }
       } else {
-        // Initialize controller with the existing value
         final existingValue = value?.toString() ?? '';
         final controller = TextEditingController(text: existingValue);
 
-        // Add listener only for non-diagnosis fields to avoid overwriting Diagnosis objects
         if (!_isDiagnosisField(fullKey)) {
           controller.addListener(() {
             _formData[fullKey] = controller.text;
@@ -113,11 +111,9 @@ class _RecordUpdateDialogState extends State<RecordUpdateDialog> {
 
         _controllers[fullKey] = controller;
 
-        // For diagnosis fields, try to find the Diagnosis object by ICD code
         if (_isDiagnosisField(fullKey) && existingValue.isNotEmpty) {
-          // We'll set this after diagnoses are loaded
           _formData[fullKey] =
-              existingValue; // Store original value temporarily
+              existingValue;
         } else {
           _formData[fullKey] = existingValue;
         }
@@ -170,7 +166,6 @@ class _RecordUpdateDialogState extends State<RecordUpdateDialog> {
                 _diagnoses = diagnoses;
                 _isLoadingDiagnoses = false;
               });
-              // After diagnoses are loaded, convert existing ICD codes to Diagnosis objects
               _convertExistingDiagnosisFields();
             }
           },
@@ -187,17 +182,14 @@ class _RecordUpdateDialogState extends State<RecordUpdateDialog> {
   }
 
   void _convertExistingDiagnosisFields() {
-    // Convert existing ICD codes to Diagnosis objects
     _formData.forEach((key, value) {
       if (_isDiagnosisField(key) && value is String && value.isNotEmpty) {
-        // Try to find the diagnosis by ICD code or name
         final diagnosis = _diagnoses
             .where((d) => d.icdCode == value || d.name == value)
             .firstOrNull;
 
         if (diagnosis != null) {
           _formData[key] = diagnosis;
-          // Update the controller text to show the diagnosis name
           _controllers[key]?.text = diagnosis.name;
         }
       }
@@ -478,13 +470,11 @@ class _RecordUpdateDialogState extends State<RecordUpdateDialog> {
 
     if (controller == null) return const SizedBox.shrink();
 
-    // Check if this field should be pre-filled with patient info and made read-only
     String? patientValue =
         _getPatientInfoValueForAdministrativeField(fullKey, displayKey) ??
             _getPatientInfoValueForInsuranceField(fullKey, displayKey);
 
     if (patientValue != null) {
-      // If controller doesn't have the patient value, update it
       if (controller.text != patientValue) {
         controller.text = patientValue;
         _formData[fullKey] = patientValue;
@@ -590,11 +580,9 @@ class _RecordUpdateDialogState extends State<RecordUpdateDialog> {
     if (controller == null) return const SizedBox.shrink();
 
     Diagnosis? selectedDiagnosis;
-    // Check if we have a Diagnosis object stored in form data
     if (_formData[fullKey] is Diagnosis) {
       selectedDiagnosis = _formData[fullKey] as Diagnosis;
     } else if (controller.text.isNotEmpty) {
-      // Try to find diagnosis by name or ICD code from the current value
       selectedDiagnosis = _diagnoses
           .where(
               (d) => d.name == controller.text || d.icdCode == controller.text)
@@ -612,9 +600,7 @@ class _RecordUpdateDialogState extends State<RecordUpdateDialog> {
           onChanged: (diagnosis) {
             if (diagnosis != null) {
               setState(() {
-                // Store the Diagnosis object in form data like create dialog
                 _formData[fullKey] = diagnosis;
-                // Update controller text with diagnosis name for display
                 controller.text = diagnosis.name;
               });
             }
@@ -709,13 +695,11 @@ class _RecordUpdateDialogState extends State<RecordUpdateDialog> {
         continue;
       }
 
-      // Handle diagnosis fields first - use ICD code like in create dialog
       if (_isDiagnosisField(fullKey)) {
         if (_formData[fullKey] is Diagnosis) {
           final diagnosis = _formData[fullKey] as Diagnosis;
           map[key] = diagnosis.icdCode;
         }
-        // Skip controller handling for diagnosis fields to avoid sending name
         continue;
       }
 

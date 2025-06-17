@@ -296,7 +296,6 @@ class AttachmentsListWidget extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('File not found'),
-              backgroundColor: AppPallete.errorColor,
             ),
           );
         }
@@ -323,7 +322,6 @@ class AttachmentsListWidget extends StatelessWidget {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Cannot open file: ${result.message}'),
-                backgroundColor: AppPallete.errorColor,
               ),
             );
           }
@@ -334,7 +332,6 @@ class AttachmentsListWidget extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error opening file: $e'),
-            backgroundColor: AppPallete.errorColor,
           ),
         );
       }
@@ -414,7 +411,6 @@ class AttachmentsListWidget extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Folder not found'),
-              backgroundColor: AppPallete.errorColor,
             ),
           );
         }
